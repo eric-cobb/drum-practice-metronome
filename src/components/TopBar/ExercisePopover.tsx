@@ -60,15 +60,22 @@ interface TileProps {
   defaultBpm: number;
   isCurrent: boolean;
   onClick: () => void;
+  /** 'fluid' (default) fills its grid cell as a square — used by the
+   *  sectioned grid where 4/8 columns × 480px popover can't fit 64px tiles
+   *  without overflow. 'fixed' locks to 64×64 — used by the Recents flex row,
+   *  which has no grid cell to fill and benefits from a consistent size. */
+  variant?: 'fluid' | 'fixed';
 }
 
-/** 64×64 numbered tile with completion-state visual treatment (DESIGN §Tile design). */
+/** Numbered tile with completion-state visual treatment (DESIGN §Tile design).
+ *  Square shape via `aspect-square`; sizing depends on context (see `variant`). */
 function Tile({
   exercise,
   progress,
   defaultBpm,
   isCurrent,
   onClick,
+  variant = 'fluid',
 }: TileProps) {
   const attempted = progress !== null && progress.totalSessions > 0;
   const completed = progress?.completed ?? false;
@@ -91,7 +98,7 @@ function Tile({
       title={labelTitle}
       aria-label={labelTitle}
       aria-current={isCurrent ? 'true' : undefined}
-      className={`relative flex h-16 w-16 flex-col items-center justify-center rounded-lg border bg-transparent text-neutral-900 transition-all hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-neutral-50 dark:hover:bg-neutral-800 ${stateClass}`}
+      className={`relative flex ${variant === 'fixed' ? 'h-16 w-16' : 'aspect-square w-full'} flex-col items-center justify-center rounded-lg border bg-transparent text-neutral-900 transition-all hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-neutral-50 dark:hover:bg-neutral-800 ${stateClass}`}
     >
       <span className="text-base font-semibold tabular-nums leading-none">
         {exercise.number}
@@ -506,6 +513,7 @@ export function ExercisePopoverBody({ close }: { close: () => void }) {
                 defaultBpm={loadedSet.defaultBpm}
                 isCurrent={ex.id === currentExerciseId}
                 onClick={() => pickExercise(ex.id)}
+                variant="fixed"
               />
             ))}
           </div>
