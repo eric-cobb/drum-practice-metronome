@@ -295,7 +295,11 @@ function SetPicker({
         </span>
       </button>
       {open && (
-        <div className="absolute left-0 right-0 top-full z-10 mt-1 flex flex-col gap-2 rounded-md border border-neutral-200 bg-white p-2 shadow-lg shadow-neutral-200/50 dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-neutral-950/50">
+        // z-30 so the dropdown reliably floats above the Recents row and the
+        // section grid below it: the current-exercise Tile is at z-10 for
+        // its scale-up emphasis, and later-DOM siblings would otherwise win
+        // the tie at the same z-index.
+        <div className="absolute left-0 right-0 top-full z-30 mt-1 flex flex-col gap-2 rounded-md border border-neutral-200 bg-white p-2 shadow-lg shadow-neutral-200/50 dark:border-neutral-800 dark:bg-neutral-900 dark:shadow-neutral-950/50">
           {bundled.length > 0 && (
             <div className="flex flex-col gap-0.5">
               <div className="px-2 pb-0.5 text-[10px] font-medium uppercase tracking-wide text-neutral-500">
