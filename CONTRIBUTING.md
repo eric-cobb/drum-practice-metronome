@@ -5,8 +5,8 @@ Thanks for your interest in contributing. This document covers how to work with 
 ## Getting Set Up
 
 ```bash
-git clone https://github.com/eric-cobb/practice-metronome.git
-cd practice-metronome
+git clone https://github.com/eric-cobb/drum-practice-metronome.git
+cd drum-practice-metronome
 npm install
 npm run dev
 ```
