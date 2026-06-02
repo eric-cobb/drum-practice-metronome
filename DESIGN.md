@@ -649,10 +649,10 @@ The three layers:
 2. **Notehead color + glow (focal layer)** — The active notehead itself shifts color and gains an outer glow:
    - Notehead `fill`: accent color (`fill-sky-500` light, `fill-sky-400` dark)
    - Stem `stroke`: same accent color
-   - SVG `filter` on the notehead group: `drop-shadow(0 0 4px <accent>) drop-shadow(0 0 8px <accent-lighter>)` — a two-layer drop shadow that creates a soft outer bloom around the notehead
-   - Sticking label below the staff also brightens to the accent color
+   - SVG `filter`: `drop-shadow(0 0 4px <accent>) drop-shadow(0 0 8px <accent-lighter>)` — a two-layer drop shadow that creates a soft outer bloom around the notehead and stem. Applied to the notehead glyph and stem elements specifically, **not** the parent note group; a filter on the whole group rasterizes everything together and smudges the sticking text below
+   - Sticking label below the staff also brightens to the accent color (color only — no glow)
 
-3. **Scale (motion layer)** — The active notehead group scales up by ~20% (`transform: scale(1.2)`) with `transform-origin` set to the notehead's center and `transform-box: fill-box` so the scale pivots around the notehead, not the SVG origin. This produces a brief but perceptible "pop" of motion as the highlight moves from note to note, which catches peripheral vision the way a static color change cannot.
+3. **Scale (motion layer)** — The active notehead and stem scale up by ~20% (`transform: scale(1.2)`) with `transform-box: fill-box` so each pivots around its own bbox center rather than the SVG origin. **The sticking label below the staff is intentionally excluded from the scale**: scaling the R/L characters on every beat makes them jitter and harder to read, and the motion-detection goal is satisfied by the note glyph alone. The exclusion is achieved by applying the transform to the notehead glyph and stem elements rather than the whole note group. This produces a brief but perceptible "pop" of motion as the highlight moves from note to note, which catches peripheral vision the way a static color change cannot.
 
 **Transition timing:**
 

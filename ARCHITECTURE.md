@@ -321,18 +321,29 @@ function setActiveNote(barIndex: number, noteIndex: number, prev?: { barIndex: n
   fill: theme('colors.sky.400');           /* dark mode */
 }
 
-.note-active .vf-notehead,
-.note-active .vf-stem {
+/* Color: tint the whole note group (notehead glyph, stem, and the sticking
+   text inside .vf-annotation) to the accent. Cheap; no filter cost. */
+.note-active,
+.note-active :is(path, text) {
   fill: theme('colors.sky.500');
   stroke: theme('colors.sky.500');
 }
-.dark .note-active .vf-notehead,
-.dark .note-active .vf-stem {
+.dark .note-active,
+.dark .note-active :is(path, text) {
   fill: theme('colors.sky.400');
   stroke: theme('colors.sky.400');
 }
 
-.note-active {
+/* Layer 2 (glow) + Layer 3 (scale) — applied to the notehead glyph + stem
+   ONLY, not the whole .note-active <g>. VexFlow nests the sticking
+   annotation inside .vf-notehead (at .vf-notehead > .vf-annotation > text),
+   so we use the direct-child combinator on .vf-notehead to grab the
+   notehead glyph while leaving the annotation alone. Filter or scale on
+   the parent <g> would (a) rasterize the sticking text through the
+   drop-shadow and smudge it, and (b) make the R/L characters jitter on
+   every beat. Both are visible defects; the scoped selector avoids them. */
+.note-active .vf-notehead > text,
+.note-active .vf-stem {
   filter: drop-shadow(0 0 4px theme('colors.sky.500'))
           drop-shadow(0 0 8px theme('colors.sky.400'));
   transform: scale(1.2);
@@ -340,13 +351,9 @@ function setActiveNote(barIndex: number, noteIndex: number, prev?: { barIndex: n
   transform-origin: center;
   transition: transform 60ms ease-out;
 }
-
-.note-active .sticking-label {
-  fill: theme('colors.sky.400');
-}
 ```
 
-The `transform-box: fill-box` is critical — it makes the `transform-origin: center` pivot around the notehead's center rather than the SVG canvas origin. Without it, the scale transform shifts the note's position.
+The `transform-box: fill-box` is critical — it makes `transform-origin: center` pivot around each scaled element's own bbox center rather than the SVG canvas origin. Without it, the scale transform shifts the note's position.
 
 **Reduced motion:**
 
@@ -354,7 +361,8 @@ When `prefers-reduced-motion: reduce` is set, drop the scale transform and the t
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  .note-active {
+  .note-active .vf-notehead > text,
+  .note-active .vf-stem {
     transform: none;
   }
   .highlight-band {

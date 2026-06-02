@@ -56,26 +56,36 @@ body,
   transition: opacity 60ms ease-out;
 }
 
-/* Layer 2 — color + glow on the active note `<g>`. Color also brightens the
-   sticking label (the text child); the glow is applied only to the drawing
-   primitives (notehead path, stem line/rect) so the bloom haloes the note
-   ink alone — the sticking label brightens in color but stays crisp. (A
-   filter set on the parent `<g>` would rasterize all descendants including
-   the text, which made the R/L labels look smudged.) */
+/* Layer 2 — color + glow on the note glyph (notehead + stem) only. The
+   sticking annotation inside the note group brightens via the color rule
+   below, but does NOT receive the filter or the scale below: scoping the
+   filter to specific children keeps the R/L text crisp (a filter on the
+   parent <g> rasterizes everything together and smudges the text).
+
+   VexFlow renders the notehead as a Bravura <text> glyph nested inside a
+   <g class="vf-notehead">, and the annotation lives at .vf-notehead >
+   .vf-annotation > text. Using the direct-child combinator on .vf-notehead
+   targets the notehead glyph while leaving the annotation alone. The stem
+   is its own .vf-stem subgroup with a <path> inside. */
 .notation-svg .note-active,
 .notation-svg .note-active :is(path, text) {
   fill: var(--notation-active) !important;
   stroke: var(--notation-active) !important;
 }
-.notation-svg .note-active :is(path, line, rect) {
+.notation-svg .note-active .vf-notehead > text,
+.notation-svg .note-active .vf-stem {
   filter: drop-shadow(0 0 4px var(--notation-active))
     drop-shadow(0 0 8px var(--notation-active-soft));
 }
 
-/* Layer 3 — scale pop. `transform-box: fill-box` is critical so the scale
-   pivots around the note's own bbox center instead of the SVG canvas origin —
-   without it the note would shift on activation (ARCHITECTURE). */
-.notation-svg .note-active {
+/* Layer 3 — scale pop on the notehead glyph + stem only. The sticking label
+   below the staff is intentionally excluded so the R/L characters stay at
+   their natural size on every beat (otherwise they jitter and lose
+   readability). `transform-box: fill-box` pivots each element around its own
+   bbox center rather than the SVG canvas origin — without it the note would
+   shift on activation. (ARCHITECTURE §Current-note highlighting.) */
+.notation-svg .note-active .vf-notehead > text,
+.notation-svg .note-active .vf-stem {
   transform: scale(1.2);
   transform-box: fill-box;
   transform-origin: center;
@@ -85,7 +95,8 @@ body,
 /* Reduced motion: keep the focal (color + glow) and peripheral (band) layers,
    drop the motion layer (DESIGN §Motion). */
 @media (prefers-reduced-motion: reduce) {
-  .notation-svg .note-active {
+  .notation-svg .note-active .vf-notehead > text,
+  .notation-svg .note-active .vf-stem {
     transform: none;
     transition: none;
   }
