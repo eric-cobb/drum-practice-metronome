@@ -42,8 +42,8 @@ No backend. No accounts. No analytics. All data is stored locally in your browse
 ## Running Locally
 
 ```bash
-git clone https://github.com/eric-cobb/drum-practice-metronome.git
-cd drum-practice-metronome
+git clone https://github.com/YOUR_USERNAME/practice-metronome.git
+cd practice-metronome
 npm install
 npm run dev
 ```
@@ -75,6 +75,15 @@ These documents are the source of truth for what the app does and how it's built
 The patterns in `src/data/exercises/` are either original work or public-domain rudimental vocabulary. Method-book content (e.g., the curated exercise sequence of *Stick Control for the Snare Drummer*) is copyrighted and is not included in the distribution — users who own the book are encouraged to transcribe their own copy via the in-app import flow.
 
 If you want to contribute additional bundled exercises, please make sure they are either your own original work or content you have explicit permission to distribute. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for details.
+
+## Privacy
+
+This app is designed to keep your practice data on your device. Specifically:
+
+- **All practice data stays in your browser.** Session history, exercise progress, imported exercise sets, and app settings are stored in your browser's local storage (IndexedDB and localStorage). None of this data is sent to any server, ever.
+- **No accounts, no logins, no tracking pixels.** There are no third-party trackers, no advertising scripts, no fingerprinting, no cookies set for tracking purposes.
+- **Anonymous usage analytics via Vercel Web Analytics.** The deployed version of the app uses Vercel's built-in analytics to count page views and see roughly where visitors come from (country, referring site, browser). This data is anonymous — no personal identifiers, no cookies, nothing that could identify an individual user. It exists so I can tell whether the app is being used and where the audience is, which is useful for deciding what to build next. You can verify this in Vercel's documentation. If you run the app locally via `npm run dev`, no analytics are collected at all.
+- **Your imported exercise sets are yours alone.** Method-book transcriptions you import via the in-app file picker live only in your browser. They are never uploaded, never shared, never visible to me or anyone else. If you want to share a transcription with a friend who also owns the book, use the in-app export feature — you control where the JSON goes.
 
 ## License
 

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { TopBar } from './components/Shell/TopBar';
 import { Canvas } from './components/Shell/Canvas';
 import { Transport } from './components/Shell/Transport';
@@ -73,6 +74,12 @@ export default function App() {
 
       {activeSheet === 'settings' && <SettingsSheet onClose={closeSheet} />}
       {activeSheet === 'history' && <HistorySheet onClose={closeSheet} />}
+
+      {/* Anonymous page-view analytics on production deploys only. Mounted at
+       *  the root so it doesn't remount on mode/sheet changes; renders nothing
+       *  visible. Disabled automatically in dev (per @vercel/analytics docs).
+       *  See README §Privacy. */}
+      <Analytics />
     </div>
   );
 }
