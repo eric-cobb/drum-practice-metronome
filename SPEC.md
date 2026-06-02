@@ -621,3 +621,81 @@ Sessions log `exerciseSchemaVersion` so future analysis tools know how to interp
 - Audible pattern playback (drum sound synthesis)
 
 These can be added in later phases without breaking the v2 schema.
+
+## 13. Guided Tour (Phase 9)
+
+The app's UI is intentionally minimal — controls are hidden behind popovers and pills rather than spelled out on the canvas. This is great for daily use but works against discoverability for new users. The guided tour provides on-demand education about the configuration affordances and what they do, in the user's actual context.
+
+### Mechanism
+
+Use `react-joyride` for spotlight/coachmark-style tours. Each tour is a sequence of steps; each step highlights a specific UI element with a dim overlay and a small callout panel explaining what it does and how to use it. Users advance with a "Next" button or skip with "Skip tour" at any point.
+
+### Two tours
+
+The app provides two separate tours, since Free mode and Exercise mode have substantially different UIs:
+
+**Free mode tour** (~6-8 steps): the central play/stop button, BPM (clickable to open the BPM Popover), the rep counter (configurable when stopped), the control strip pills (time signature, subdivision, dropout, ramp), the mode toggle, and the top bar icons (history, settings).
+
+**Exercise mode tour** (~5-7 steps): the exercise context text in the top bar (clickable to open the Exercise Popover), the notation canvas (with active-note highlight explanation), the BPM and rep counter (configurable), the play button with count-in behavior, and the mode toggle. Includes a sub-tour that runs when the Exercise Popover opens for the first time, covering the set selector, search, recents, sectioned grid, and bottom controls (~4-5 more steps).
+
+Tour content is stored as JSON step configurations in `src/data/tours/free.json` and `src/data/tours/practice.json` so it can be edited without recompiling. Step content includes a `target` selector, a `title`, a `body` (markdown supported), and optional `placement` overrides.
+
+### Trigger conditions
+
+The tour can start in three ways:
+
+1. **First-ever app open.** A welcome dialog appears with three buttons: "Start with Free mode tour," "Start with Practice mode tour," or "Skip — I'll explore on my own." Triggered when `localStorage.tourSeen.free` and `localStorage.tourSeen.practice` are both absent.
+
+2. **First entry to a mode.** When the user switches to a mode they haven't seen the tour for, a small dismissable banner appears at the top: "First time here? Take a quick tour" with "Yes" and "No thanks" buttons. The banner appears only once per mode and is dismissed permanently on first interaction.
+
+3. **On-demand.** Settings → "Take the tour" with sub-options "Free mode tour" or "Exercise mode tour." Always available; ignores prior state.
+
+### State tracking
+
+```typescript
+// In localStorage under settings:
+type TourState = {
+  free: boolean;          // true once the user has completed or explicitly dismissed the Free tour
+  practice: boolean;      // same for Practice mode
+  skippedAt?: number;     // timestamp of last "Skip — I'll explore on my own" — suppresses
+                          //   first-entry banners for 7 days, after which they may reappear
+};
+```
+
+A user who completes a tour sets the corresponding flag to true. A user who explicitly clicks "Skip" on a tour also sets the flag to true (skipping equals "I've decided about this; don't re-prompt"). The on-demand entry point ignores these flags entirely.
+
+### Behavioral rules
+
+- **Always skippable.** Every step has a "Skip tour" affordance, not just the first one. Hitting Escape closes the tour at any step.
+- **Single tour at a time.** If a tour is active and the user manually clicks something that would advance to a different step's target, the tour adapts (skips ahead or pauses), it doesn't fight the user.
+- **Tour respects mode state.** Starting the Practice mode tour while in Free mode automatically switches to Practice mode first. Same in reverse.
+- **Tour respects play state.** Starting a tour while the metronome is playing stops playback first, so the user can read without rhythmic distraction.
+- **Tour does not appear on small screens during the tour itself.** If the user resizes the window mid-tour to a width below the responsive breakpoint, the tour gracefully ends rather than trying to re-anchor callouts.
+
+### Visual style
+
+The tour UI respects DESIGN.md tokens. Specifically:
+
+- Spotlight backdrop: black at 50% opacity (`bg-black/50`)
+- Callout panel: same surface, border, and shadow as the Settings sheet (rounded-xl, hairline border, neutral surface)
+- "Next" button: accent color (sky-500) primary button style
+- "Skip" button: neutral secondary button style
+- Typography matches the rest of the UI (system sans, regular weights)
+
+The tour should feel like a quiet part of the app, not a different product layered on top.
+
+### Content authoring
+
+The actual step copy (titles and bodies) is authored in Phase 9, against the live app. Writing tour text in the abstract — without seeing how the UI feels in real use — tends to produce stilted, vague text. The tour is much more useful when the copy is written by someone who has been using the app for weeks and knows what genuinely needs explanation.
+
+Each step's body should be one or two short sentences. Long explanations defeat the purpose of a spotlight tour. If a step needs more than ~30 words, split it into multiple steps or link to a settings page where the user can explore at their own pace.
+
+### Out of scope for Phase 9
+
+- Inline contextual hints (small tooltips that appear once per element the first time it's encountered) — a separate, more granular pattern that can layer on top of the tour later if useful
+- Localized tour content (English only for v1)
+- Video or animation in tour steps (text + spotlight only)
+- Persisted tour analytics (which steps users skip at, completion rates) — would require server-side tracking, deferred indefinitely
+
+These can be added later without restructuring the tour itself.
+

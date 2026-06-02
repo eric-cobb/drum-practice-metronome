@@ -78,12 +78,8 @@ src/
       SessionLog.tsx
   data/
     exercises/
-      foundational-rudiments.json   # bundled, public-domain
-      # User-imported sets (e.g. personal transcriptions of Stick Control,
-      # Syncopation, Master Studies) are NOT placed here. They live in the
-      # Dexie `userSets` table at runtime and are imported via the Settings
-      # sheet. The bundled folder is loaded at build time via
-      # import.meta.glob; everything in it ships with the public app.
+      stick-control.json
+      # future: syncopation.json, master-studies.json, custom.json
   db/
     schema.ts           # Dexie schema
   types/
@@ -157,7 +153,7 @@ Build in this order. Don't start a phase until the previous one is complete and 
 6. **Phase 6**: Session log (auto-capture for both modes, list view, JSON export)
 7. **Phase 7**: Click dropout (Free mode primary use case)
 8. **Phase 8**: Tempo ramp (works in both modes)
-9. **Phase 9**: Polish (tap tempo, pre-roll countdown, keyboard shortcuts)
+9. **Phase 9**: Polish (tap tempo, pre-roll countdown, keyboard shortcuts, guided tour for Free and Practice modes per SPEC §13)
 10. **Phase 10**: Multi-voice schema and renderer (v2 schema in SPEC §12). Expand `PatternEvent` to support multiple drum voices, accents, ghost notes, ornaments. Expand notation rendering to a 5-line drum staff with voice-specific noteheads and stem directions. Add accent-based click volume modulation. Migration function for v1→v2 at load time. JSON authored by hand in this phase.
 11. **Phase 11**: In-app pattern editor (visual sticking/voice grid, live VexFlow preview, save to IndexedDB user-data overlay store)
 
