@@ -1,0 +1,167 @@
+@import 'tailwindcss';
+
+/* Class-based dark mode so the theme store can force light/dark/auto by toggling
+   `.dark` on <html> (DESIGN §Color). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* System sans for the whole app — no web fonts, no monospace (DESIGN §Typography).
+   Tabular numerals are applied per-element via Tailwind's `tabular-nums`. */
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui,
+    sans-serif;
+}
+
+/* Full-height shell so the three zones fill the viewport without page scroll. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Notation ink follows the theme via CSS variables, so the VexFlow SVG recolors
+   instantly on theme change without a re-render (DESIGN §Notation canvas).
+   Light: neutral-800 ink / sky-500 active. Dark: neutral-200 / sky-400. The
+   `--notation-active-soft` is the lighter sky used as the second drop-shadow
+   layer for the active-note bloom. */
+:root {
+  --notation-ink: #262626;
+  --notation-active: #0ea5e9;
+  --notation-active-soft: #38bdf8;
+}
+.dark {
+  --notation-ink: #e5e5e5;
+  --notation-active: #38bdf8;
+  --notation-active-soft: #7dd3fc;
+}
+
+.notation-svg :is(path, text, rect) {
+  fill: var(--notation-ink);
+}
+.notation-svg :is(path, line, rect) {
+  stroke: var(--notation-ink);
+}
+
+/* Active-note highlight — three layers (DESIGN/ARCHITECTURE §Active note highlight):
+   1) the band rect (peripheral), opacity-toggled by the Notation component;
+   2) the notehead color + outer glow (focal); 3) a brief scale "pop" (motion). */
+
+/* Layer 1 — band. Rendered behind the notes by renderNotation.ts. The renderer
+   sets opacity=0 by default; the highlighter flips it to 1 on the active beat.
+   The band is the only rect we want to NOT inherit the staff ink stroke. */
+.notation-svg .band-layer .highlight-band {
+  fill: var(--notation-active);
+  fill-opacity: 0.25;
+  stroke: none;
+  transition: opacity 60ms ease-out;
+}
+
+/* Layer 2 — color + glow on the active note `<g>`. Color also brightens the
+   sticking label (the text child); the glow is applied only to the drawing
+   primitives (notehead path, stem line/rect) so the bloom haloes the note
+   ink alone — the sticking label brightens in color but stays crisp. (A
+   filter set on the parent `<g>` would rasterize all descendants including
+   the text, which made the R/L labels look smudged.) */
+.notation-svg .note-active,
+.notation-svg .note-active :is(path, text) {
+  fill: var(--notation-active) !important;
+  stroke: var(--notation-active) !important;
+}
+.notation-svg .note-active :is(path, line, rect) {
+  filter: drop-shadow(0 0 4px var(--notation-active))
+    drop-shadow(0 0 8px var(--notation-active-soft));
+}
+
+/* Layer 3 — scale pop. `transform-box: fill-box` is critical so the scale
+   pivots around the note's own bbox center instead of the SVG canvas origin —
+   without it the note would shift on activation (ARCHITECTURE). */
+.notation-svg .note-active {
+  transform: scale(1.2);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 60ms ease-out;
+}
+
+/* Reduced motion: keep the focal (color + glow) and peripheral (band) layers,
+   drop the motion layer (DESIGN §Motion). */
+@media (prefers-reduced-motion: reduce) {
+  .notation-svg .note-active {
+    transform: none;
+    transition: none;
+  }
+  .notation-svg .band-layer .highlight-band {
+    transition: none;
+  }
+}
+
+/* Popover entrance: 150ms fade + 4px slide-up (DESIGN §Motion). */
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.popover-in {
+  animation: popover-in 150ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .popover-in {
+    animation: none;
+  }
+}
+
+/* Primary (play/stop) button treatment — the only gradient + bloom element in
+   the app (DESIGN §Buttons → Primary button treatment). State classes:
+   `.is-playing` adds the outer bloom; `.is-accented` shifts the gradient sky →
+   cyan with an intensified bloom; `.is-beat-bloom` is the reduced-motion
+   regular-beat brightness bump. The 200ms transition gives accented beats their
+   "ringing" decay back to sky. The same gradient reads well on both light and
+   dark backgrounds, so it isn't swapped per theme. */
+.play-button {
+  background: radial-gradient(
+    circle at 32% 28%,
+    #7dd3fc 0%,
+    #38bdf8 40%,
+    #0ea5e9 75%,
+    #0284c7 100%
+  );
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.18),
+    inset 0 -8px 18px rgba(3, 105, 161, 0.4),
+    0 6px 18px rgba(0, 0, 0, 0.32);
+  transition:
+    background 200ms ease-out,
+    box-shadow 200ms ease-out;
+}
+.play-button.is-playing {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.18),
+    inset 0 -8px 18px rgba(3, 105, 161, 0.4),
+    0 0 32px rgba(14, 165, 233, 0.32),
+    0 6px 18px rgba(0, 0, 0, 0.32);
+}
+.play-button.is-beat-bloom {
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.18),
+    inset 0 -8px 18px rgba(3, 105, 161, 0.4),
+    0 0 44px rgba(14, 165, 233, 0.5),
+    0 6px 18px rgba(0, 0, 0, 0.32);
+}
+.play-button.is-accented {
+  background: radial-gradient(
+    circle at 32% 28%,
+    #a5f3fc 0%,
+    #67e8f9 35%,
+    #22d3ee 75%,
+    #0891b2 100%
+  );
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.35),
+    inset 0 -8px 20px rgba(8, 145, 178, 0.45),
+    0 0 56px rgba(34, 211, 238, 0.65),
+    0 6px 20px rgba(0, 0, 0, 0.35);
+}

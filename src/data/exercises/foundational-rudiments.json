@@ -1,0 +1,182 @@
+{
+  "id": "foundational-rudiments",
+  "title": "Foundational Rudiments",
+  "source": "Public-domain rudimental patterns. The patterns themselves are universal drum vocabulary and not subject to copyright. Use these as a warm-up set, or import a transcription of your own method book via Settings → Exercise sets.",
+  "defaultBpm": 60,
+  "defaultTargetReps": 20,
+  "schemaVersion": 1,
+  "sections": [
+    {
+      "id": "single-stroke-family",
+      "title": "Single Stroke Family",
+      "order": 1,
+      "description": "Foundational single-stroke patterns. Every drummer's first vocabulary."
+    },
+    {
+      "id": "double-stroke-family",
+      "title": "Double Stroke Family",
+      "order": 2,
+      "description": "Patterns built on consecutive same-hand strokes. Develops rebound control."
+    },
+    {
+      "id": "paradiddle-family",
+      "title": "Paradiddle Family",
+      "order": 3,
+      "description": "The four primary paradiddle variations — single, double, reverse, and inverted."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "fr-01",
+      "number": 1,
+      "name": "Single Strokes (R)",
+      "sectionId": "single-stroke-family",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "subdivision": "8th",
+      "notes": "Alternating single strokes, starting on the right hand. Foundation for everything."
+    },
+    {
+      "id": "fr-02",
+      "number": 2,
+      "name": "Single Strokes (L)",
+      "sectionId": "single-stroke-family",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "subdivision": "8th",
+      "notes": "Alternating single strokes, starting on the left hand. Develops weak-hand lead."
+    },
+    {
+      "id": "fr-03",
+      "number": 3,
+      "name": "Double Strokes (R)",
+      "sectionId": "double-stroke-family",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "subdivision": "8th",
+      "notes": "Double strokes alternating, starting on the right. Focus on even rebound between the two strokes of each pair."
+    },
+    {
+      "id": "fr-04",
+      "number": 4,
+      "name": "Double Strokes (L)",
+      "sectionId": "double-stroke-family",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "subdivision": "8th",
+      "notes": "Double strokes starting on the left. Concentrate on matching the rebound of the right hand."
+    },
+    {
+      "id": "fr-05",
+      "number": 5,
+      "name": "Single Paradiddle (R)",
+      "sectionId": "paradiddle-family",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "subdivision": "8th",
+      "notes": "Standard single paradiddle, right-leading. Two singles followed by a double, alternating hands each grouping."
+    },
+    {
+      "id": "fr-06",
+      "number": 6,
+      "name": "Single Paradiddle (L)",
+      "sectionId": "paradiddle-family",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "subdivision": "8th",
+      "notes": "Single paradiddle starting on the left hand."
+    },
+    {
+      "id": "fr-07",
+      "number": 7,
+      "name": "Reverse Paradiddle (R)",
+      "sectionId": "paradiddle-family",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "subdivision": "8th",
+      "notes": "Reverse (or inward) paradiddle. The double sits in the middle of each half-bar instead of at the end."
+    },
+    {
+      "id": "fr-08",
+      "number": 8,
+      "name": "Inverted Paradiddle (R)",
+      "sectionId": "paradiddle-family",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "subdivision": "8th",
+      "notes": "Inverted paradiddle. The double leads each half-bar (RR... LL...), shifting the rhythmic emphasis to the start."
+    }
+  ]
+}
