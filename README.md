@@ -42,7 +42,7 @@ No backend. No accounts. No analytics. All data is stored locally in your browse
 ## Running Locally
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/practice-metronome.git
+git clone https://github.com/eric-cobb/practice-metronome.git
 cd practice-metronome
 npm install
 npm run dev

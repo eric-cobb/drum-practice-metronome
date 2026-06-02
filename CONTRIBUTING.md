@@ -5,7 +5,7 @@ Thanks for your interest in contributing. This document covers how to work with 
 ## Getting Set Up
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/practice-metronome.git
+git clone https://github.com/eric-cobb/practice-metronome.git
 cd practice-metronome
 npm install
 npm run dev
