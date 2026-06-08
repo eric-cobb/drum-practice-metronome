@@ -90,6 +90,9 @@
   --sidebar-bg: #ffffff;
   --sidebar-border: rgba(0, 0, 0, 0.08);
   --nav-active: #7c3aed;
+
+  /* Exercise-selector pointer arrow fill = top of the elevated surface (light). */
+  --popover-arrow-bg: #ffffff;
 }
 
 .dark {
@@ -120,6 +123,8 @@
   --sidebar-bg: #0a0b11;
   --sidebar-border: #1a1b26;
   --nav-active: #c4b5fd;
+
+  --popover-arrow-bg: #22232f;
 }
 
 /* Page canvas. Applied by the Stage 2 app shell; used now by the preview
@@ -416,6 +421,39 @@ body,
 }
 @media (prefers-reduced-motion: reduce) {
   .popover-in {
+    animation: none;
+  }
+}
+
+/* Backdrop fade for modal overlays (DESIGN-v2 §7). */
+@keyframes backdrop-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.backdrop-fade {
+  animation: backdrop-fade 150ms ease-out;
+}
+
+/* Mobile bottom-sheet slide-up (DESIGN-v2 §5: the selector becomes a sheet
+   below the breakpoint). */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.sheet-up {
+  animation: sheet-up 200ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-fade,
+  .sheet-up {
     animation: none;
   }
 }

@@ -1,6 +1,6 @@
 import { useModeStore } from '../../state/mode';
 import { ModeToggle } from '../Practice/ModeToggle';
-import { CurrentExercisePill } from '../Practice/CurrentExercisePill';
+import { ExerciseSelector } from '../Practice/selector/ExerciseSelector';
 import { FreeMode } from '../Practice/FreeMode';
 import { ExerciseMode } from '../Practice/ExerciseMode';
 
@@ -15,7 +15,7 @@ export function PracticeView() {
     <div className="flex h-full flex-col">
       <header className="flex h-12 shrink-0 items-center justify-between gap-3 px-6">
         <ModeToggle />
-        {mode === 'exercise' && <CurrentExercisePill />}
+        {mode === 'exercise' && <ExerciseSelector />}
       </header>
       <div className="min-h-0 flex-1 overflow-auto">
         {mode === 'exercise' ? <ExerciseMode /> : <FreeMode />}
