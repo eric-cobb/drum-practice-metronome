@@ -48,7 +48,7 @@ npm install
 npm run dev
 ```
 
-The dev server runs on `localhost:5173` by default.
+The dev server runs on `localhost:5174` by default.
 
 ## Building for Production
 

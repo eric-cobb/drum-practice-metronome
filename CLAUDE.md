@@ -39,7 +39,7 @@ When the user says "the app" they mean this React app. They will record audio se
 
 ```bash
 npm install         # install dependencies
-npm run dev         # start dev server on localhost:5173
+npm run dev         # start dev server on localhost:5174
 npm run build       # production build to dist/
 npm run preview     # preview production build
 npm run typecheck   # tsc --noEmit
