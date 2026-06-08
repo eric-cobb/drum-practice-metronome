@@ -11,4 +11,6 @@ export { PlayButton } from './PlayButton';
 export { Input } from './Input';
 export { Toggle } from './Toggle';
 export { Stat } from './Stat';
+export { Popover } from './Popover';
+export { Stepper } from './Stepper';
 export { cn } from './cn';

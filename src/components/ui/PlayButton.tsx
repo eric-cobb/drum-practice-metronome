@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import { Play, Pause } from 'lucide-react';
 import { cn } from './cn';
 
@@ -7,6 +8,11 @@ interface PlayButtonProps {
   /** Free mode is the larger composition; Exercise mode is smaller
    *  (DESIGN-v2 §6: 184px vs 152px diameter). */
   size?: 'free' | 'exercise';
+  /** Ref to the inner <button>, so callers can drive the beat-indicator pulse
+   *  (Practice) without the primitive owning store state. */
+  buttonRef?: Ref<HTMLButtonElement>;
+  /** Override the derived Start/Stop label (e.g. "Skip count-in"). */
+  ariaLabel?: string;
   className?: string;
 }
 
@@ -23,6 +29,8 @@ export function PlayButton({
   playing,
   onClick,
   size = 'free',
+  buttonRef,
+  ariaLabel,
   className,
 }: PlayButtonProps) {
   const d = DIAMETER[size];
@@ -37,9 +45,10 @@ export function PlayButton({
       {/* Atmospheric bloom — behind the face, never clickable. */}
       <span className="play-bloom-outer" aria-hidden />
       <button
+        ref={buttonRef}
         type="button"
         onClick={onClick}
-        aria-label={playing ? 'Stop' : 'Start'}
+        aria-label={ariaLabel ?? (playing ? 'Stop' : 'Start')}
         className={cn('play-button-v2 grid place-items-center', !playing && 'is-stopped')}
         style={{ width: d, height: d }}
       >

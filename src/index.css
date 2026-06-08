@@ -149,14 +149,20 @@
    sets border-radius; the highlight inherits the top corners. Per-surface
    highlight strength is set via --hl. Active/current states can raise --hl
    inline (DESIGN-v2 §3: 0.12–0.15).
+
+   These live in @layer components so Tailwind utilities still win over them —
+   critical for the popover panel, which is `.surface-popover` + `.absolute`:
+   without the layer, the recipe's `position: relative` would override the
+   `.absolute` utility and drop the panel back into normal flow.
    -------------------------------------------------------------------------- */
-.surface-card,
-.surface-elevated,
-.surface-deep,
-.surface-tile,
-.surface-popover {
-  position: relative;
-}
+@layer components {
+  .surface-card,
+  .surface-elevated,
+  .surface-deep,
+  .surface-tile,
+  .surface-popover {
+    position: relative;
+  }
 .surface-card::before,
 .surface-elevated::before,
 .surface-deep::before,
@@ -201,6 +207,7 @@
   box-shadow: var(--shadow-popover);
   --hl: var(--highlight-popover);
 }
+}
 
 /* --------------------------------------------------------------------------
    Play button (v2) — purple→cyan gradient with an atmospheric bloom. Distinct
@@ -219,6 +226,16 @@
 }
 .play-button-v2:hover {
   filter: brightness(1.1);
+}
+/* Beat-indicator brightness (SPEC §1). The pulse hook adds these transiently on
+   each beat while playing; the base filter transition eases them back. Accented
+   beats (downbeat by default) flash brighter than unaccented ones. Listed after
+   :hover so they win when both apply. */
+.play-button-v2.is-beat {
+  filter: brightness(1.12);
+}
+.play-button-v2.is-accent {
+  filter: brightness(1.28);
 }
 .play-button-v2:focus-visible {
   outline: 2px solid var(--color-accent-text);
@@ -301,14 +318,16 @@ body,
    `--notation-active-soft` is the lighter sky used as the second drop-shadow
    layer for the active-note bloom. */
 :root {
-  --notation-ink: #262626;
-  --notation-active: #0ea5e9;
-  --notation-active-soft: #38bdf8;
+  --notation-ink: #374151;
+  --notation-active: #8b5cf6;
+  --notation-active-soft: #a78bfa;
 }
 .dark {
-  --notation-ink: #e5e5e5;
-  --notation-active: #38bdf8;
-  --notation-active-soft: #7dd3fc;
+  /* Notation glyphs sit at the muted neutral per DESIGN-v2 §2; the active note
+     pops to the purple-cyan accent (DESIGN-v2 §7). */
+  --notation-ink: #9ca3af;
+  --notation-active: #8b5cf6;
+  --notation-active-soft: #a78bfa;
 }
 
 .notation-svg :is(path, text, rect) {
