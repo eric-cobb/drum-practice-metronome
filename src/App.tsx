@@ -1,33 +1,21 @@
 import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
-import { TopBar } from './components/Shell/TopBar';
-import { Canvas } from './components/Shell/Canvas';
-import { Transport } from './components/Shell/Transport';
-import { FreeView } from './components/Free/FreeView';
-import { SettingsSheet } from './components/Sheets/SettingsSheet';
-import { HistorySheet } from './components/Sheets/HistorySheet';
-import { useModeStore } from './state/mode';
+import { AppShell } from './components/AppShell/AppShell';
 import { useExerciseStore } from './state/exercises';
 import { useSessionStore } from './state/sessions';
 import { useProgressStore } from './state/progress';
 import { useMetronomeStore } from './state/metronome';
-import { useUiStore } from './state/ui';
+import { useModeStore } from './state/mode';
 import { initTransport } from './audio/transport';
 import { initSessionRecorder } from './audio/sessionRecorder';
 import { requestPersistentStorage } from './db/persistence';
 
-/** Practice shell (DESIGN §Layout). Both modes share the top bar and sheets;
- *  Exercise mode uses canvas + bottom transport, Free mode uses the central
- *  play-button composition with its own control strip. */
+/** App root (DESIGN-v2 §5). Runs one-time initialization, then renders the v2
+ *  app shell (persistent sidebar + four-view router). */
 export default function App() {
-  const mode = useModeStore((s) => s.mode);
   const initSets = useExerciseStore((s) => s.initSets);
   const loadSessions = useSessionStore((s) => s.load);
   const loadProgressForSet = useProgressStore((s) => s.loadSet);
-  const activeSheet = useUiStore((s) => s.activeSheet);
-  const closeSheet = useUiStore((s) => s.closeSheet);
-  const openHistory = useUiStore((s) => s.openHistory);
-  const openSettings = useUiStore((s) => s.openSettings);
 
   // Discover bundled + user-imported sets, load the session log and the active
   // set's progress cache, wire up auto-advance and session capture, and request
@@ -61,22 +49,11 @@ export default function App() {
   }, [initSets, loadSessions, loadProgressForSet]);
 
   return (
-    <div className="flex h-full flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-50">
-      <TopBar onOpenHistory={openHistory} onOpenSettings={openSettings} />
-      {mode === 'exercise' ? (
-        <>
-          <Canvas />
-          <Transport />
-        </>
-      ) : (
-        <FreeView />
-      )}
-
-      {activeSheet === 'settings' && <SettingsSheet onClose={closeSheet} />}
-      {activeSheet === 'history' && <HistorySheet onClose={closeSheet} />}
+    <div className="h-full text-fg">
+      <AppShell />
 
       {/* Anonymous page-view analytics on production deploys only. Mounted at
-       *  the root so it doesn't remount on mode/sheet changes; renders nothing
+       *  the root so it doesn't remount on view/sheet changes; renders nothing
        *  visible. Disabled automatically in dev (per @vercel/analytics docs).
        *  See README §Privacy. */}
       <Analytics />

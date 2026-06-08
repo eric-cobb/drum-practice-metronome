@@ -41,6 +41,9 @@
   --color-line: var(--border-subtle);
   --color-line-strong: var(--border-visible);
   --color-line-accent: var(--border-accent);
+  /* Active sidebar/bottom-nav destination text+icon. Deeper purple in light
+     mode (the light-purple accent-text would wash out on a light surface). */
+  --color-nav-active: var(--nav-active);
 }
 
 /* Light mode is the default cascade (`:root`); `.dark` overrides below. The
@@ -82,6 +85,11 @@
   --highlight: rgba(255, 255, 255, 0.8);
   --highlight-tile: rgba(255, 255, 255, 0.85);
   --highlight-popover: rgba(255, 255, 255, 0.9);
+
+  /* App shell nav (light) */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --nav-active: #7c3aed;
 }
 
 .dark {
@@ -107,6 +115,11 @@
   --highlight: rgba(255, 255, 255, 0.06);
   --highlight-tile: rgba(255, 255, 255, 0.08);
   --highlight-popover: rgba(255, 255, 255, 0.1);
+
+  /* App shell nav (dark) */
+  --sidebar-bg: #0a0b11;
+  --sidebar-border: #1a1b26;
+  --nav-active: #c4b5fd;
 }
 
 /* Page canvas. Applied by the Stage 2 app shell; used now by the preview
