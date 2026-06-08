@@ -16,6 +16,7 @@
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
     "dexie": "^4.4.2",
+    "lucide-react": "^1.17.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vexflow": "^5.0.0",

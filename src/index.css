@@ -4,6 +4,269 @@
    `.dark` on <html> (DESIGN §Color). */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ==========================================================================
+   Design v2 tokens (DESIGN-v2.md)
+   --------------------------------------------------------------------------
+   Strategy (agreed Stage 1): raw values, gradients, and shadows live as CSS
+   custom properties in :root (light) / .dark (dark) so they swap at runtime
+   under the theme store's `.dark` toggle. Theme-INVARIANT semantic colors
+   (accent, gold, danger) are exposed to Tailwind via plain `@theme` so we get
+   utilities (text-accent, bg-gold, …). Theme-AWARE semantic colors (text,
+   lines) are exposed via `@theme inline` so the generated utilities emit
+   `var(--…)` and therefore track light/dark. Gradients and shadows are NOT
+   colors, so they stay as vars consumed by the surface-* utility classes.
+
+   This whole block is additive: it introduces the v2 foundation without
+   altering any v1 surface. v1 visuals (the sky play button, the sky notation
+   highlight) are migrated when their views move in Stage 3.
+   ========================================================================== */
+
+/* Theme-invariant semantic colors → Tailwind utilities (text-accent, etc.). */
+@theme {
+  --color-accent: #8b5cf6;
+  --color-accent-cyan: #06b6d4;
+  --color-accent-text: #c4b5fd;
+  --color-gold: #fbbf24;
+  --color-danger: #a33d2d;
+  --color-danger-text: #e58a7a;
+}
+
+/* Theme-aware semantic colors. `inline` makes the utilities reference the var
+   so they recolor on `.dark` toggle (text-fg, border-line, …). */
+@theme inline {
+  --color-fg: var(--fg);
+  --color-fg-secondary: var(--fg-secondary);
+  --color-fg-tertiary: var(--fg-tertiary);
+  --color-fg-muted: var(--fg-muted);
+  --color-line: var(--border-subtle);
+  --color-line-strong: var(--border-visible);
+  --color-line-accent: var(--border-accent);
+}
+
+/* Light mode is the default cascade (`:root`); `.dark` overrides below. The
+   v2 spec is authored for dark, but the theme store adds/removes `.dark`, so
+   the no-class state must be light. */
+:root {
+  /* Canvas + surfaces (light) */
+  --canvas: radial-gradient(ellipse 65% 65% at 50% 40%, #fafafd 0%, #f0f1f8 100%);
+  --surface-card: linear-gradient(180deg, #ffffff 0%, #f8f8fb 100%);
+  --surface-elevated: linear-gradient(180deg, #ffffff 0%, #fafafc 100%);
+  --surface-tile: linear-gradient(180deg, #ffffff 0%, #f4f5fa 100%);
+  --surface-deep: linear-gradient(180deg, #ffffff 0%, #f2f3f9 100%);
+
+  /* Accent gradients are theme-invariant (read well on both backgrounds). */
+  --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+  --accent-gradient-soft: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.18) 0%,
+    rgba(6, 182, 212, 0.18) 100%
+  );
+
+  /* Text (light) */
+  --fg: #0f1018;
+  --fg-secondary: #374151;
+  --fg-tertiary: #6b7280;
+  --fg-muted: #9ca3af;
+
+  /* Lines / borders (light) */
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-visible: rgba(0, 0, 0, 0.1);
+  --border-accent: rgba(0, 0, 0, 0.14);
+
+  /* Shadows are deeper in light mode — more contrast available (DESIGN-v2 §3). */
+  --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-tile: 0 1.5px 3px rgba(0, 0, 0, 0.07), 0 6px 16px rgba(0, 0, 0, 0.05);
+  --shadow-popover: 0 6px 12px rgba(0, 0, 0, 0.12), 0 16px 48px rgba(0, 0, 0, 0.1);
+
+  /* Inner top-highlight strokes (light uses bright white per DESIGN-v2 §3). */
+  --highlight: rgba(255, 255, 255, 0.8);
+  --highlight-tile: rgba(255, 255, 255, 0.85);
+  --highlight-popover: rgba(255, 255, 255, 0.9);
+}
+
+.dark {
+  --canvas: radial-gradient(ellipse 65% 65% at 50% 40%, #15131f 0%, #08090f 100%);
+  --surface-card: linear-gradient(180deg, #1a1b26 0%, #10111a 100%);
+  --surface-elevated: linear-gradient(180deg, #22232f 0%, #15161f 100%);
+  --surface-tile: linear-gradient(180deg, #232432 0%, #171823 100%);
+  --surface-deep: linear-gradient(180deg, #1f2030 0%, #13141c 100%);
+
+  --fg: #ffffff;
+  --fg-secondary: #cbd5e1;
+  --fg-tertiary: #94a3b8;
+  --fg-muted: #6b7280;
+
+  --border-subtle: #1f2030;
+  --border-visible: #2d2e3d;
+  --border-accent: #374151;
+
+  --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-tile: 0 1.5px 3px rgba(0, 0, 0, 0.45), 0 6px 16px rgba(0, 0, 0, 0.3);
+  --shadow-popover: 0 6px 12px rgba(0, 0, 0, 0.6), 0 16px 48px rgba(0, 0, 0, 0.5);
+
+  --highlight: rgba(255, 255, 255, 0.06);
+  --highlight-tile: rgba(255, 255, 255, 0.08);
+  --highlight-popover: rgba(255, 255, 255, 0.1);
+}
+
+/* Page canvas. Applied by the Stage 2 app shell; used now by the preview
+   harness so primitives are verified on the real background. */
+.canvas-bg {
+  background: var(--canvas);
+}
+
+/* Accent-gradient helpers (the gradient isn't a Tailwind color utility). */
+.bg-accent-gradient {
+  background-image: var(--accent-gradient);
+}
+.bg-accent-gradient-soft {
+  background-image: var(--accent-gradient-soft);
+}
+.text-accent-gradient {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* --------------------------------------------------------------------------
+   Surface recipes — the v2 "depth" treatment in one place: a vertical surface
+   gradient, a hairline border, layered shadows, and a 1px inner top-highlight
+   (::before) that catches light on the top edge (DESIGN-v2 §3). The component
+   sets border-radius; the highlight inherits the top corners. Per-surface
+   highlight strength is set via --hl. Active/current states can raise --hl
+   inline (DESIGN-v2 §3: 0.12–0.15).
+   -------------------------------------------------------------------------- */
+.surface-card,
+.surface-elevated,
+.surface-deep,
+.surface-tile,
+.surface-popover {
+  position: relative;
+}
+.surface-card::before,
+.surface-elevated::before,
+.surface-deep::before,
+.surface-tile::before,
+.surface-popover::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: var(--hl, var(--highlight));
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  pointer-events: none;
+}
+.surface-card {
+  background: var(--surface-card);
+  border: 0.5px solid var(--border-visible);
+  box-shadow: var(--shadow-card);
+  --hl: var(--highlight);
+}
+.surface-elevated {
+  background: var(--surface-elevated);
+  border: 0.5px solid var(--border-visible);
+  box-shadow: var(--shadow-card);
+  --hl: var(--highlight);
+}
+.surface-deep {
+  background: var(--surface-deep);
+  border: 0.5px solid var(--border-visible);
+  box-shadow: var(--shadow-card);
+  --hl: var(--highlight);
+}
+.surface-tile {
+  background: var(--surface-tile);
+  border: 0.5px solid var(--border-accent);
+  box-shadow: var(--shadow-tile);
+  --hl: var(--highlight-tile);
+}
+.surface-popover {
+  background: var(--surface-elevated);
+  border: 0.5px solid var(--border-visible);
+  box-shadow: var(--shadow-popover);
+  --hl: var(--highlight-popover);
+}
+
+/* --------------------------------------------------------------------------
+   Play button (v2) — purple→cyan gradient with an atmospheric bloom. Distinct
+   class from the v1 `.play-button` (left intact below until Stage 3 migrates
+   the Practice view). Construction per DESIGN-v2 §3 "Play button bloom":
+   the bloom and inner glow are separate non-interactive layers behind/over the
+   face; only the face itself is the click target.
+   -------------------------------------------------------------------------- */
+.play-button-v2 {
+  background: var(--accent-gradient);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
+  position: relative;
+  transition: filter 120ms ease-out;
+}
+.play-button-v2:hover {
+  filter: brightness(1.1);
+}
+.play-button-v2:focus-visible {
+  outline: 2px solid var(--color-accent-text);
+  outline-offset: 3px;
+}
+/* Inner ring, offset toward the top edge to suggest top lighting. */
+.play-button-v2::after {
+  content: '';
+  position: absolute;
+  inset: 1.5px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(255, 255, 255, 0.25);
+  border-bottom-color: transparent;
+  pointer-events: none;
+}
+.play-bloom-outer {
+  position: absolute;
+  inset: -60%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.5) 0%,
+    rgba(124, 58, 237, 0.22) 40%,
+    rgba(124, 58, 237, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+.play-bloom-inner {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center 40%,
+    rgba(196, 181, 253, 0.4) 0%,
+    rgba(196, 181, 253, 0) 100%
+  );
+  pointer-events: none;
+}
+/* Subtle breathing while stopped (DESIGN-v2 §7). */
+@keyframes play-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+.play-button-v2.is-stopped {
+  animation: play-breathe 2.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .play-button-v2.is-stopped {
+    animation: none;
+  }
+  .play-button-v2 {
+    transition: none;
+  }
+}
+
 /* System sans for the whole app — no web fonts, no monospace (DESIGN §Typography).
    Tabular numerals are applied per-element via Tailwind's `tabular-nums`. */
 body {
