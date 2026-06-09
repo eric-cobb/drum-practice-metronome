@@ -28,13 +28,15 @@ export function ExerciseMode() {
 
       <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-3">
         <div className="flex justify-center sm:justify-start">
-          <BpmControl variant="exercise" placement="top" />
+          {/* Left cell, near the sidebar — open the dropdown rightward. */}
+          <BpmControl variant="exercise" placement="top" align="start" />
         </div>
         <div className="flex justify-center">
           <PlayControl size="exercise" />
         </div>
         <div className="flex flex-col items-center gap-2.5 sm:items-end">
-          <RepControl variant="exercise" placement="top" />
+          {/* Right cell, near the screen edge — open the dropdown leftward. */}
+          <RepControl variant="exercise" placement="top" align="end" />
           <RepProgressBar />
         </div>
       </div>
