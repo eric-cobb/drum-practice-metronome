@@ -39,7 +39,7 @@ const hairline = 'h-px bg-fg/10';
 export function SelectorBody({ close }: { close: () => void }) {
   const loadedSet = useExerciseStore((s) => s.loadedSet);
   const availableSets = useExerciseStore((s) => s.availableSets);
-  const openSettings = useUiStore((s) => s.openSettings);
+  const setView = useUiStore((s) => s.setView);
   const activeSetId = useExerciseStore((s) => s.activeSetId);
   const currentExerciseId = useExerciseStore((s) => s.currentExerciseId);
   const setStates = useExerciseStore((s) => s.setStates);
@@ -148,7 +148,7 @@ export function SelectorBody({ close }: { close: () => void }) {
         onSelect={(id) => switchSet(id)}
         onOpenSettings={() => {
           close();
-          openSettings();
+          setView('library');
         }}
       />
 

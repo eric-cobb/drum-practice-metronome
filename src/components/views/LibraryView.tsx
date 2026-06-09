@@ -17,6 +17,7 @@ import type { Exercise } from '../../types';
 import { SetPicker } from '../Practice/selector/SetPicker';
 import { LibraryCard } from '../Library/LibraryCard';
 import { LibraryActions } from '../Library/LibraryActions';
+import { ManageSets } from '../Library/ManageSets';
 
 function matchesQuery(exercise: Exercise, q: string): boolean {
   const lower = q.toLowerCase().trim();
@@ -38,7 +39,6 @@ export function LibraryView() {
   const setExerciseById = useExerciseStore((s) => s.setExerciseById);
   const setMode = useModeStore((s) => s.setMode);
   const setView = useUiStore((s) => s.setView);
-  const openSettings = useUiStore((s) => s.openSettings);
 
   const progressBySet = useProgressStore((s) => s.bySet);
   const progressForActiveSet = useMemo(
@@ -104,7 +104,7 @@ export function LibraryView() {
             setSummaries={availableSets}
             completionBySet={completionBySet}
             onSelect={(id) => switchSet(id)}
-            onOpenSettings={openSettings}
+            onOpenSettings={() => {}}
           />
         </div>
         <label className="surface-deep flex h-11 flex-1 items-center gap-2 rounded-[10px] px-3">
@@ -118,6 +118,10 @@ export function LibraryView() {
             className="h-11 flex-1 bg-transparent text-sm text-fg placeholder:text-fg-muted focus:outline-none"
           />
         </label>
+      </div>
+
+      <div className="mt-4">
+        <ManageSets />
       </div>
 
       {!loadedSet ? (

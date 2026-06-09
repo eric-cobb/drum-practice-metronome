@@ -139,7 +139,7 @@ export function SetPicker({
                 }}
                 className="rounded-[8px] px-2 py-1.5 text-left text-sm text-fg-tertiary hover:bg-fg/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                Import sets in Settings →
+                Import a set in the Library →
               </button>
             )}
           </div>
