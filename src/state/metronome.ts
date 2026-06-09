@@ -9,6 +9,7 @@ import type {
   Denominator,
   DropoutConfig,
   MetronomeConfig,
+  RampConfig,
   Subdivision,
   TimeSignature,
 } from '../types';
@@ -34,6 +35,14 @@ export const MAX_CONSECUTIVE_MIN = 1;
 export const MAX_CONSECUTIVE_MAX = 8;
 export const MIN_BETWEEN_MIN = 0;
 export const MIN_BETWEEN_MAX = 8;
+
+// Tempo-ramp ranges (SPEC §6).
+export const STEP_SIZE_MIN = 1;
+export const STEP_SIZE_MAX = 20;
+export const RAMP_EVERY_REPS_MIN = 1;
+export const RAMP_EVERY_REPS_MAX = 99;
+export const RAMP_EVERY_SECONDS_MIN = 5;
+export const RAMP_EVERY_SECONDS_MAX = 600;
 
 /** Default configs when a dropout mode is first turned on (SPEC §5). */
 export const DEFAULT_SCHEDULED_DROPOUT: DropoutConfig = {
@@ -74,6 +83,10 @@ interface MetronomeState {
   // (the mode store clears it on entry and restores it on return).
   dropout: DropoutConfig | null;
 
+  // Free-mode tempo ramp (SPEC §6); null = off. Same Free-only treatment as
+  // dropout. When active, playback starts at ramp.startBpm.
+  ramp: RampConfig | null;
+
   // Rep counter (SPEC §2)
   barsPerRep: number;
   targetReps: number;
@@ -107,6 +120,7 @@ interface MetronomeState {
   setSubdivision: (subdivision: Subdivision) => void;
   toggleAccent: (beatIndex: number) => void;
   setDropout: (dropout: DropoutConfig | null) => void;
+  setRamp: (ramp: RampConfig | null) => void;
 
   // Rep-counter actions
   setBarsPerRep: (barsPerRep: number) => void;
@@ -136,6 +150,7 @@ export const useMetronomeStore = create<MetronomeState>((set) => ({
   subdivision: 'quarter',
   accentPattern: patternForTimeSignature(INITIAL_TIME_SIGNATURE, []),
   dropout: null,
+  ramp: null,
 
   barsPerRep: 2,
   targetReps: 20,
@@ -199,6 +214,8 @@ export const useMetronomeStore = create<MetronomeState>((set) => ({
   setSubdivision: (subdivision) => set({ subdivision }),
 
   setDropout: (dropout) => set({ dropout }),
+
+  setRamp: (ramp) => set({ ramp }),
 
   toggleAccent: (beatIndex) =>
     set((state) => {
@@ -269,6 +286,9 @@ export const useMetronomeStore = create<MetronomeState>((set) => ({
       }
       if (config.dropout !== undefined) {
         next.dropout = config.dropout;
+      }
+      if (config.ramp !== undefined) {
+        next.ramp = config.ramp;
       }
       return next;
     }),

@@ -31,6 +31,7 @@ import {
   RANDOM_DROPOUT_INITIAL,
   type RandomDropoutState,
 } from './dropout';
+import { rampSteps, rampBpmForSteps, rampReachedEnd } from './ramp';
 import {
   advancePosition,
   currentRep,
@@ -39,6 +40,7 @@ import {
   isMainBeat,
   isTargetReached,
   noteIndexInBar,
+  repsCompleted,
   type Position,
 } from './position';
 
@@ -113,6 +115,36 @@ function refreshDropoutForBar(barIndex: number): void {
     dropoutRandomState = state;
     dropoutMuted = muted;
   }
+}
+
+// Tempo-ramp state (SPEC §6, Free mode). `rampStepsApplied` is the last step
+// count pushed to the store BPM; `rampStartTime` anchors the seconds trigger to
+// the first main tick. Reset on start/skip.
+let rampStepsApplied = 0;
+let rampStartTime = -1;
+
+function resetRamp(): void {
+  rampStepsApplied = 0;
+  rampStartTime = -1;
+}
+
+/** Advance the ramp at `audioTime`: update the store BPM when a new step is due
+ *  (the next scheduled click then recalculates its interval — ARCHITECTURE
+ *  §"BPM changes mid-play"). Returns whether the ramp has reached endBpm. */
+function applyRamp(audioTime: number): boolean {
+  const { ramp, barsPerRep } = useMetronomeStore.getState();
+  if (!ramp) return false;
+  if (rampStartTime < 0) rampStartTime = audioTime;
+
+  const reps = repsCompleted(position.barCount, barsPerRep);
+  const secondsElapsed = audioTime - rampStartTime;
+  const steps = rampSteps(ramp, reps, secondsElapsed);
+
+  if (steps !== rampStepsApplied) {
+    rampStepsApplied = steps;
+    useMetronomeStore.getState().setBpm(rampBpmForSteps(ramp, steps));
+  }
+  return rampReachedEnd(ramp, rampStepsApplied);
 }
 
 function getAudioContext(): AudioContext {
@@ -266,14 +298,20 @@ function processTick(): boolean {
     atPlayTime(at, () => useMetronomeStore.getState().setCountIn(null));
   }
 
-  const { autoStop, barsPerRep, targetReps } = useMetronomeStore.getState();
-  if (
-    autoStop &&
-    isDownbeat(position) &&
-    isTargetReached(position.barCount, barsPerRep, targetReps)
-  ) {
-    finishAt(nextNoteTime);
-    return false;
+  // Advance the ramp first so this tick (and the auto-stop check) sees the
+  // current tempo. Returns whether the ramp has reached its end BPM.
+  const rampAtEnd = applyRamp(nextNoteTime);
+
+  const { autoStop, barsPerRep, targetReps, ramp } = useMetronomeStore.getState();
+  if (isDownbeat(position)) {
+    // Whichever stop condition hits first ends the session (SPEC §6).
+    const repTargetHit =
+      autoStop && isTargetReached(position.barCount, barsPerRep, targetReps);
+    const rampEndHit = ramp !== null && ramp.autoStopAtEnd && rampAtEnd;
+    if (repTargetHit || rampEndHit) {
+      finishAt(nextNoteTime);
+      return false;
+    }
   }
 
   scheduleMainTick(nextNoteTime);
@@ -304,6 +342,11 @@ export async function startMetronome(opts?: {
 
   position = INITIAL_POSITION;
   resetDropout();
+  resetRamp();
+  // A ramped session starts at the ramp's start BPM. Set it before emitting
+  // 'start' below so the session recorder captures it as startBpm.
+  const ramp = useMetronomeStore.getState().ramp;
+  if (ramp) useMetronomeStore.getState().setBpm(ramp.startBpm);
 
   const leadInBars = opts?.leadInBars ?? 0;
   if (leadInBars > 0) {
@@ -349,6 +392,7 @@ export function skipLeadIn(): void {
   leadInActive = true; // the next main tick clears the count display
   position = INITIAL_POSITION;
   resetDropout();
+  resetRamp();
 }
 
 /** True while a lead-in (pre-roll / count-in) is sounding. */

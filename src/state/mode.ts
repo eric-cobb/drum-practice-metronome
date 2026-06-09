@@ -23,6 +23,7 @@ function captureMetronomeConfig(): MetronomeConfig {
     targetReps: s.targetReps,
     accentPattern: s.accentPattern,
     dropout: s.dropout,
+    ramp: s.ramp,
   };
 }
 
@@ -43,8 +44,10 @@ export const useModeStore = create<ModeState>((set, get) => ({
     if (mode === 'exercise') {
       set({ freeSnapshot: captureMetronomeConfig() });
       useExerciseStore.getState().applyCurrentToMetronome();
-      // Dropout is Free-mode only (SPEC §5); force it off in Exercise mode.
+      // Dropout and ramp are Free-mode only (SPEC §5/§6); force them off in
+      // Exercise mode (restored from the snapshot on return to Free).
       useMetronomeStore.getState().setDropout(null);
+      useMetronomeStore.getState().setRamp(null);
     } else {
       const snapshot = get().freeSnapshot;
       if (snapshot) useMetronomeStore.getState().applyConfig(snapshot);

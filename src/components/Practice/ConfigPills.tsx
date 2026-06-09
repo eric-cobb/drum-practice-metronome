@@ -3,11 +3,10 @@ import { Card, cn } from '../ui';
 import { TimeSignaturePill } from './TimeSignaturePill';
 import { SubdivisionPill } from './SubdivisionPill';
 import { DropoutPill } from './DropoutPill';
-import { ConfigPill } from './ConfigPill';
+import { RampPill } from './RampPill';
 
-/** Free-mode config-pill row (DESIGN-v2 §6): an 84px card holding four pills.
- *  Time signature, subdivision, and dropout are live; Ramp remains an inactive
- *  placeholder until Phase 8. */
+/** Free-mode config-pill row (DESIGN-v2 §6): an 84px card holding four pills —
+ *  time signature, subdivision, dropout, and tempo ramp. */
 export function ConfigPills() {
   const isPlaying = useMetronomeStore((s) => s.isPlaying);
 
@@ -22,7 +21,7 @@ export function ConfigPills() {
       <TimeSignaturePill />
       <SubdivisionPill />
       <DropoutPill />
-      <ConfigPill label="Ramp" value="Off" disabled title="Tempo ramp — coming in a later phase" />
+      <RampPill />
     </Card>
   );
 }

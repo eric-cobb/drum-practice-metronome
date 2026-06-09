@@ -196,6 +196,8 @@ export interface MetronomeConfig {
   /** Free-mode click dropout (SPEC §5). Part of the config so the Free↔Exercise
    *  snapshot can restore it (Exercise mode forces it off). */
   dropout?: DropoutConfig | null;
+  /** Free-mode tempo ramp (SPEC §6); same Free↔Exercise snapshot treatment. */
+  ramp?: RampConfig | null;
 }
 
 // --- Dropout / ramp config (SPEC §5, §6) -------------------------------------
