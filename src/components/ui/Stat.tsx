@@ -23,14 +23,21 @@ export function Stat({ label, value, context, visual, className }: StatProps) {
       <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-fg-tertiary">
         {label}
       </span>
-      <div className="flex items-end justify-between gap-2">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-[34px] font-medium leading-none tabular-nums text-fg">
-            {value}
-          </span>
-          {context && <span className="text-[11px] text-fg-secondary">{context}</span>}
+      {/* Value gets its own full-width, non-wrapping line so multi-token values
+          like "3h 42m" don't get squeezed by the visual and wrap. The context
+          and visualization share the row beneath it. */}
+      <div className="flex flex-col gap-1.5">
+        <span className="block whitespace-nowrap text-[32px] font-medium leading-none tabular-nums text-fg">
+          {value}
+        </span>
+        <div className="flex min-h-[24px] items-end justify-between gap-2">
+          {context ? (
+            <span className="text-[11px] text-fg-secondary">{context}</span>
+          ) : (
+            <span />
+          )}
+          {visual && <div className="shrink-0">{visual}</div>}
         </div>
-        {visual && <div className="shrink-0 self-end">{visual}</div>}
       </div>
     </Card>
   );
