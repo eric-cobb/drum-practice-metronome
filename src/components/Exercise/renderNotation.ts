@@ -136,11 +136,21 @@ function injectBandLayer(
   });
 }
 
+interface RenderOptions {
+  /** When false, skip the per-note `id` tagging and the band layer used by the
+   *  active-note highlight. Library previews render many notations at once;
+   *  without this they'd duplicate the global `note-{bar}-{note}` ids and could
+   *  steal the live Practice highlight's lookups. Defaults to true. */
+  interactive?: boolean;
+}
+
 export function renderExerciseNotation(
   container: HTMLDivElement,
   exercise: Exercise,
   width: number,
+  options: RenderOptions = {},
 ): RenderResult {
+  const interactive = options.interactive ?? true;
   // Clear any prior render first (also keeps React StrictMode's double-invoke
   // from stacking two SVGs).
   container.replaceChildren();
@@ -218,17 +228,20 @@ export function renderExerciseNotation(
       tuplets.forEach((tuplet) => tuplet.setContext(ctx).draw());
 
       // Tag each rendered note with its (barIndex, noteIndex) for the
-      // highlight lookup (ARCHITECTURE §Note index tracking).
-      notes.forEach((note, noteIndex) =>
-        note
-          .getSVGElement()
-          ?.setAttribute('id', `note-${barIndex}-${noteIndex}`),
-      );
+      // highlight lookup (ARCHITECTURE §Note index tracking). Skipped for
+      // non-interactive previews to avoid duplicate global ids.
+      if (interactive) {
+        notes.forEach((note, noteIndex) =>
+          note
+            .getSVGElement()
+            ?.setAttribute('id', `note-${barIndex}-${noteIndex}`),
+        );
+      }
 
       barLayouts.push({ stave, notes });
     });
 
-    injectBandLayer(container, barLayouts);
+    if (interactive) injectBandLayer(container, barLayouts);
 
     return { ok: true };
   } catch (err) {

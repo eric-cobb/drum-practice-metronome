@@ -447,6 +447,26 @@ body,
   animation: backdrop-fade 150ms ease-out;
 }
 
+/* Modal dialog scale-in (DESIGN-v2 §7). */
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.dialog-in {
+  animation: dialog-in 200ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dialog-in {
+    animation: none;
+  }
+}
+
 /* Mobile bottom-sheet slide-up (DESIGN-v2 §5: the selector becomes a sheet
    below the breakpoint). */
 @keyframes sheet-up {

@@ -13,4 +13,5 @@ export { Toggle } from './Toggle';
 export { Stat } from './Stat';
 export { Popover } from './Popover';
 export { Stepper } from './Stepper';
+export { Modal } from './Modal';
 export { cn } from './cn';
