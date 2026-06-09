@@ -229,11 +229,10 @@
 }
 
 /* --------------------------------------------------------------------------
-   Play button (v2) — purple→cyan gradient with an atmospheric bloom. Distinct
-   class from the v1 `.play-button` (left intact below until Stage 3 migrates
-   the Practice view). Construction per DESIGN-v2 §3 "Play button bloom":
-   the bloom and inner glow are separate non-interactive layers behind/over the
-   face; only the face itself is the click target.
+   Play button — purple→cyan gradient with an atmospheric bloom. Construction
+   per DESIGN-v2 §3 "Play button bloom": the bloom and inner glow are separate
+   non-interactive layers behind/over the face; only the face itself is the
+   click target.
    -------------------------------------------------------------------------- */
 .play-button-v2 {
   background: var(--accent-gradient);
@@ -515,56 +514,4 @@ body,
   .sheet-up {
     animation: none;
   }
-}
-
-/* Primary (play/stop) button treatment — the only gradient + bloom element in
-   the app (DESIGN §Buttons → Primary button treatment). State classes:
-   `.is-playing` adds the outer bloom; `.is-accented` shifts the gradient sky →
-   cyan with an intensified bloom; `.is-beat-bloom` is the reduced-motion
-   regular-beat brightness bump. The 200ms transition gives accented beats their
-   "ringing" decay back to sky. The same gradient reads well on both light and
-   dark backgrounds, so it isn't swapped per theme. */
-.play-button {
-  background: radial-gradient(
-    circle at 32% 28%,
-    #7dd3fc 0%,
-    #38bdf8 40%,
-    #0ea5e9 75%,
-    #0284c7 100%
-  );
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.18),
-    inset 0 -8px 18px rgba(3, 105, 161, 0.4),
-    0 6px 18px rgba(0, 0, 0, 0.32);
-  transition:
-    background 200ms ease-out,
-    box-shadow 200ms ease-out;
-}
-.play-button.is-playing {
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.18),
-    inset 0 -8px 18px rgba(3, 105, 161, 0.4),
-    0 0 32px rgba(14, 165, 233, 0.32),
-    0 6px 18px rgba(0, 0, 0, 0.32);
-}
-.play-button.is-beat-bloom {
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.18),
-    inset 0 -8px 18px rgba(3, 105, 161, 0.4),
-    0 0 44px rgba(14, 165, 233, 0.5),
-    0 6px 18px rgba(0, 0, 0, 0.32);
-}
-.play-button.is-accented {
-  background: radial-gradient(
-    circle at 32% 28%,
-    #a5f3fc 0%,
-    #67e8f9 35%,
-    #22d3ee 75%,
-    #0891b2 100%
-  );
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.35),
-    inset 0 -8px 20px rgba(8, 145, 178, 0.45),
-    0 0 56px rgba(34, 211, 238, 0.65),
-    0 6px 20px rgba(0, 0, 0, 0.35);
 }

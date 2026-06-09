@@ -138,7 +138,7 @@ function renderExercise(exercise: Exercise, canvasWidth: number) {
   const barWidth = (canvasWidth - 40) / barCount;  // 40 = clef + time sig allocation
   
   // Staff sizing: increase line spacing from VexFlow default 10 to 16 for prominence.
-  // See DESIGN.md "Notation canvas" for rationale.
+  // See DESIGN-v2.md "Notation canvas" for rationale.
   const STAFF_LINE_SPACING = 16;
   
   bars.forEach((bar, barIndex) => {
@@ -243,7 +243,7 @@ This runs once per set on load. The migrated set is held in memory; the on-disk 
 
 ### Current-note highlighting (works for both v1 and v2)
 
-The highlight is a three-layer treatment: a background band (peripheral), notehead color + glow (focal), and a brief scale transform (motion). See DESIGN.md "Active note highlight" for the visual rationale.
+The highlight is a three-layer treatment: a background band (peripheral), notehead color + glow (focal), and a brief scale transform (motion). See DESIGN-v2.md "Active note highlight" for the visual rationale.
 
 **Three SVG layers per note:**
 

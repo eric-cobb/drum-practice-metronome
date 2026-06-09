@@ -1,6 +1,11 @@
-# Design
+# Design (v1 — ARCHIVED)
 
-This document defines the visual design language and layout structure for the practice metronome app. It is the authoritative reference for UI implementation. When this document conflicts with implementation details in SPEC.md or ARCHITECTURE.md, this document wins for visual/layout questions; SPEC.md wins for functional questions.
+> **Archived.** This is the original v1 design language, superseded in full by
+> **`DESIGN-v2.md`** (the purple-cyan redesign with the four-view IA). It is kept
+> only for historical reference and no longer reflects the shipping UI. For any
+> visual/layout question, read `DESIGN-v2.md`.
+
+This document defined the visual design language and layout structure for the practice metronome app.
 
 ## Design Principles
 

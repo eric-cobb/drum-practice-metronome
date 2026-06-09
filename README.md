@@ -66,7 +66,7 @@ Architecture, specification, and design decisions are documented in:
 - [`CLAUDE.md`](./CLAUDE.md) — project conventions, tech stack, build phasing
 - [`SPEC.md`](./SPEC.md) — functional requirements
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md) — technical design, including the Web Audio scheduler pattern
-- [`DESIGN.md`](./DESIGN.md) — visual design language, layout, and component patterns
+- [`DESIGN-v2.md`](./DESIGN-v2.md) — visual design language, information architecture, and component patterns (`DESIGN-v1-archive.md` is the superseded original, kept for history)
 
 These documents are the source of truth for what the app does and how it's built.
 

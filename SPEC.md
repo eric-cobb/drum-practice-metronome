@@ -314,7 +314,7 @@ Always visible in Exercise mode:
 
 ### Exercise selector
 
-The selector is the UI for navigating to any exercise within the active set, or switching to a different set. Triggered by clicking the Exercise position text in the top bar (per DESIGN.md). Replaces the long flat dropdown that wouldn't scale past ~30 exercises.
+The selector is the UI for navigating to any exercise within the active set, or switching to a different set. Triggered by clicking the Exercise position text in the top bar (per DESIGN-v2.md). Replaces the long flat dropdown that wouldn't scale past ~30 exercises.
 
 Layout (top to bottom inside the popover):
 
@@ -386,7 +386,7 @@ The selector reads from this table to render completion indicators on tiles. The
 - Stickings (R/L) shown as text below each note
 - Beamed in groups appropriate to subdivision (4 sixteenths = 1 beam group)
 - All bars in the exercise's pattern are rendered side-by-side on the same staff line, with bar lines between them
-- Current note position highlighted during playback using the band + glow + scale treatment (see DESIGN.md)
+- Current note position highlighted during playback using the band + glow + scale treatment (see DESIGN-v2.md)
 - Notation auto-scales to viewport width within the 1600px max
 
 ### Count-in between exercises
@@ -674,7 +674,7 @@ A user who completes a tour sets the corresponding flag to true. A user who expl
 
 ### Visual style
 
-The tour UI respects DESIGN.md tokens. Specifically:
+The tour UI respects DESIGN-v2.md tokens. Specifically:
 
 - Spotlight backdrop: black at 50% opacity (`bg-black/50`)
 - Callout panel: same surface, border, and shadow as the Settings sheet (rounded-xl, hairline border, neutral surface)

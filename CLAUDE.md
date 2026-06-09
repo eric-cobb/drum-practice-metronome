@@ -11,9 +11,11 @@ Four documents define this project. Read them in this order:
 1. **CLAUDE.md** (this file) — project conventions, tech stack, phasing
 2. **SPEC.md** — functional requirements (what features exist and how they behave)
 3. **ARCHITECTURE.md** — technical design (scheduler pattern, state management, rendering)
-4. **DESIGN.md** — visual design language (layout, typography, color, component patterns)
+4. **DESIGN-v2.md** — visual design language and information architecture (the purple-cyan redesign; the authoritative visual reference)
 
-When DESIGN.md and SPEC.md conflict on visual/layout questions, DESIGN.md wins. When they conflict on functional questions, SPEC.md wins.
+When DESIGN-v2.md and SPEC.md conflict on visual/layout questions, DESIGN-v2.md wins. When they conflict on functional questions, SPEC.md wins.
+
+`DESIGN-v1-archive.md` is the original visual design, kept for history only — it does **not** reflect the shipping UI. Ignore it for new work.
 
 ## Two modes
 
@@ -49,41 +51,53 @@ npm run format      # prettier --write .
 
 Always run `typecheck` and `lint` before declaring work complete.
 
-## Project Structure (target)
+## Project Structure
+
+Reflects the Design v2 redesign (see `DESIGN-v2.md`). The data/engine layer
+(`audio/`, `state/`, `db/`, `data/`, `meter.ts`, `types/`) is unchanged by the
+redesign; only the UI under `components/` and the routing changed.
 
 ```
 src/
   audio/
     scheduler.ts        # lookahead scheduler, core timing engine
+    transport.ts        # play/stop/skip + auto-advance + count-in orchestration
     sounds.ts           # synthesized click sounds
-  state/
-    metronome.ts        # Zustand store: BPM, time sig, play state
-    sessions.ts         # session persistence (Dexie wrapper)
-    settings.ts         # last-used settings (localStorage)
-    exercises.ts        # current exercise set, position, progress
+    sessionRecorder.ts  # capture sessions on start/stop
+    position.ts         # rep/bar/note position math
+  state/                # Zustand stores (unchanged by v2)
+    metronome.ts        # BPM, time sig, subdivision, play state
+    mode.ts             # Free / Exercise mode + config snapshot
+    exercises.ts        # set registry, active set, position, count-in/auto-start
+    progress.ts         # per-exercise completion cache (Dexie)
+    sessions.ts         # session log (Dexie wrapper)
+    theme.ts            # light/dark/auto
+    ui.ts               # activeView — the four-view router (DESIGN-v2 §5)
   components/
-    ModeToggle/         # switch between Free and Exercise modes
-    Free/
-      Display.tsx       # large rep counter + BPM display
-      Controls.tsx      # BPM, time sig, subdivision controls
-      DropoutPanel.tsx
-      RampPanel.tsx
+    ui/                 # v2 design primitives: Card, Tile, Button, PlayButton,
+                        #   Input, Toggle, Stepper, Stat, Popover, Modal, cn
+    AppShell/           # Sidebar, BottomNav, AppShell (view router + crossfade)
+    views/              # PracticeView, LibraryView, HistoryView, SettingsView, ViewHeader
+    Practice/           # play composition, config pills, info strip, etc.
+      selector/         # the exercise selector popover/sheet
+    Library/            # detailed cards + notation previews, import, manage sets
+    History/            # stat cards, session rows, stats helpers
     Exercise/
-      Notation.tsx      # VexFlow drum notation renderer
-      ExerciseHeader.tsx # exercise name, progress (5 of 72), reps
-      ExerciseControls.tsx # BPM, skip/back, reset progress
-      SetSelector.tsx   # choose which exercise set to load
-    Shared/
-      BeatIndicator.tsx
-      SessionLog.tsx
+      Notation.tsx      # VexFlow renderer (interactive highlight; preview mode)
+      renderNotation.ts # VexFlow drawing
+      notationModel.ts  # bar → note-spec / beam / tuplet model
   data/
     exercises/
-      stick-control.json
-      # future: syncopation.json, master-studies.json, custom.json
+      foundational-rudiments.json   # the bundled set (public-domain rudiments)
+    loadExerciseSet.ts  # validate + load bundled & user-imported sets
   db/
-    schema.ts           # Dexie schema
+    schema.ts           # Dexie schema (sessions, exerciseProgress, userSets)
+    persistence.ts      # navigator.storage.persist() request + status
+  hooks/
+    useMediaQuery.ts    # desktop/mobile branch for the selector
   types/
     index.ts            # shared TypeScript types
+  index.css             # Tailwind v4 entry + v2 design tokens (CSS custom props)
   App.tsx
   main.tsx
 ```

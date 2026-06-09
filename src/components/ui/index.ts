@@ -1,6 +1,5 @@
-// v2 design primitives (DESIGN-v2.md). Built in Stage 1; consumed by views as
-// they migrate in later stages. The v1 `components/Shared/` primitives remain
-// until their views move over, then are removed in Stage 9.
+// v2 design primitives (DESIGN-v2.md). The shared building blocks consumed by
+// every view and feature component.
 export { Card } from './Card';
 export type { CardSurface } from './Card';
 export { Tile } from './Tile';

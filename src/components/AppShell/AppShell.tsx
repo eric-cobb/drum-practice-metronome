@@ -8,8 +8,6 @@ import { PracticeView } from '../views/PracticeView';
 import { LibraryView } from '../views/LibraryView';
 import { HistoryView } from '../views/HistoryView';
 import { SettingsView } from '../views/SettingsView';
-import { SettingsSheet } from '../Sheets/SettingsSheet';
-import { HistorySheet } from '../Sheets/HistorySheet';
 
 const VIEWS: { id: ViewId; element: ReactElement }[] = [
   { id: 'practice', element: <PracticeView /> },
@@ -29,8 +27,6 @@ const VIEWS: { id: ViewId; element: ReactElement }[] = [
  *  motion. (DESIGN-v2 §7 "View transitions".) */
 export function AppShell() {
   const activeView = useUiStore((s) => s.activeView);
-  const activeSheet = useUiStore((s) => s.activeSheet);
-  const closeSheet = useUiStore((s) => s.closeSheet);
 
   return (
     <div className="canvas-bg flex h-full flex-col md:flex-row">
@@ -55,11 +51,6 @@ export function AppShell() {
       </main>
 
       <BottomNav />
-
-      {/* v1 transition bridge: the History/Settings views open these until
-          their native v2 views are built (Stages 6–7). */}
-      {activeSheet === 'settings' && <SettingsSheet onClose={closeSheet} />}
-      {activeSheet === 'history' && <HistorySheet onClose={closeSheet} />}
     </div>
   );
 }
