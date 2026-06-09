@@ -193,6 +193,9 @@ export interface MetronomeConfig {
   barsPerRep: number;
   targetReps: number;
   accentPattern: boolean[];
+  /** Free-mode click dropout (SPEC §5). Part of the config so the Free↔Exercise
+   *  snapshot can restore it (Exercise mode forces it off). */
+  dropout?: DropoutConfig | null;
 }
 
 // --- Dropout / ramp config (SPEC §5, §6) -------------------------------------

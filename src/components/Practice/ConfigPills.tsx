@@ -2,12 +2,12 @@ import { useMetronomeStore } from '../../state/metronome';
 import { Card, cn } from '../ui';
 import { TimeSignaturePill } from './TimeSignaturePill';
 import { SubdivisionPill } from './SubdivisionPill';
+import { DropoutPill } from './DropoutPill';
 import { ConfigPill } from './ConfigPill';
 
 /** Free-mode config-pill row (DESIGN-v2 §6): an 84px card holding four pills.
- *  Time signature and subdivision are live; Dropout and Ramp are rendered as
- *  inactive placeholders — those features arrive in Phases 7–8 and are out of
- *  scope for the redesign, so the pills show "Off" and don't open a dropdown. */
+ *  Time signature, subdivision, and dropout are live; Ramp remains an inactive
+ *  placeholder until Phase 8. */
 export function ConfigPills() {
   const isPlaying = useMetronomeStore((s) => s.isPlaying);
 
@@ -21,7 +21,7 @@ export function ConfigPills() {
     >
       <TimeSignaturePill />
       <SubdivisionPill />
-      <ConfigPill label="Dropout" value="Off" disabled title="Click dropout — coming in a later phase" />
+      <DropoutPill />
       <ConfigPill label="Ramp" value="Off" disabled title="Tempo ramp — coming in a later phase" />
     </Card>
   );

@@ -49,7 +49,9 @@ function begin(): void {
     subdivision: m.subdivision,
     barsPerRep: m.barsPerRep,
     targetReps: m.targetReps,
-    dropoutConfig: null, // Phase 7
+    // Dropout is Free-mode only (forced off in Exercise mode), so this is null
+    // outside Free regardless (SPEC §5).
+    dropoutConfig: mode === 'free' ? m.dropout : null,
     rampConfig: null, // Phase 8
   };
 

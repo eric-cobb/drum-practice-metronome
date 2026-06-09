@@ -26,6 +26,12 @@ import { useMetronomeStore } from '../state/metronome';
 import { playClick, playCompletion } from './sounds';
 import { getBeatGrouping, subdivisionsPerPulse } from '../meter';
 import {
+  scheduledMuted,
+  stepRandomDropout,
+  RANDOM_DROPOUT_INITIAL,
+  type RandomDropoutState,
+} from './dropout';
+import {
   advancePosition,
   currentRep,
   INITIAL_POSITION,
@@ -78,6 +84,36 @@ let position: Position = INITIAL_POSITION; // advanced one subdivision at a time
 let leadInTotal = 0;
 let leadInDone = 0;
 let leadInActive = false;
+
+// Click-dropout state (SPEC §5, Free mode). Recomputed once per bar; `dropoutMuted`
+// then gates the click audio for every subdivision in that bar. Random mode steps
+// its sequential state per bar. Reset on start/skip so bar 0 is never muted.
+let dropoutRandomState: RandomDropoutState = RANDOM_DROPOUT_INITIAL;
+let dropoutLastBar = -1;
+let dropoutMuted = false;
+
+function resetDropout(): void {
+  dropoutRandomState = RANDOM_DROPOUT_INITIAL;
+  dropoutLastBar = -1;
+  dropoutMuted = false;
+}
+
+/** Decide mute for `barIndex` once, when the bar first begins. Reads the live
+ *  dropout config; null/Exercise mode means never muted. */
+function refreshDropoutForBar(barIndex: number): void {
+  if (barIndex === dropoutLastBar) return;
+  dropoutLastBar = barIndex;
+  const cfg = useMetronomeStore.getState().dropout;
+  if (!cfg) {
+    dropoutMuted = false;
+  } else if (cfg.mode === 'scheduled') {
+    dropoutMuted = scheduledMuted(barIndex, cfg.barsOn, cfg.barsOff);
+  } else {
+    const { muted, state } = stepRandomDropout(dropoutRandomState, cfg, Math.random);
+    dropoutRandomState = state;
+    dropoutMuted = muted;
+  }
+}
 
 function getAudioContext(): AudioContext {
   if (!audioContext) {
@@ -133,13 +169,18 @@ function scheduleMainTick(time: number): void {
   // 2D pattern's length, so this addresses pattern[barIndex] directly.
   const barIdx = position.barCount % Math.max(1, barsPerRep);
 
+  // Click dropout (SPEC §5): on a muted bar, skip the click audio (main beats
+  // and subdivisions) but still advance the rep counter and the beat/notation
+  // visuals below — the indicator keeps pulsing through muted bars.
+  refreshDropoutForBar(position.barCount);
+
   if (isMainBeat(position)) {
     const accented =
       accentPattern[position.pulseInBar] ?? position.pulseInBar === 0;
-    playClick(ctx, time, accented ? 'accent' : 'beat');
+    if (!dropoutMuted) playClick(ctx, time, accented ? 'accent' : 'beat');
     publishPosition(time);
   } else {
-    playClick(ctx, time, 'sub');
+    if (!dropoutMuted) playClick(ctx, time, 'sub');
   }
 
   // Current-note highlight: emit at play time so the notation cursor lands on
@@ -262,6 +303,7 @@ export async function startMetronome(opts?: {
   }
 
   position = INITIAL_POSITION;
+  resetDropout();
 
   const leadInBars = opts?.leadInBars ?? 0;
   if (leadInBars > 0) {
@@ -306,6 +348,7 @@ export function skipLeadIn(): void {
   leadInDone = 0;
   leadInActive = true; // the next main tick clears the count display
   position = INITIAL_POSITION;
+  resetDropout();
 }
 
 /** True while a lead-in (pre-roll / count-in) is sounding. */

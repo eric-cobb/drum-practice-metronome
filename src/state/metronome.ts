@@ -7,6 +7,7 @@
 import { create } from 'zustand';
 import type {
   Denominator,
+  DropoutConfig,
   MetronomeConfig,
   Subdivision,
   TimeSignature,
@@ -21,6 +22,31 @@ export const BARS_PER_REP_MIN = 1;
 export const BARS_PER_REP_MAX = 16;
 export const TARGET_REPS_MIN = 1;
 export const TARGET_REPS_MAX = 999;
+
+// Click-dropout ranges (SPEC §5).
+export const BARS_ON_MIN = 1;
+export const BARS_ON_MAX = 32;
+export const BARS_OFF_MIN = 1;
+export const BARS_OFF_MAX = 32;
+export const MUTE_PROBABILITY_MIN = 0;
+export const MUTE_PROBABILITY_MAX = 100;
+export const MAX_CONSECUTIVE_MIN = 1;
+export const MAX_CONSECUTIVE_MAX = 8;
+export const MIN_BETWEEN_MIN = 0;
+export const MIN_BETWEEN_MAX = 8;
+
+/** Default configs when a dropout mode is first turned on (SPEC §5). */
+export const DEFAULT_SCHEDULED_DROPOUT: DropoutConfig = {
+  mode: 'scheduled',
+  barsOn: 4,
+  barsOff: 2,
+};
+export const DEFAULT_RANDOM_DROPOUT: DropoutConfig = {
+  mode: 'random',
+  muteProbability: 25,
+  maxConsecutiveMuted: 2,
+  minBarsBetween: 2,
+};
 
 const clamp = (value: number, min: number, max: number): number =>
   Math.min(max, Math.max(min, value));
@@ -43,6 +69,10 @@ interface MetronomeState {
   timeSignature: TimeSignature;
   subdivision: Subdivision;
   accentPattern: boolean[];
+
+  // Free-mode click dropout (SPEC §5); null = off. Forced off in Exercise mode
+  // (the mode store clears it on entry and restores it on return).
+  dropout: DropoutConfig | null;
 
   // Rep counter (SPEC §2)
   barsPerRep: number;
@@ -76,6 +106,7 @@ interface MetronomeState {
   setTimeSignature: (timeSignature: TimeSignature) => void;
   setSubdivision: (subdivision: Subdivision) => void;
   toggleAccent: (beatIndex: number) => void;
+  setDropout: (dropout: DropoutConfig | null) => void;
 
   // Rep-counter actions
   setBarsPerRep: (barsPerRep: number) => void;
@@ -104,6 +135,7 @@ export const useMetronomeStore = create<MetronomeState>((set) => ({
   timeSignature: INITIAL_TIME_SIGNATURE,
   subdivision: 'quarter',
   accentPattern: patternForTimeSignature(INITIAL_TIME_SIGNATURE, []),
+  dropout: null,
 
   barsPerRep: 2,
   targetReps: 20,
@@ -165,6 +197,8 @@ export const useMetronomeStore = create<MetronomeState>((set) => ({
     })),
 
   setSubdivision: (subdivision) => set({ subdivision }),
+
+  setDropout: (dropout) => set({ dropout }),
 
   toggleAccent: (beatIndex) =>
     set((state) => {
@@ -232,6 +266,9 @@ export const useMetronomeStore = create<MetronomeState>((set) => ({
           patternForTimeSignature(config.timeSignature, []);
       } else if (config.accentPattern !== undefined) {
         next.accentPattern = config.accentPattern;
+      }
+      if (config.dropout !== undefined) {
+        next.dropout = config.dropout;
       }
       return next;
     }),
