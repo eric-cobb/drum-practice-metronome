@@ -14,6 +14,7 @@ import type {
   TimeSignature,
 } from '../types';
 import { getBeatGrouping } from '../meter';
+import { registerTap, bpmFromTaps } from '../tapTempo';
 
 export const BPM_MIN = 30;
 export const BPM_MAX = 300;
@@ -114,6 +115,8 @@ interface MetronomeState {
   // Config actions
   setBpm: (bpm: number) => void;
   nudgeBpm: (delta: number) => void;
+  /** Register a tap; sets BPM from the average of recent taps (SPEC §1). */
+  tapTempo: () => void;
   setNumerator: (numerator: number) => void;
   setDenominator: (denominator: Denominator) => void;
   setTimeSignature: (timeSignature: TimeSignature) => void;
@@ -144,7 +147,11 @@ interface MetronomeState {
 
 const INITIAL_TIME_SIGNATURE: TimeSignature = { numerator: 4, denominator: 4 };
 
-export const useMetronomeStore = create<MetronomeState>((set) => ({
+// Transient tap-tempo history (timestamps). Kept out of the store to avoid
+// re-renders on every tap; only the resulting BPM goes into state.
+let tapTimes: number[] = [];
+
+export const useMetronomeStore = create<MetronomeState>((set, get) => ({
   bpm: 120,
   timeSignature: INITIAL_TIME_SIGNATURE,
   subdivision: 'quarter',
@@ -168,6 +175,12 @@ export const useMetronomeStore = create<MetronomeState>((set) => ({
 
   nudgeBpm: (delta) =>
     set((state) => ({ bpm: clamp(state.bpm + delta, BPM_MIN, BPM_MAX) })),
+
+  tapTempo: () => {
+    tapTimes = registerTap(tapTimes, Date.now());
+    const bpm = bpmFromTaps(tapTimes);
+    if (bpm !== null) get().setBpm(bpm);
+  },
 
   setNumerator: (numerator) =>
     set((state) => {

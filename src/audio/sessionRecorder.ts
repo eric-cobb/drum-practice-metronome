@@ -72,6 +72,13 @@ function begin(): void {
   });
 }
 
+/** Drop the in-progress session without saving (Esc/discard, SPEC §9). */
+function discardPending(): void {
+  unsubscribeReps?.();
+  unsubscribeReps = null;
+  pending = null;
+}
+
 function end(completed: boolean): void {
   if (!pending) return;
   unsubscribeReps?.();
@@ -115,6 +122,9 @@ export function initSessionRecorder(): void {
   onSchedulerEvent((event) => {
     if (event.type === 'start') begin();
     else if (event.type === 'complete') end(true);
-    else if (event.type === 'stop') end(false);
+    else if (event.type === 'stop') {
+      if (event.discard) discardPending();
+      else end(false);
+    }
   });
 }

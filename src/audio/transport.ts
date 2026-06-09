@@ -87,6 +87,12 @@ export function stop(): void {
   stopMetronome();
 }
 
+/** Stop and discard the in-progress session without saving (Esc, SPEC §9). */
+export function discard(): void {
+  cancelPendingAdvance();
+  stopMetronome({ discard: true });
+}
+
 /** Skip the remaining lead-in count (the Skip button shown during count-in). */
 export function skip(): void {
   skipLeadIn();

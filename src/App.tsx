@@ -9,6 +9,7 @@ import { useModeStore } from './state/mode';
 import { initTransport } from './audio/transport';
 import { initSessionRecorder } from './audio/sessionRecorder';
 import { requestPersistentStorage } from './db/persistence';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 /** App root (DESIGN-v2 §5). Runs one-time initialization, then renders the v2
  *  app shell (persistent sidebar + four-view router). */
@@ -16,6 +17,8 @@ export default function App() {
   const initSets = useExerciseStore((s) => s.initSets);
   const loadSessions = useSessionStore((s) => s.load);
   const loadProgressForSet = useProgressStore((s) => s.loadSet);
+
+  useKeyboardShortcuts();
 
   // Discover bundled + user-imported sets, load the session log and the active
   // set's progress cache, wire up auto-advance and session capture, and request

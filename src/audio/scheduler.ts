@@ -59,7 +59,8 @@ export type SchedulerEvent =
   | { type: 'start' }
   | { type: 'note'; barIndex: number; noteIndexInBar: number }
   | { type: 'complete' }
-  | { type: 'stop' };
+  /** `discard` = stop without saving the in-progress session (Esc shortcut). */
+  | { type: 'stop'; discard?: boolean };
 
 type Listener = (event: SchedulerEvent) => void;
 const listeners = new Set<Listener>();
@@ -400,9 +401,22 @@ export function isLeadingIn(): boolean {
   return timerId !== null && leadInDone < leadInTotal;
 }
 
+/** Restart the rep counter mid-session (R shortcut, SPEC §9): reset the position
+ *  and the dropout/ramp anchors so reps count again from 1. No-op when stopped. */
+export function resetReps(): void {
+  if (timerId === null) return;
+  position = INITIAL_POSITION;
+  resetDropout();
+  resetRamp();
+  const ramp = useMetronomeStore.getState().ramp;
+  if (ramp) useMetronomeStore.getState().setBpm(ramp.startBpm);
+  useMetronomeStore.getState().setCurrentRep(1);
+}
+
 /** Stop playback. Clicks already scheduled within the lookahead window may
- *  still sound (≤100ms) — acceptable per ARCHITECTURE.md. */
-export function stopMetronome(): void {
+ *  still sound (≤100ms) — acceptable per ARCHITECTURE.md. `discard` stops
+ *  without saving the in-progress session (Esc shortcut, SPEC §9). */
+export function stopMetronome(opts?: { discard?: boolean }): void {
   if (timerId !== null) {
     window.clearInterval(timerId);
     timerId = null;
@@ -411,5 +425,5 @@ export function stopMetronome(): void {
   leadInDone = 0;
   leadInActive = false;
   useMetronomeStore.getState().setPlaying(false);
-  emit({ type: 'stop' });
+  emit({ type: 'stop', discard: opts?.discard });
 }

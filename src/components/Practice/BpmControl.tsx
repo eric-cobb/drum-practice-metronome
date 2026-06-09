@@ -11,6 +11,7 @@ function BpmPopoverBody() {
   const bpm = useMetronomeStore((s) => s.bpm);
   const setBpm = useMetronomeStore((s) => s.setBpm);
   const nudgeBpm = useMetronomeStore((s) => s.nudgeBpm);
+  const tapTempo = useMetronomeStore((s) => s.tapTempo);
 
   return (
     <div className="flex w-60 flex-col items-center gap-3">
@@ -51,6 +52,14 @@ function BpmPopoverBody() {
           ＋
         </button>
       </div>
+      <button
+        type="button"
+        onClick={tapTempo}
+        className="surface-deep h-9 w-full rounded-[10px] text-sm font-medium text-fg hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        Tap tempo
+      </button>
+      <span className="text-[11px] text-fg-muted">Tap 4 times, or press T</span>
     </div>
   );
 }
