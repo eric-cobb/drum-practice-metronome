@@ -96,7 +96,7 @@ export function LibraryCard({
       </div>
 
       <div className="relative flex items-center justify-between gap-2 text-[11px]">
-        <span className={cn(state === 'mastered' ? 'text-gold' : 'text-fg-tertiary')}>
+        <span className={cn(state === 'mastered' ? 'text-gold-text' : 'text-fg-tertiary')}>
           {statusText(state, progress)}
         </span>
         {exercise.recommendedBpm && (

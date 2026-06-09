@@ -35,7 +35,7 @@ export function CurrentExercisePill({
       aria-expanded={expanded}
       aria-label="Current exercise — open selector"
       className={cn(
-        'surface-deep flex h-11 min-w-[200px] max-w-[260px] items-center gap-2 rounded-[11px] px-3 text-left',
+        'surface-deep flex h-11 min-w-0 max-w-[260px] items-center gap-2 rounded-[11px] px-3 text-left sm:min-w-[200px]',
         'transition duration-[120ms] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
       )}
     >

@@ -21,14 +21,13 @@
    highlight) are migrated when their views move in Stage 3.
    ========================================================================== */
 
-/* Theme-invariant semantic colors → Tailwind utilities (text-accent, etc.). */
+/* Theme-invariant semantic colors → Tailwind utilities (text-accent, etc.).
+   These read on both light and dark surfaces (used for fills, borders, icons). */
 @theme {
   --color-accent: #8b5cf6;
   --color-accent-cyan: #06b6d4;
-  --color-accent-text: #c4b5fd;
   --color-gold: #fbbf24;
   --color-danger: #a33d2d;
-  --color-danger-text: #e58a7a;
 }
 
 /* Theme-aware semantic colors. `inline` makes the utilities reference the var
@@ -44,6 +43,11 @@
   /* Active sidebar/bottom-nav destination text+icon. Deeper purple in light
      mode (the light-purple accent-text would wash out on a light surface). */
   --color-nav-active: var(--nav-active);
+  /* Accent/gold/danger used as TEXT must darken in light mode for contrast —
+     the dark-mode values (#C4B5FD, #FBBF24, #E58A7A) are too light on white. */
+  --color-accent-text: var(--accent-text);
+  --color-gold-text: var(--gold-text);
+  --color-danger-text: var(--danger-text);
 }
 
 /* Light mode is the default cascade (`:root`); `.dark` overrides below. The
@@ -93,6 +97,11 @@
 
   /* Exercise-selector pointer arrow fill = top of the elevated surface (light). */
   --popover-arrow-bg: #ffffff;
+
+  /* Accent/gold/danger text — darkened for contrast on light surfaces. */
+  --accent-text: #7c3aed;
+  --gold-text: #b45309;
+  --danger-text: #b42318;
 }
 
 .dark {
@@ -125,6 +134,11 @@
   --nav-active: #c4b5fd;
 
   --popover-arrow-bg: #22232f;
+
+  /* The original dark-mode accent/gold/danger text values (DESIGN-v2 §2). */
+  --accent-text: #c4b5fd;
+  --gold-text: #fbbf24;
+  --danger-text: #e58a7a;
 }
 
 /* Page canvas. Applied by the Stage 2 app shell; used now by the preview
@@ -308,6 +322,22 @@
   }
   .play-button-v2 {
     transition: none;
+  }
+}
+
+/* Reduced-motion safety net (DESIGN-v2 §3: hover transitions instantaneous,
+   §7 animations disabled). Specific components also drop transforms (notation
+   scale, play breathe) in their own @media blocks; this zeroes the durations of
+   every remaining transition/animation (the many Tailwind `transition` +
+   `hover:brightness` utilities) so nothing eases under the preference. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

@@ -70,7 +70,7 @@ export function SessionRow({ session, newBest, setTitle, now }: SessionRowProps)
             {sessionLabel(session)}
           </span>
           <span className="block truncate text-[11px] text-fg-tertiary">
-            {newBest && <span className="font-medium text-gold">New best — </span>}
+            {newBest && <span className="font-medium text-gold-text">New best — </span>}
             {context}
           </span>
         </span>
