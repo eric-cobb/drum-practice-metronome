@@ -258,12 +258,19 @@
 }
 .play-bloom-outer {
   position: absolute;
-  inset: -60%;
-  border-radius: 50%;
+  inset: -70%;
+  /* No border-radius clip — `closest-side` lets the radial fade fully to
+     transparent at the inscribed circle, so the glow is soft on all sides
+     (a border-radius:50% clip would cut the gradient off mid-fade, leaving a
+     hard-edged ~0.1-opacity disk). The extra stops give a long, low-opacity
+     tail so the outer edge dissolves rather than ending on a constant slope —
+     important against the dark canvas, where any defined ring reads as hard. */
   background: radial-gradient(
-    circle,
+    circle closest-side,
     rgba(168, 85, 247, 0.5) 0%,
-    rgba(124, 58, 237, 0.22) 40%,
+    rgba(124, 58, 237, 0.24) 32%,
+    rgba(124, 58, 237, 0.1) 52%,
+    rgba(124, 58, 237, 0.03) 74%,
     rgba(124, 58, 237, 0) 100%
   );
   pointer-events: none;
@@ -273,8 +280,10 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  /* closest-side fades to 0 exactly at the (circular) face edge, so the
+     border-radius clip lands on a fully-transparent stop — no hard rim. */
   background: radial-gradient(
-    circle at center 40%,
+    circle closest-side at center 40%,
     rgba(196, 181, 253, 0.4) 0%,
     rgba(196, 181, 253, 0) 100%
   );
