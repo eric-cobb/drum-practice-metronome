@@ -44,6 +44,18 @@ export function PlayButton({
     >
       {/* Atmospheric bloom — behind the face, never clickable. */}
       <span className="play-bloom-outer" aria-hidden />
+      {/* Sonar rings — expand outward on each beat (driven by usePlayPulse).
+          Invisible at rest; behind the face so only the outer ring shows. */}
+      <span
+        data-ring="a"
+        className="pointer-events-none absolute inset-0 rounded-full border-2 opacity-0 border-[color:var(--color-accent)]"
+        aria-hidden
+      />
+      <span
+        data-ring="b"
+        className="pointer-events-none absolute inset-0 rounded-full border-2 opacity-0 border-[color:var(--color-accent-cyan)]"
+        aria-hidden
+      />
       <button
         ref={buttonRef}
         type="button"
