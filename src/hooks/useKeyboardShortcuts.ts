@@ -10,6 +10,7 @@ import {
   goToPrevious,
 } from '../audio/transport';
 import { resetReps } from '../audio/scheduler';
+import { useTourStore } from '../state/tour';
 
 /** True when focus is in a field where typing should win over shortcuts. */
 function isTyping(target: EventTarget | null): boolean {
@@ -38,6 +39,8 @@ export function useKeyboardShortcuts(): void {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      // While a tour is running, its own controls (and Escape) take over.
+      if (useTourStore.getState().active) return;
       const typing = isTyping(e.target);
       const m = useMetronomeStore.getState();
       const mode = useModeStore.getState().mode;

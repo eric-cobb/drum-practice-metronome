@@ -8,6 +8,7 @@ import { PracticeView } from '../views/PracticeView';
 import { LibraryView } from '../views/LibraryView';
 import { HistoryView } from '../views/HistoryView';
 import { SettingsView } from '../views/SettingsView';
+import { TourHost } from '../Tour/TourHost';
 
 const VIEWS: { id: ViewId; element: ReactElement }[] = [
   { id: 'practice', element: <PracticeView /> },
@@ -51,6 +52,8 @@ export function AppShell() {
       </main>
 
       <BottomNav />
+
+      <TourHost />
     </div>
   );
 }

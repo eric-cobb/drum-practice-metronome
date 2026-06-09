@@ -29,6 +29,7 @@ export function CurrentExercisePill({
     <button
       ref={anchorRef}
       type="button"
+      data-tour="exercise-pill"
       onClick={onClick}
       disabled={!loadedSet || !exercise}
       aria-haspopup="dialog"

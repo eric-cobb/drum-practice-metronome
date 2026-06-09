@@ -17,6 +17,7 @@ import {
   parseSessionImport,
 } from '../../state/sessions';
 import { useThemeStore, type Theme } from '../../state/theme';
+import { useTourStore } from '../../state/tour';
 import {
   getPersistenceStatus,
   type PersistenceStatus,
@@ -74,6 +75,7 @@ export function SettingsView() {
 
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
+  const startTour = useTourStore((s) => s.start);
 
   const sessions = useSessionStore((s) => s.sessions);
   const importSessions = useSessionStore((s) => s.importSessions);
@@ -239,10 +241,10 @@ export function SettingsView() {
       <Section title="Help">
         <Row label="Take the tour">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" disabled title="Guided tour — coming in a later phase">
+            <Button variant="ghost" size="sm" onClick={() => startTour('free')}>
               Free mode
             </Button>
-            <Button variant="ghost" size="sm" disabled title="Guided tour — coming in a later phase">
+            <Button variant="ghost" size="sm" onClick={() => startTour('practice')}>
               Exercise mode
             </Button>
           </div>

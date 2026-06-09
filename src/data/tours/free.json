@@ -1,0 +1,32 @@
+[
+  {
+    "target": "[data-tour=\"mode-toggle\"]",
+    "title": "Free & Exercise modes",
+    "body": "Switch between the free-form metronome and structured exercise practice here. You're in Free mode now."
+  },
+  {
+    "target": "[data-tour=\"play\"]",
+    "title": "Start and stop",
+    "body": "The big button starts and stops the metronome, and pulses on every beat — brighter on accents. Spacebar works too."
+  },
+  {
+    "target": "[data-tour=\"bpm\"]",
+    "title": "Tempo",
+    "body": "Click the tempo to set the BPM: type it, drag the slider, nudge by ±1/±5, or tap it out. Press T anywhere to tap."
+  },
+  {
+    "target": "[data-tour=\"reps\"]",
+    "title": "Rep counter",
+    "body": "Set how many reps to play and whether to auto-stop. The bar underneath fills as you go; press R to reset it."
+  },
+  {
+    "target": "[data-tour=\"config-pills\"]",
+    "title": "Time, feel, dropout & ramp",
+    "body": "Set the time signature and subdivision, drop the click out on a schedule, or ramp the tempo across reps — from these pills."
+  },
+  {
+    "target": "[data-tour=\"sidebar\"]",
+    "title": "Library, history & settings",
+    "body": "Browse exercise sets, review your practice history, and adjust settings from the sidebar."
+  }
+]

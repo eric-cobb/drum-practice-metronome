@@ -29,6 +29,7 @@ export function ModeToggle() {
     <div
       role="group"
       aria-label="Mode"
+      data-tour="mode-toggle"
       className={cn(
         'surface-deep inline-flex h-7 items-center rounded-full p-0.5 transition-opacity duration-200',
         isPlaying ? 'opacity-30' : 'opacity-100',

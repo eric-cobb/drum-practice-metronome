@@ -34,12 +34,14 @@ export function PlayControl({ size }: PlayControlProps) {
       : 'Start metronome';
 
   return (
-    <PlayButton
-      playing={showPause}
-      onClick={onClick}
-      size={size}
-      buttonRef={buttonRef}
-      ariaLabel={label}
-    />
+    <div data-tour="play" className="inline-flex">
+      <PlayButton
+        playing={showPause}
+        onClick={onClick}
+        size={size}
+        buttonRef={buttonRef}
+        ariaLabel={label}
+      />
+    </div>
   );
 }

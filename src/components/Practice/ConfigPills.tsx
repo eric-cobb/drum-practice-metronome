@@ -13,6 +13,7 @@ export function ConfigPills() {
   return (
     <Card
       surface="card"
+      data-tour="config-pills"
       className={cn(
         'flex min-h-[84px] flex-wrap items-center justify-center gap-3 px-4 py-3 transition-opacity duration-200',
         isPlaying ? 'opacity-40' : 'opacity-100',

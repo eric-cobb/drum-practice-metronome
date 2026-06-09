@@ -13,6 +13,7 @@ export function Sidebar() {
   return (
     <nav
       aria-label="Primary"
+      data-tour="sidebar"
       className="hidden w-16 shrink-0 flex-col border-r md:flex"
       style={{
         background: 'var(--sidebar-bg)',

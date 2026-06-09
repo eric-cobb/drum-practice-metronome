@@ -81,7 +81,7 @@ export function BpmControl({
   const size = variant === 'free' ? 'text-[56px]' : 'text-[48px]';
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div data-tour="bpm" className="flex flex-col items-center gap-1">
       <span className="text-[10px] font-medium uppercase tracking-[0.1em] text-fg-tertiary">
         Tempo
       </span>

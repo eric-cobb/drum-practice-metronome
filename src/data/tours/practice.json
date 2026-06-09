@@ -1,0 +1,32 @@
+[
+  {
+    "target": "[data-tour=\"mode-toggle\"]",
+    "title": "Exercise mode",
+    "body": "You're in Exercise mode — work through a method book one exercise at a time. Switch back to Free mode here anytime."
+  },
+  {
+    "target": "[data-tour=\"exercise-pill\"]",
+    "title": "Pick an exercise",
+    "body": "This shows the current exercise. Click it to open the selector: switch sets, search, see recents, and jump to any exercise. (N / P step through them.)"
+  },
+  {
+    "target": "[data-tour=\"notation\"]",
+    "title": "Read along",
+    "body": "The notation for the current exercise. The current note lights up in time with the click as you play."
+  },
+  {
+    "target": "[data-tour=\"bpm\"]",
+    "title": "Tempo",
+    "body": "Set the tempo here or tap it out with T. Each set remembers the last tempo you used per exercise."
+  },
+  {
+    "target": "[data-tour=\"reps\"]",
+    "title": "Reps & auto-advance",
+    "body": "Hit the target reps and the app logs the session, then advances to the next exercise automatically."
+  },
+  {
+    "target": "[data-tour=\"play\"]",
+    "title": "Start with a count-in",
+    "body": "Press to start. Between exercises a count-in gives you a moment to read the next one before it begins."
+  }
+]

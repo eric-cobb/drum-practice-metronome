@@ -6,7 +6,7 @@ import { Card } from '../ui';
  *  card only provides the surface and padding. */
 export function NotationCard() {
   return (
-    <Card surface="elevated" className="flex min-h-[180px] items-center justify-center p-6">
+    <Card surface="elevated" data-tour="notation" className="flex min-h-[180px] items-center justify-center p-6">
       <div className="mx-auto w-full max-w-[1600px]">
         <Notation />
       </div>
