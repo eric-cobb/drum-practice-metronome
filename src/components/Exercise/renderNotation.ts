@@ -73,15 +73,19 @@ const TREMOLO_SPACING = 7;
 /** Glyph size for the tremolo slashes — VexFlow's resolved `Tremolo.fontSize`
  *  (falls back to the global default of 30). */
 const TREMOLO_FONT_SIZE = 30;
+/** Shrink the buzz slashes to ~70% — see BeamClearTremolo. */
+const TREMOLO_SIZE_SCALE = 0.7;
 
-/** A buzz tremolo whose three slashes sit one extra spacing below the stem tip.
+/** A buzz tremolo with smaller slashes than VexFlow's stock Tremolo.
  *
- *  Buzz notes here are beamed sixteenths, and a beam pins the stem tip exactly
- *  to the beam line (Beam.applyStemExtensions), so the stem can't be lengthened
- *  to make room — VexFlow's stock Tremolo then anchors its top slash just one
- *  spacing under the tip, where it blurs into the beam. This override re-runs
- *  the same draw but starts the slashes two spacings down, giving them clear air
- *  below the beam. The two inlined constants are VexFlow's own metric defaults. */
+ *  Buzz notes here are beamed sixteenths whose stem is short — the beam pins the
+ *  stem tip to the beam line (Beam.applyStemExtensions), so the stem can't be
+ *  lengthened to make room. Full-size slashes either blur into the beam above
+ *  (stock position) or run into the notehead below (if pushed down). Rendering
+ *  them smaller at the stock anchor gains air on BOTH ends: the lighter glyphs
+ *  read as distinct from the heavier beam and stay clear of the notehead.
+ *  Mirrors stock Tremolo.draw with a reduced glyph size; the inlined spacing and
+ *  base size are VexFlow's own metric defaults. */
 class BeamClearTremolo extends Tremolo {
   override draw(): void {
     const ctx = this.checkContext();
@@ -89,15 +93,19 @@ class BeamClearTremolo extends Tremolo {
     this.setRendered();
     const stemDirection = note.getStemDirection();
     const scale = note.getFontScale();
-    const ySpacing = TREMOLO_SPACING * stemDirection * scale;
+    const ySpacing = TREMOLO_SPACING * stemDirection * scale * TREMOLO_SIZE_SCALE;
     const x =
       note.getAbsoluteX() +
       (stemDirection === Stem.UP
         ? note.getGlyphWidth() - Stem.WIDTH / 2
         : Stem.WIDTH / 2);
-    // Stock Tremolo starts at topY + ySpacing; the extra spacing is the fix.
-    let y = note.getStemExtents().topY + ySpacing * 2;
-    this.fontInfo = { ...this.fontInfo, size: TREMOLO_FONT_SIZE * scale };
+    // Stock anchor (one full-size spacing below the tip); smaller slashes from
+    // here clear both the beam above and the notehead below.
+    let y = note.getStemExtents().topY + TREMOLO_SPACING * stemDirection * scale;
+    this.fontInfo = {
+      ...this.fontInfo,
+      size: TREMOLO_FONT_SIZE * scale * TREMOLO_SIZE_SCALE,
+    };
     for (let i = 0; i < this.num; i++) {
       this.renderText(ctx, x, y);
       y += ySpacing;
