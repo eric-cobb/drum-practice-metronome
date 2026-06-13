@@ -348,6 +348,13 @@ body {
     sans-serif;
 }
 
+/* Global type scale. Tailwind's text/spacing utilities are rem-based, so nudging
+   the root font size scales the whole UI up proportionally (the v2 default of
+   16px read small). Tune here. */
+html {
+  font-size: 17px;
+}
+
 /* Full-height shell so the three zones fill the viewport without page scroll. */
 html,
 body,
