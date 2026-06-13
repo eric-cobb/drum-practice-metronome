@@ -131,6 +131,27 @@ describe('renderExerciseNotation', () => {
     expect(count(make(true))).toBeGreaterThan(count(make(false)));
   });
 
+  it('labels ornaments under the note only when labelOrnaments is set', () => {
+    const ex: Exercise = {
+      id: 'orn-label',
+      number: 1,
+      name: 'x',
+      sectionId: 'main',
+      pattern: [[{ voices: ['snare'], sticking: 'R', ornament: 'flam' }, 'rest']],
+      timeSignature: { numerator: 1, denominator: 4 },
+      subdivision: 'eighth',
+    };
+    const withLabel = document.createElement('div');
+    renderExerciseNotation(withLabel, ex, 400, { labelOrnaments: true });
+    const labels = withLabel.querySelectorAll('text.ornament-label');
+    expect(labels).toHaveLength(1);
+    expect(labels[0].textContent).toBe('flam');
+
+    const without = document.createElement('div');
+    renderExerciseNotation(without, ex, 400);
+    expect(without.querySelectorAll('text.ornament-label')).toHaveLength(0);
+  });
+
   it('clears the container on re-render (no stacked SVGs)', () => {
     const sets = loadBundledSets();
     const set = sets[0];

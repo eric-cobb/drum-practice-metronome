@@ -176,7 +176,6 @@ function applyModifiers(
   spec: PositionSpec,
   stickingYShift: number,
   stemUp: boolean,
-  labelOrnaments: boolean,
 ): void {
   if (spec.sticking) {
     note.addModifier(
@@ -213,18 +212,6 @@ function applyModifiers(
     // Parenthesize the notehead(s) to mark a ghost note (full-value, not grace).
     Parenthesis.buildAndAttach([note]);
   }
-  if (labelOrnaments && spec.ornament) {
-    // Editor aid: name the ornament under the note so flam/drag/ruff/buzz (which
-    // look alike at a glance) are unambiguous while building. Sits below the
-    // sticking label.
-    note.addModifier(
-      new Annotation(spec.ornament)
-        .setVerticalJustification(Annotation.VerticalJustify.BOTTOM)
-        .setFont(STICKING_FONT_FAMILY, 10, 'normal')
-        .setYShift(stickingYShift + 20),
-      0,
-    );
-  }
 }
 
 interface BarVoices {
@@ -241,10 +228,7 @@ interface BarVoices {
  *  the empty side of each position with a GhostNote so the two voices stay
  *  aligned in time (ARCHITECTURE multi-voice rendering). A bar with no down
  *  voices renders as a single voice (the v1 snare path). */
-function buildBarVoices(
-  specs: PositionSpec[],
-  labelOrnaments: boolean,
-): BarVoices {
+function buildBarVoices(specs: PositionSpec[]): BarVoices {
   const hasDown = specs.some((s) => !s.isRest && s.downKeys.length > 0);
   const stickingYShift = hasDown
     ? STICKING_Y_SHIFT_WITH_FEET_PX
@@ -284,7 +268,7 @@ function buildBarVoices(
     }
 
     const prim = upNote ?? downNote;
-    if (prim) applyModifiers(prim, spec, stickingYShift, upNote !== null, labelOrnaments);
+    if (prim) applyModifiers(prim, spec, stickingYShift, upNote !== null);
     primary.push(prim);
   }
 
@@ -351,6 +335,36 @@ interface RenderOptions {
    *  ornamented note. An editor aid (the live preview) — Practice and Library
    *  leave it off so the staff stays clean. Defaults to false. */
   labelOrnaments?: boolean;
+}
+
+/** Draw the ornament's name under each ornamented note straight into the SVG
+ *  (editor aid; see RenderOptions.labelOrnaments). Direct DOM injection rather
+ *  than a VexFlow Annotation, because a second BOTTOM annotation collides with
+ *  the sticking label's layout and renders nothing. `primary[i]` aligns with
+ *  `specs[i]`. */
+function injectOrnamentLabels(
+  container: HTMLDivElement,
+  specs: PositionSpec[],
+  primary: (StaveNote | null)[],
+  y: number,
+): void {
+  const svg = container.querySelector('svg');
+  if (!svg) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  specs.forEach((spec, i) => {
+    const note = primary[i];
+    if (!spec.ornament || !note) return;
+    const el = document.createElementNS(NS, 'text');
+    el.setAttribute('x', String(note.getAbsoluteX() + note.getGlyphWidth() / 2));
+    el.setAttribute('y', String(y));
+    el.setAttribute('text-anchor', 'middle');
+    el.setAttribute('class', 'ornament-label');
+    el.style.fontFamily = STICKING_FONT_FAMILY;
+    el.style.fontSize = '11px';
+    el.style.fill = 'var(--color-fg-tertiary)';
+    el.textContent = spec.ornament;
+    svg.appendChild(el);
+  });
 }
 
 export function renderExerciseNotation(
@@ -422,7 +436,7 @@ export function renderExerciseNotation(
       stave.setContext(ctx).draw();
 
       const specs = buildPositionSpecs(bar, exercise.subdivision);
-      const { up, down, primary } = buildBarVoices(specs, labelOrnaments);
+      const { up, down, primary } = buildBarVoices(specs);
 
       const newVoice = () =>
         new Voice({ numBeats: ts.numerator, beatValue: ts.denominator }).setStrict(
@@ -483,6 +497,15 @@ export function renderExerciseNotation(
       if (interactive) {
         primary.forEach((note, noteIndex) =>
           note?.getSVGElement()?.setAttribute('id', `note-${barIndex}-${noteIndex}`),
+        );
+      }
+
+      if (labelOrnaments) {
+        injectOrnamentLabels(
+          container,
+          specs,
+          primary,
+          STAVE_Y + STAFF_LINE_SPACING * 4 + 50,
         );
       }
 
