@@ -167,6 +167,8 @@ interface ExerciseState {
   saveSetAs: (set: ExerciseSet, newId: string) => Promise<LoadResult>;
   exportSet: (setId: string) => Promise<Blob>;
   deleteSet: (setId: string) => Promise<void>;
+  /** Full set data by id from the registry (bundled or user), for the editor. */
+  getSet: (setId: string) => LoadedSet | undefined;
 }
 
 // --- Selectors ---------------------------------------------------------------
@@ -500,5 +502,7 @@ export const useExerciseStore = create<ExerciseState>((set, get) => {
       REGISTRY = mergeRegistry(userSets);
       refreshRegistryState();
     },
+
+    getSet: (setId) => REGISTRY[setId],
   };
 });

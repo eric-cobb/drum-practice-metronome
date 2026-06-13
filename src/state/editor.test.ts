@@ -75,6 +75,67 @@ describe('editor store', () => {
     expect(before).toBe('rest'); // captured value unchanged
   });
 
+  it('addSection / rename / move (renumbers order) / delete (guarded)', () => {
+    const s = () => useEditorStore.getState();
+    s().openNew('my-set');
+    s().addSection();
+    expect(active() && s().draft?.sections).toHaveLength(2);
+    const [a, b] = s().draft!.sections;
+
+    s().renameSection(b.id, 'Rolls');
+    expect(s().draft!.sections.find((x) => x.id === b.id)?.title).toBe('Rolls');
+
+    s().moveSection(b.id, -1); // b before a
+    expect(s().draft!.sections.map((x) => x.id)).toEqual([b.id, a.id]);
+    // order renumbered to match array position
+    expect(s().draft!.sections.map((x) => x.order)).toEqual([1, 2]);
+
+    // The first section now holds the blank exercise → can't delete it; the
+    // empty one can go.
+    const withEx = s().draft!.exercises[0].sectionId;
+    const empty = s().draft!.sections.find((x) => x.id !== withEx)!;
+    s().deleteSection(empty.id);
+    expect(s().draft!.sections).toHaveLength(1);
+    // Deleting the last remaining section is refused.
+    s().deleteSection(s().draft!.sections[0].id);
+    expect(s().draft!.sections).toHaveLength(1);
+  });
+
+  it('addExercise selects the new one; deleteExercise is guarded at one', () => {
+    const s = () => useEditorStore.getState();
+    s().openNew('my-set');
+    s().addExercise();
+    expect(s().draft!.exercises).toHaveLength(2);
+    expect(s().activeExerciseId).toBe(s().draft!.exercises[1].id);
+
+    s().deleteExercise(s().draft!.exercises[1].id);
+    expect(s().draft!.exercises).toHaveLength(1);
+    // Can't delete the last exercise.
+    s().deleteExercise(s().draft!.exercises[0].id);
+    expect(s().draft!.exercises).toHaveLength(1);
+  });
+
+  it('moveExercise reorders the list', () => {
+    const s = () => useEditorStore.getState();
+    s().openNew('my-set');
+    s().addExercise();
+    const [first, second] = s().draft!.exercises;
+    s().moveExercise(second.id, -1);
+    expect(s().draft!.exercises.map((e) => e.id)).toEqual([second.id, first.id]);
+  });
+
+  it('set-metadata setters update the draft and flag dirty', () => {
+    const s = () => useEditorStore.getState();
+    s().openNew('my-set');
+    s().setSource('GLS');
+    s().setDefaultBpm(120);
+    s().setDefaultTargetReps(30);
+    expect(s().draft!.source).toBe('GLS');
+    expect(s().draft!.defaultBpm).toBe(120);
+    expect(s().draft!.defaultTargetReps).toBe(30);
+    expect(s().dirty).toBe(true);
+  });
+
   it('close clears the draft', () => {
     useEditorStore.getState().openNew('my-set');
     useEditorStore.getState().close();

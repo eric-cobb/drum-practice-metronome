@@ -1,15 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
   blankSet,
+  cloneSetForEdit,
   cycleOrnament,
   cycleStroke,
   eventsPerBar,
+  nextId,
   resizeBar,
   resizePattern,
   toggleAccent,
   toggleGhost,
+  validateDraft,
 } from './editorModel';
-import type { Hit, PatternEvent, TimeSignature } from '../../types';
+import type { ExerciseSet, Hit, PatternEvent, TimeSignature } from '../../types';
 
 const ts = (numerator: number, denominator: 2 | 4 | 8): TimeSignature => ({
   numerator,
@@ -98,6 +101,46 @@ describe('cell operations', () => {
     expect(toggleAccent('rest')).toBe('rest');
     expect(toggleGhost('rest')).toBe('rest');
     expect(cycleOrnament('rest')).toBe('rest');
+  });
+});
+
+describe('nextId', () => {
+  it('finds the smallest unused prefixed id', () => {
+    expect(nextId('section', [])).toBe('section-1');
+    expect(nextId('section', [{ id: 'section-1' }, { id: 'section-2' }])).toBe('section-3');
+    // Fills a gap.
+    expect(nextId('exercise', [{ id: 'exercise-2' }])).toBe('exercise-1');
+  });
+});
+
+describe('cloneSetForEdit', () => {
+  it('deep-clones under a new id and drops the origin tag', () => {
+    const original = { ...blankSet('orig'), origin: 'bundled' } as ExerciseSet;
+    const copy = cloneSetForEdit(original, 'orig-copy');
+    expect(copy.id).toBe('orig-copy');
+    expect('origin' in copy).toBe(false);
+    // Deep clone: mutating the copy's pattern doesn't touch the original.
+    copy.exercises[0].pattern[0][0] = { voices: ['snare'], sticking: 'R' };
+    expect(original.exercises[0].pattern[0][0]).toBe('rest');
+  });
+});
+
+describe('validateDraft', () => {
+  it('accepts a blank set', () => {
+    expect(validateDraft(blankSet('s'))).toBeNull();
+  });
+  it('rejects an empty title', () => {
+    expect(validateDraft({ ...blankSet('s'), title: '  ' })).toMatch(/title/i);
+  });
+  it('rejects an exercise pointing at a missing section', () => {
+    const set = blankSet('s');
+    set.exercises[0].sectionId = 'nope';
+    expect(validateDraft(set)).toMatch(/section/i);
+  });
+  it('rejects a nameless exercise', () => {
+    const set = blankSet('s');
+    set.exercises[0].name = '';
+    expect(validateDraft(set)).toMatch(/name/i);
   });
 });
 

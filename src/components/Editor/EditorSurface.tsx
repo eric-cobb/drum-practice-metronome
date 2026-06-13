@@ -1,35 +1,25 @@
 import { useState } from 'react';
 import { Check, X } from 'lucide-react';
-import { EDITOR_BARS_MAX, EDITOR_BARS_MIN, useEditorStore } from '../../state/editor';
+import { useEditorStore } from '../../state/editor';
 import { useExerciseStore } from '../../state/exercises';
-import {
-  SUBDIVISION_LABELS,
-  SUBDIVISION_ORDER,
-  TIME_SIGNATURE_PRESETS,
-  formatTimeSignature,
-  type TimeSignature,
-} from '../../types';
-import { Button, Input, Stepper, cn } from '../ui';
+import { Button } from '../ui';
+import { validateDraft } from './editorModel';
+import { SetMetaForm } from './SetMetaForm';
+import { SectionsPanel } from './SectionsPanel';
+import { ExerciseList } from './ExerciseList';
+import { ExerciseMetaForm } from './ExerciseMetaForm';
 import { PatternGrid } from './PatternGrid';
 import { NotationLivePreview } from './NotationLivePreview';
 
-const SELECT_CLASS = cn(
-  'h-10 rounded-[10px] surface-deep px-3 text-sm text-fg',
-  'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-);
-
-/** The full pattern-editor surface (Phase 11, Stage 11.1). Renders inside the
- *  Library view while a draft is open: set/exercise metadata, the sticking grid,
- *  and a live notation preview, with Save (→ exercises store) and Cancel. */
+/** The full pattern-editor surface (Phase 11). Renders inside the Library view
+ *  while a draft is open: set metadata, section + exercise management, and — for
+ *  the selected exercise — its metadata, the sticking grid, and a live preview.
+ *  Saves the whole set through the exercises store (validate → persist →
+ *  registry refresh). */
 export function EditorSurface() {
   const draft = useEditorStore((s) => s.draft);
   const activeExerciseId = useEditorStore((s) => s.activeExerciseId);
   const dirty = useEditorStore((s) => s.dirty);
-  const setTitle = useEditorStore((s) => s.setTitle);
-  const updateExerciseMeta = useEditorStore((s) => s.updateExerciseMeta);
-  const setTimeSignature = useEditorStore((s) => s.setTimeSignature);
-  const setSubdivision = useEditorStore((s) => s.setSubdivision);
-  const setBarCount = useEditorStore((s) => s.setBarCount);
   const markClean = useEditorStore((s) => s.markClean);
   const close = useEditorStore((s) => s.close);
 
@@ -39,7 +29,7 @@ export function EditorSurface() {
   const [saving, setSaving] = useState(false);
 
   const active = draft?.exercises.find((e) => e.id === activeExerciseId) ?? null;
-  if (!draft || !active) return null;
+  if (!draft) return null;
 
   const onCancel = () => {
     if (dirty && !window.confirm('Discard unsaved changes?')) return;
@@ -47,6 +37,11 @@ export function EditorSurface() {
   };
 
   const onSave = async () => {
+    const problem = validateDraft(draft);
+    if (problem) {
+      setError(problem);
+      return;
+    }
     setSaving(true);
     setError(null);
     const result = await replaceSet(draft);
@@ -59,23 +54,14 @@ export function EditorSurface() {
     }
   };
 
-  const onPickTimeSignature = (value: string) => {
-    const preset = TIME_SIGNATURE_PRESETS[Number(value)];
-    if (preset) setTimeSignature(preset);
-  };
-
-  const tsIndex = TIME_SIGNATURE_PRESETS.findIndex(
-    (p) => sameTimeSignature(p, active.timeSignature),
-  );
-
   return (
-    <div className="mx-auto max-w-[1000px] px-8 py-7">
+    <div className="mx-auto max-w-[1100px] px-8 py-7">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-medium text-fg">Pattern editor</h1>
+          <h1 className="text-xl font-medium text-fg">Edit set</h1>
           <p className="text-xs text-fg-secondary">
-            Build a snare pattern: click a stroke cell to cycle rest → R → L, then
-            toggle accents, ghosts, and ornaments.
+            Build sections and exercises, then click a stroke cell to cycle rest →
+            R → L and toggle accents, ghosts, and ornaments.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -94,83 +80,37 @@ export function EditorSurface() {
         </p>
       )}
 
-      {/* Metadata */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          label="Set title"
-          value={draft.title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <Input
-          label="Exercise name"
-          value={active.name}
-          onChange={(e) => updateExerciseMeta({ name: e.target.value })}
-        />
-      </div>
+      <div className="mt-6 flex flex-col gap-6">
+        <SetMetaForm />
 
-      <div className="mt-4 flex flex-wrap items-end gap-5">
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-fg-secondary">Time signature</span>
-          <select
-            className={SELECT_CLASS}
-            value={tsIndex >= 0 ? tsIndex : ''}
-            onChange={(e) => onPickTimeSignature(e.target.value)}
-          >
-            {tsIndex < 0 && (
-              <option value="">{formatTimeSignature(active.timeSignature)}</option>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+          {/* Left: structure */}
+          <div className="flex flex-col gap-6">
+            <SectionsPanel />
+            <ExerciseList />
+          </div>
+
+          {/* Right: the selected exercise */}
+          <div className="flex flex-col gap-6">
+            {active ? (
+              <>
+                <div className="surface-card rounded-[14px] p-4">
+                  <ExerciseMetaForm exercise={active} />
+                </div>
+                <div className="surface-card rounded-[14px] p-4">
+                  <PatternGrid exercise={active} />
+                </div>
+                <div>
+                  <h2 className="mb-2 text-sm font-medium text-fg">Preview</h2>
+                  <NotationLivePreview exercise={active} />
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-fg-tertiary">Select an exercise to edit.</p>
             )}
-            {TIME_SIGNATURE_PRESETS.map((p, i) => (
-              <option key={i} value={i}>
-                {formatTimeSignature(p)}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-fg-secondary">Subdivision</span>
-          <select
-            className={SELECT_CLASS}
-            value={active.subdivision}
-            onChange={(e) =>
-              setSubdivision(e.target.value as (typeof SUBDIVISION_ORDER)[number])
-            }
-          >
-            {SUBDIVISION_ORDER.map((s) => (
-              <option key={s} value={s}>
-                {SUBDIVISION_LABELS[s]}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <Stepper
-          label="Bars"
-          value={active.pattern.length}
-          min={EDITOR_BARS_MIN}
-          max={EDITOR_BARS_MAX}
-          onChange={setBarCount}
-        />
-      </div>
-
-      {/* Grid */}
-      <div className="surface-card mt-6 rounded-[14px] p-4">
-        <PatternGrid exercise={active} />
-      </div>
-
-      {/* Live preview */}
-      <div className="mt-6">
-        <h2 className="mb-2 text-sm font-medium text-fg">Preview</h2>
-        <NotationLivePreview exercise={active} />
+          </div>
+        </div>
       </div>
     </div>
-  );
-}
-
-function sameTimeSignature(a: TimeSignature, b: TimeSignature): boolean {
-  return (
-    a.numerator === b.numerator &&
-    a.denominator === b.denominator &&
-    a.displayAs === b.displayAs
   );
 }

@@ -131,3 +131,50 @@ export function blankSet(id: string): ExerciseSet {
     exercises: [blankExercise('exercise-1', 1, sectionId)],
   };
 }
+
+/** Smallest unused `${prefix}-N` id among `items` (N starts at 1). */
+export function nextId(prefix: string, items: ReadonlyArray<{ id: string }>): string {
+  const ids = new Set(items.map((i) => i.id));
+  let n = 1;
+  while (ids.has(`${prefix}-${n}`)) n += 1;
+  return `${prefix}-${n}`;
+}
+
+/** Deep-clone a set under a new id, so editing a copy never mutates the
+ *  registry's object (used by "Edit" and "Duplicate to edit"). The set is plain
+ *  JSON data, so a JSON round-trip is a safe deep clone. */
+export function cloneSetForEdit(set: ExerciseSet, newId: string): ExerciseSet {
+  const clone = JSON.parse(JSON.stringify(set)) as ExerciseSet & {
+    origin?: unknown;
+  };
+  // `origin` is a runtime tag on LoadedSet, not part of the persisted shape —
+  // drop it so a duplicated bundled set doesn't carry/export origin: "bundled".
+  delete clone.origin;
+  return { ...clone, id: newId };
+}
+
+/** Structural validation for a draft before saving (the runtime-shape analogue
+ *  of loadExerciseSet's validator, which only accepts the raw on-disk shape).
+ *  Returns an error message, or null when the draft is sound. */
+export function validateDraft(set: ExerciseSet): string | null {
+  if (!set.title.trim()) return 'Give the set a title.';
+  if (set.sections.length === 0) return 'Add at least one section.';
+  if (set.exercises.length === 0) return 'Add at least one exercise.';
+
+  const sectionIds = new Set(set.sections.map((s) => s.id));
+  if (sectionIds.size !== set.sections.length) return 'Two sections share an id.';
+  for (const s of set.sections) {
+    if (!s.title.trim()) return 'Every section needs a name.';
+  }
+
+  const exerciseIds = new Set(set.exercises.map((e) => e.id));
+  if (exerciseIds.size !== set.exercises.length) return 'Two exercises share an id.';
+  for (const ex of set.exercises) {
+    if (!ex.name.trim()) return `Exercise ${ex.number} needs a name.`;
+    if (!sectionIds.has(ex.sectionId)) {
+      return `"${ex.name}" isn't assigned to a section.`;
+    }
+    if (ex.pattern.length === 0) return `"${ex.name}" has no bars.`;
+  }
+  return null;
+}
