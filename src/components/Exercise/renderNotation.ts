@@ -362,7 +362,7 @@ function injectOrnamentLabels(
     const ty = parseFloat(t.getAttribute('y') ?? '');
     if (Number.isFinite(ty)) stickingY = Math.max(stickingY, ty);
   });
-  const labelY = (stickingY > -Infinity ? stickingY : fallbackY) + 15;
+  const labelY = (stickingY > -Infinity ? stickingY : fallbackY) + 22;
 
   // The render canvas is clipped to its viewBox (0 0 W 220); a label below the
   // staff would be cut off, so grow the SVG height + viewBox to fit it.
