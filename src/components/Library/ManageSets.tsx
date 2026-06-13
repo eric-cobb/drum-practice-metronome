@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronRight, Download, Trash2 } from 'lucide-react';
 import { useExerciseStore } from '../../state/exercises';
 import type { ExerciseSetSummary } from '../../types';
@@ -20,6 +20,22 @@ export function ManageSets() {
     () => availableSets.filter((s) => s.origin === 'user-imported').slice().reverse(),
     [availableSets],
   );
+
+  // A status message ("Deleted 'X'.") must not linger: it would otherwise
+  // survive the empty-list `return null` (which doesn't unmount) and reappear
+  // stale after the set is re-imported. So suppress it whenever the list grows
+  // (an import), and auto-dismiss it after a few seconds.
+  const prevCount = useRef(userSets.length);
+  const grew = userSets.length > prevCount.current;
+  useEffect(() => {
+    prevCount.current = userSets.length;
+  }, [userSets.length]);
+  useEffect(() => {
+    if (!msg) return;
+    const t = window.setTimeout(() => setMsg(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [msg]);
+  const shownMsg = grew ? null : msg;
 
   if (userSets.length === 0) return null;
 
@@ -102,7 +118,7 @@ export function ManageSets() {
         </ul>
       )}
 
-      {msg && <p role="status" className="mt-2 text-xs text-fg-tertiary">{msg}</p>}
+      {shownMsg && <p role="status" className="mt-2 text-xs text-fg-tertiary">{shownMsg}</p>}
     </div>
   );
 }
