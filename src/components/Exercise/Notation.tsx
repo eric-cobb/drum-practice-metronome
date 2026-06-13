@@ -71,9 +71,14 @@ export function Notation() {
     setError(result.ok ? null : result.error);
   }, [exercise, width]);
 
-  if (!exercise) return null;
-
-  const { numerator, denominator } = exercise.timeSignature;
+  // Always mount the container — even before the exercise resolves on a cold
+  // start (the registry loads asynchronously). If we returned null here the
+  // ref'd div would be absent, the width ResizeObserver (mount-once) would have
+  // nothing to observe, and the draw effect would stay stuck at width 0 once the
+  // exercise finally arrived — leaving the staff blank after a refresh.
+  const label = exercise
+    ? `Exercise ${exercise.number}, ${exercise.name}, ${SUBDIVISION_LABELS[exercise.subdivision]} notes in ${exercise.timeSignature.numerator}/${exercise.timeSignature.denominator}`
+    : 'Exercise notation';
 
   return (
     <div className="w-full">
@@ -81,7 +86,7 @@ export function Notation() {
         ref={containerRef}
         className="w-full overflow-x-auto"
         role="img"
-        aria-label={`Exercise ${exercise.number}, ${exercise.name}, ${SUBDIVISION_LABELS[exercise.subdivision]} notes in ${numerator}/${denominator}`}
+        aria-label={label}
       />
       {error && (
         <p className="mt-2 text-center text-sm text-red-500 dark:text-red-400">
