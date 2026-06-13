@@ -1,6 +1,8 @@
 import { useRef, useState, type ChangeEvent } from 'react';
-import { Upload, FileCode } from 'lucide-react';
+import { Upload, FileCode, Plus } from 'lucide-react';
 import { useExerciseStore } from '../../state/exercises';
+import { useEditorStore } from '../../state/editor';
+import { generateUniqueId } from '../../data/loadExerciseSet';
 import type { ExerciseSet } from '../../types';
 import { Button, Modal, cn } from '../ui';
 import { SchemaReferenceModal } from './SchemaReferenceModal';
@@ -21,6 +23,14 @@ export function LibraryActions() {
   const importSet = useExerciseStore((s) => s.importSet);
   const replaceSet = useExerciseStore((s) => s.replaceSet);
   const saveSetAs = useExerciseStore((s) => s.saveSetAs);
+  const availableSets = useExerciseStore((s) => s.availableSets);
+  const openNew = useEditorStore((s) => s.openNew);
+
+  const onNewSet = () => {
+    const existing = new Set(availableSets.map((s) => s.id));
+    const id = existing.has('my-set') ? generateUniqueId('my-set', existing) : 'my-set';
+    openNew(id);
+  };
 
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<Msg>(null);
@@ -74,6 +84,14 @@ export function LibraryActions() {
         <input ref={fileRef} type="file" onChange={onPick} className="hidden" />
         <Button
           variant="primary"
+          size="sm"
+          icon={<Plus size={15} strokeWidth={1.5} />}
+          onClick={onNewSet}
+        >
+          New set
+        </Button>
+        <Button
+          variant="secondary"
           size="sm"
           icon={<Upload size={15} strokeWidth={1.5} />}
           onClick={() => fileRef.current?.click()}

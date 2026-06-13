@@ -11,6 +11,7 @@ import {
 import { useMetronomeStore } from '../../state/metronome';
 import { useModeStore } from '../../state/mode';
 import { useUiStore } from '../../state/ui';
+import { useEditorStore } from '../../state/editor';
 import { switchSet } from '../../audio/transport';
 import { stopMetronome } from '../../audio/scheduler';
 import type { Exercise } from '../../types';
@@ -18,6 +19,7 @@ import { SetPicker } from '../Practice/selector/SetPicker';
 import { LibraryCard } from '../Library/LibraryCard';
 import { LibraryActions } from '../Library/LibraryActions';
 import { ManageSets } from '../Library/ManageSets';
+import { EditorSurface } from '../Editor/EditorSurface';
 
 function matchesQuery(exercise: Exercise, q: string): boolean {
   const lower = q.toLowerCase().trim();
@@ -32,6 +34,7 @@ function matchesQuery(exercise: Exercise, q: string): boolean {
  *  notation previews. Tapping a card jumps to that exercise in Practice. The
  *  data layer is unchanged — this reads the same exercise/progress stores. */
 export function LibraryView() {
+  const isEditing = useEditorStore((s) => s.draft !== null);
   const loadedSet = useExerciseStore((s) => s.loadedSet);
   const availableSets = useExerciseStore((s) => s.availableSets);
   const activeSetId = useExerciseStore((s) => s.activeSetId);
@@ -84,6 +87,9 @@ export function LibraryView() {
     setExerciseById(id);
     setView('practice');
   };
+
+  // While a draft is open the Library is replaced by the full editor surface.
+  if (isEditing) return <EditorSurface />;
 
   return (
     <div className="mx-auto max-w-[1000px] px-8 py-7">
