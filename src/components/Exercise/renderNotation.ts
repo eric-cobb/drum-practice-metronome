@@ -80,11 +80,16 @@ const TREMOLO_FONT_SIZE = 30;
  *  — without tilting the beam (every stem in the group grows equally). */
 const BUZZ_STEM_EXTRA_PX = 27;
 
-/** A buzz tremolo whose three full-size slashes sit two spacings below the stem
- *  tip — far enough under the (lifted, see BUZZ_STEM_EXTRA_PX) beam to read as
- *  distinct from it, while the extra stem keeps them clear of the notehead.
- *  Mirrors stock Tremolo.draw (which starts at one spacing) with a larger
- *  offset; the inlined spacing and size are VexFlow's own metric defaults. */
+/** A buzz tremolo positioned to clear whatever sits at the top of the stem:
+ *
+ *  - Beamed buzz: the beam-group stems are lifted (BUZZ_STEM_EXTRA_PX) so the
+ *    beam rides high; drop the slashes a few spacings below it.
+ *  - Flagged (isolated) buzz: there's no beam — a flag hangs off the top of the
+ *    stem instead. Anchoring below the tip would put the slashes through the
+ *    flag, so anchor them UP from the notehead, sitting the stack in the gap
+ *    below the flag (the stem is lifted for room there too).
+ *
+ *  Mirrors stock Tremolo.draw; the inlined spacing/size are VexFlow's defaults. */
 class BeamClearTremolo extends Tremolo {
   override draw(): void {
     const ctx = this.checkContext();
@@ -98,9 +103,9 @@ class BeamClearTremolo extends Tremolo {
       (stemDirection === Stem.UP
         ? note.getGlyphWidth() - Stem.WIDTH / 2
         : Stem.WIDTH / 2);
-    // Stock Tremolo starts at topY + ySpacing; the extra offset drops the top
-    // slash clear of the beam (the lifted stem leaves room below for the rest).
-    let y = note.getStemExtents().topY + ySpacing * 3.2;
+    const { topY, baseY } = note.getStemExtents();
+    const beamed = (note as unknown as { beam?: unknown }).beam != null;
+    let y = beamed ? topY + ySpacing * 3.2 : baseY - ySpacing * 4;
     this.fontInfo = { ...this.fontInfo, size: TREMOLO_FONT_SIZE * scale };
     for (let i = 0; i < this.num; i++) {
       this.renderText(ctx, x, y);
@@ -171,6 +176,7 @@ function applyModifiers(
   spec: PositionSpec,
   stickingYShift: number,
   stemUp: boolean,
+  labelOrnaments: boolean,
 ): void {
   if (spec.sticking) {
     note.addModifier(
@@ -207,6 +213,18 @@ function applyModifiers(
     // Parenthesize the notehead(s) to mark a ghost note (full-value, not grace).
     Parenthesis.buildAndAttach([note]);
   }
+  if (labelOrnaments && spec.ornament) {
+    // Editor aid: name the ornament under the note so flam/drag/ruff/buzz (which
+    // look alike at a glance) are unambiguous while building. Sits below the
+    // sticking label.
+    note.addModifier(
+      new Annotation(spec.ornament)
+        .setVerticalJustification(Annotation.VerticalJustify.BOTTOM)
+        .setFont(STICKING_FONT_FAMILY, 10, 'normal')
+        .setYShift(stickingYShift + 20),
+      0,
+    );
+  }
 }
 
 interface BarVoices {
@@ -223,7 +241,10 @@ interface BarVoices {
  *  the empty side of each position with a GhostNote so the two voices stay
  *  aligned in time (ARCHITECTURE multi-voice rendering). A bar with no down
  *  voices renders as a single voice (the v1 snare path). */
-function buildBarVoices(specs: PositionSpec[]): BarVoices {
+function buildBarVoices(
+  specs: PositionSpec[],
+  labelOrnaments: boolean,
+): BarVoices {
   const hasDown = specs.some((s) => !s.isRest && s.downKeys.length > 0);
   const stickingYShift = hasDown
     ? STICKING_Y_SHIFT_WITH_FEET_PX
@@ -263,7 +284,7 @@ function buildBarVoices(specs: PositionSpec[]): BarVoices {
     }
 
     const prim = upNote ?? downNote;
-    if (prim) applyModifiers(prim, spec, stickingYShift, upNote !== null);
+    if (prim) applyModifiers(prim, spec, stickingYShift, upNote !== null, labelOrnaments);
     primary.push(prim);
   }
 
@@ -326,6 +347,10 @@ interface RenderOptions {
    *  without this they'd duplicate the global `note-{bar}-{note}` ids and could
    *  steal the live Practice highlight's lookups. Defaults to true. */
   interactive?: boolean;
+  /** When true, render the ornament's name (flam/drag/ruff/buzz) under each
+   *  ornamented note. An editor aid (the live preview) — Practice and Library
+   *  leave it off so the staff stays clean. Defaults to false. */
+  labelOrnaments?: boolean;
 }
 
 export function renderExerciseNotation(
@@ -335,6 +360,7 @@ export function renderExerciseNotation(
   options: RenderOptions = {},
 ): RenderResult {
   const interactive = options.interactive ?? true;
+  const labelOrnaments = options.labelOrnaments ?? false;
   // Clear any prior render first (also keeps React StrictMode's double-invoke
   // from stacking two SVGs).
   container.replaceChildren();
@@ -396,7 +422,7 @@ export function renderExerciseNotation(
       stave.setContext(ctx).draw();
 
       const specs = buildPositionSpecs(bar, exercise.subdivision);
-      const { up, down, primary } = buildBarVoices(specs);
+      const { up, down, primary } = buildBarVoices(specs, labelOrnaments);
 
       const newVoice = () =>
         new Voice({ numBeats: ts.numerator, beatValue: ts.denominator }).setStrict(

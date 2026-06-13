@@ -14,6 +14,7 @@ export function NotationLivePreview({ exercise }: { exercise: Exercise }) {
     if (ref.current) {
       renderExerciseNotation(ref.current, exercise, RENDER_WIDTH, {
         interactive: false,
+        labelOrnaments: true,
       });
     }
   }, [exercise]);
