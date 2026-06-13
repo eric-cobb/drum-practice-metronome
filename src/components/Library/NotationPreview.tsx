@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { renderExerciseNotation } from '../Exercise/renderNotation';
 import type { Exercise } from '../../types';
 
@@ -7,6 +7,13 @@ import type { Exercise } from '../../types';
 // before being scaled down (vs. drawing cramped at the card width).
 const RENDER_WIDTH = 560;
 const RENDER_HEIGHT = 220;
+
+// The preview shows only the first half-bar (capped) rather than the whole
+// pattern. Cramming a full 16-note bar into a card makes ornament detail —
+// drag/ruff beam counts, ghost-note parentheses — vanish; showing fewer events
+// at the same render width zooms each note in enough to read. Trades pattern
+// overview for legibility (the full pattern lives on the exercise page).
+const PREVIEW_MAX_EVENTS = 8;
 
 /** A static, scaled notation preview for a Library card. Renders lazily (only
  *  once scrolled into view) and non-interactively (no global note ids / band
@@ -17,6 +24,17 @@ export function NotationPreview({ exercise }: { exercise: Exercise }) {
   const innerRef = useRef<HTMLDivElement>(null);
   const [boxWidth, setBoxWidth] = useState(0);
   const [visible, setVisible] = useState(false);
+
+  // A zoomed-in slice: the first bar truncated to its first half (capped). The
+  // partial bar renders fine — the renderer's voices are non-strict.
+  const previewExercise = useMemo<Exercise>(() => {
+    const firstBar = exercise.pattern[0] ?? [];
+    const count = Math.min(
+      PREVIEW_MAX_EVENTS,
+      Math.max(1, Math.ceil(firstBar.length / 2)),
+    );
+    return { ...exercise, pattern: [firstBar.slice(0, count)] };
+  }, [exercise]);
 
   // Track the card's width to compute the scale factor.
   useEffect(() => {
@@ -48,10 +66,10 @@ export function NotationPreview({ exercise }: { exercise: Exercise }) {
 
   useEffect(() => {
     if (!visible || !innerRef.current) return;
-    renderExerciseNotation(innerRef.current, exercise, RENDER_WIDTH, {
+    renderExerciseNotation(innerRef.current, previewExercise, RENDER_WIDTH, {
       interactive: false,
     });
-  }, [visible, exercise]);
+  }, [visible, previewExercise]);
 
   const scale = boxWidth > 0 ? boxWidth / RENDER_WIDTH : 0;
 

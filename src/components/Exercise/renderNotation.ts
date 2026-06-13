@@ -67,6 +67,44 @@ const STICKING_Y_SHIFT_PX = 10;
  *  the down-stems/noteheads below the staff. */
 const STICKING_Y_SHIFT_WITH_FEET_PX = 52;
 
+/** Vertical gap between consecutive tremolo slashes — VexFlow's `Tremolo.spacing`
+ *  metric default (Metrics isn't re-exported, so it's inlined here). */
+const TREMOLO_SPACING = 7;
+/** Glyph size for the tremolo slashes — VexFlow's resolved `Tremolo.fontSize`
+ *  (falls back to the global default of 30). */
+const TREMOLO_FONT_SIZE = 30;
+
+/** A buzz tremolo whose three slashes sit one extra spacing below the stem tip.
+ *
+ *  Buzz notes here are beamed sixteenths, and a beam pins the stem tip exactly
+ *  to the beam line (Beam.applyStemExtensions), so the stem can't be lengthened
+ *  to make room — VexFlow's stock Tremolo then anchors its top slash just one
+ *  spacing under the tip, where it blurs into the beam. This override re-runs
+ *  the same draw but starts the slashes two spacings down, giving them clear air
+ *  below the beam. The two inlined constants are VexFlow's own metric defaults. */
+class BeamClearTremolo extends Tremolo {
+  override draw(): void {
+    const ctx = this.checkContext();
+    const note = this.checkAttachedNote();
+    this.setRendered();
+    const stemDirection = note.getStemDirection();
+    const scale = note.getFontScale();
+    const ySpacing = TREMOLO_SPACING * stemDirection * scale;
+    const x =
+      note.getAbsoluteX() +
+      (stemDirection === Stem.UP
+        ? note.getGlyphWidth() - Stem.WIDTH / 2
+        : Stem.WIDTH / 2);
+    // Stock Tremolo starts at topY + ySpacing; the extra spacing is the fix.
+    let y = note.getStemExtents().topY + ySpacing * 2;
+    this.fontInfo = { ...this.fontInfo, size: TREMOLO_FONT_SIZE * scale };
+    for (let i = 0; i < this.num; i++) {
+      this.renderText(ctx, x, y);
+      y += ySpacing;
+    }
+  }
+}
+
 /** VexFlow-renderable form of the time signature: "C|" for cut, "C" for
  *  common, otherwise "n/d". (DESIGN uses the ₵/C glyphs in UI strings, but
  *  VexFlow expects these specific tokens for its own glyph rendering.) */
@@ -156,7 +194,7 @@ function applyModifiers(
   // Ornament: buzz → tremolo (3 stem slashes) on the main note; flam/drag/ruff
   // → a grace-note group to the note's left.
   if (spec.ornament === 'buzz') {
-    note.addModifier(new Tremolo(3), 0);
+    note.addModifier(new BeamClearTremolo(3), 0);
   } else {
     const grace = buildGraceGroup(spec, stemUp);
     if (grace) note.addModifier(grace, 0);
