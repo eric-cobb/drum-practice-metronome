@@ -303,8 +303,15 @@ describe('validateExerciseSet — v2 multi-voice', () => {
     expectFirstEventError({ voices: ['cowbell'], sticking: 'R' }, /must be a drum voice/);
   });
 
-  it('requires sticking for hand-struck voices', () => {
-    expectFirstEventError({ voices: ['snare'] }, /sticking is required/);
+  it('allows omitting sticking on hand voices (optional)', () => {
+    const raw = makeValidV2Raw();
+    (raw.exercises as Record<string, unknown>[])[0] = {
+      ...(raw.exercises as Record<string, unknown>[])[0],
+      pattern: [[{ voices: ['snare'] }]],
+      timeSignature: { numerator: 1, denominator: 4 },
+      subdivision: 'quarter',
+    };
+    expect(validateExerciseSet(raw).ok).toBe(true);
   });
 
   it('forbids sticking when every voice is a foot voice', () => {

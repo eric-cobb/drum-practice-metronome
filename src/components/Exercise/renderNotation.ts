@@ -59,6 +59,9 @@ const STICKING_FONT_WEIGHT = '500';
 /** Push the R/L labels down a bit so they don't sit flush against the lowest
  *  staff line. Positive y_shift moves the annotation downward in SVG space. */
 const STICKING_Y_SHIFT_PX = 10;
+/** When a bar has stems-down voices (kick, hi-hat foot), the labels must clear
+ *  the down-stems/noteheads below the staff. */
+const STICKING_Y_SHIFT_WITH_FEET_PX = 52;
 
 /** VexFlow-renderable form of the time signature: "C|" for cut, "C" for
  *  common, otherwise "n/d". (DESIGN uses the ₵/C glyphs in UI strings, but
@@ -79,14 +82,19 @@ function staveNote(keys: string[], duration: string, stemUp: boolean): StaveNote
 }
 
 /** Attach the sticking annotation (below) and accent articulation (above) to a
- *  note. (Ghost parentheses + ornament grace notes are a later refinement.) */
-function applyModifiers(note: StaveNote, spec: PositionSpec): void {
+ *  note. `stickingYShift` clears the label past any down-stem voices in the bar.
+ *  (Ghost parentheses + ornament grace notes are a later refinement.) */
+function applyModifiers(
+  note: StaveNote,
+  spec: PositionSpec,
+  stickingYShift: number,
+): void {
   if (spec.sticking) {
     note.addModifier(
       new Annotation(spec.sticking)
         .setVerticalJustification(Annotation.VerticalJustify.BOTTOM)
         .setFont(STICKING_FONT_FAMILY, STICKING_FONT_SIZE, STICKING_FONT_WEIGHT)
-        .setYShift(STICKING_Y_SHIFT_PX),
+        .setYShift(stickingYShift),
       0,
     );
   }
@@ -111,6 +119,9 @@ interface BarVoices {
  *  voices renders as a single voice (the v1 snare path). */
 function buildBarVoices(specs: PositionSpec[]): BarVoices {
   const hasDown = specs.some((s) => !s.isRest && s.downKeys.length > 0);
+  const stickingYShift = hasDown
+    ? STICKING_Y_SHIFT_WITH_FEET_PX
+    : STICKING_Y_SHIFT_PX;
   const up: Note[] = [];
   const down: Note[] = [];
   const primary: (StaveNote | null)[] = [];
@@ -146,7 +157,7 @@ function buildBarVoices(specs: PositionSpec[]): BarVoices {
     }
 
     const prim = upNote ?? downNote;
-    if (prim) applyModifiers(prim, spec);
+    if (prim) applyModifiers(prim, spec, stickingYShift);
     primary.push(prim);
   }
 

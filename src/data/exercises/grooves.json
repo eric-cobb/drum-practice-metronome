@@ -39,17 +39,17 @@
       "sectionId": "grooves",
       "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
-      "notes": "Hi-hat on every eighth, kick on 1 and 3, accented snare backbeat on 2 and 4.",
+      "notes": "Hi-hat on every eighth, kick on 1 and 3, accented snare backbeat on 2 and 4. Grooves omit sticking — the limbs are fixed.",
       "pattern": [
         [
-          { "voices": ["hihat-closed", "kick"], "sticking": "R" },
-          { "voices": ["hihat-closed"], "sticking": "R" },
-          { "voices": ["hihat-closed", "snare"], "sticking": "R", "accent": true },
-          { "voices": ["hihat-closed"], "sticking": "R" },
-          { "voices": ["hihat-closed", "kick"], "sticking": "R" },
-          { "voices": ["hihat-closed"], "sticking": "R" },
-          { "voices": ["hihat-closed", "snare"], "sticking": "R", "accent": true },
-          { "voices": ["hihat-closed"], "sticking": "R" }
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] }
         ]
       ]
     },

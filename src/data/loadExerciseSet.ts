@@ -149,11 +149,13 @@ function parseHit(value: Record<string, unknown>, path: string): Hit {
     }
     return v as Voice;
   });
-  const hasHandVoice = voices.some((v) => !FOOT_VOICES.includes(v));
   const onlyFootVoices = voices.every((v) => FOOT_VOICES.includes(v));
 
   const hit: Hit = { voices };
 
+  // Sticking is optional: meaningful for hand/rudiment work, omitted for grooves
+  // where the limbs are fixed. Only forbidden when every voice is a foot voice
+  // (a kick/hi-hat-foot can't carry a hand).
   if (value.sticking !== undefined) {
     if (!STICKINGS.includes(value.sticking as Sticking)) {
       throw new ValidationError(`${path}.sticking must be "R" or "L"`);
@@ -164,10 +166,6 @@ function parseHit(value: Record<string, unknown>, path: string): Hit {
       );
     }
     hit.sticking = value.sticking as Sticking;
-  } else if (hasHandVoice) {
-    throw new ValidationError(
-      `${path}.sticking is required for hand-struck voices`,
-    );
   }
 
   if (value.accent !== undefined) {
