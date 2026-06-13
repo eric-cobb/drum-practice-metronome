@@ -62,6 +62,7 @@ function begin(): void {
       base.exerciseSetId = ex.loadedSet.id;
       base.exerciseId = exercise.id;
       base.exerciseDisplayName = `#${exercise.number} ${exercise.name}`;
+      base.exerciseSchemaVersion = ex.loadedSet.schemaVersion;
     }
   }
 

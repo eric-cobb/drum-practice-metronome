@@ -10,17 +10,21 @@
 // selector and the export/delete affordances in Settings.
 
 import { db } from '../db/schema';
-import type {
-  Denominator,
-  Exercise,
-  ExerciseSet,
-  LoadedSet,
-  PatternEvent,
-  Section,
-  SetOrigin,
-  Sticking,
-  Subdivision,
-  TimeSignature,
+import {
+  FOOT_VOICES,
+  type Denominator,
+  type Exercise,
+  type ExerciseSet,
+  type Hit,
+  type LoadedSet,
+  type Ornament,
+  type PatternEvent,
+  type Section,
+  type SetOrigin,
+  type Sticking,
+  type Subdivision,
+  type TimeSignature,
+  type Voice,
 } from '../types';
 
 export type LoadResult =
@@ -40,7 +44,22 @@ const SUBDIVISION_TOKENS: Record<string, Subdivision> = {
 const STICKINGS: readonly Sticking[] = ['R', 'L'];
 const DENOMINATORS: readonly Denominator[] = [2, 4, 8];
 const DISPLAY_AS: readonly ('cut' | 'common')[] = ['cut', 'common'];
-const SCHEMA_VERSION = 1;
+const VOICES: readonly Voice[] = [
+  'snare',
+  'kick',
+  'hihat-closed',
+  'hihat-open',
+  'hihat-foot',
+  'ride',
+  'ride-bell',
+  'crash',
+  'tom-high',
+  'tom-mid',
+  'tom-low',
+];
+const ORNAMENTS: readonly Ornament[] = ['flam', 'drag', 'ruff', 'buzz'];
+/** Runtime sets are always v2; v1 files are migrated at load (SPEC §12). */
+const RUNTIME_SCHEMA_VERSION = 2 as const;
 
 /** Thrown internally to short-circuit validation with a located message. */
 class ValidationError extends Error {}
@@ -102,28 +121,109 @@ function parseTimeSignature(value: unknown, path: string): TimeSignature {
   return ts;
 }
 
-function parsePatternEvent(value: unknown, path: string): PatternEvent {
+type EventParser = (value: unknown, path: string) => PatternEvent;
+
+/** v1 event: a bare snare hit or rest. Migrated to a v2 Hit on the spot —
+ *  { sticking } → { voices: ["snare"], sticking } (SPEC §12 migration). */
+function parsePatternEventV1(value: unknown, path: string): PatternEvent {
   if (value === 'rest') return 'rest';
   if (isObject(value) && STICKINGS.includes(value.sticking as Sticking)) {
-    return { sticking: value.sticking as Sticking };
+    return { voices: ['snare'], sticking: value.sticking as Sticking };
   }
   throw new ValidationError(
     `${path} must be "rest" or { "sticking": "R" | "L" } (got ${JSON.stringify(value)})`,
   );
 }
 
-function parseBar(value: unknown, path: string): PatternEvent[] {
+/** v2 hit: one or more voices, optional sticking/accent/ghost/ornament. */
+function parseHit(value: Record<string, unknown>, path: string): Hit {
+  const raw = value.voices;
+  if (!Array.isArray(raw) || raw.length === 0) {
+    throw new ValidationError(`${path}.voices must be a non-empty array`);
+  }
+  const voices = raw.map((v, i) => {
+    if (!VOICES.includes(v as Voice)) {
+      throw new ValidationError(
+        `${path}.voices[${i}] must be a drum voice (got ${JSON.stringify(v)})`,
+      );
+    }
+    return v as Voice;
+  });
+  const hasHandVoice = voices.some((v) => !FOOT_VOICES.includes(v));
+  const onlyFootVoices = voices.every((v) => FOOT_VOICES.includes(v));
+
+  const hit: Hit = { voices };
+
+  if (value.sticking !== undefined) {
+    if (!STICKINGS.includes(value.sticking as Sticking)) {
+      throw new ValidationError(`${path}.sticking must be "R" or "L"`);
+    }
+    if (onlyFootVoices) {
+      throw new ValidationError(
+        `${path}.sticking is not allowed when every voice is a foot voice (${FOOT_VOICES.join(', ')})`,
+      );
+    }
+    hit.sticking = value.sticking as Sticking;
+  } else if (hasHandVoice) {
+    throw new ValidationError(
+      `${path}.sticking is required for hand-struck voices`,
+    );
+  }
+
+  if (value.accent !== undefined) {
+    if (typeof value.accent !== 'boolean') {
+      throw new ValidationError(`${path}.accent must be a boolean`);
+    }
+    hit.accent = value.accent;
+  }
+  if (value.ghost !== undefined) {
+    if (typeof value.ghost !== 'boolean') {
+      throw new ValidationError(`${path}.ghost must be a boolean`);
+    }
+    hit.ghost = value.ghost;
+  }
+  if (hit.accent && hit.ghost) {
+    throw new ValidationError(`${path} cannot be both accent and ghost`);
+  }
+  if (value.ornament !== undefined) {
+    if (!ORNAMENTS.includes(value.ornament as Ornament)) {
+      throw new ValidationError(
+        `${path}.ornament must be one of ${ORNAMENTS.join(', ')}`,
+      );
+    }
+    hit.ornament = value.ornament as Ornament;
+  }
+  return hit;
+}
+
+function parsePatternEventV2(value: unknown, path: string): PatternEvent {
+  if (value === 'rest') return 'rest';
+  if (isObject(value)) return parseHit(value, path);
+  throw new ValidationError(
+    `${path} must be "rest" or a hit object (got ${JSON.stringify(value)})`,
+  );
+}
+
+function parseBar(
+  value: unknown,
+  path: string,
+  parseEvent: EventParser,
+): PatternEvent[] {
   if (!Array.isArray(value) || value.length === 0) {
     throw new ValidationError(`${path} must be a non-empty array`);
   }
-  return value.map((event, i) => parsePatternEvent(event, `${path}[${i}]`));
+  return value.map((event, i) => parseEvent(event, `${path}[${i}]`));
 }
 
-function parsePattern(value: unknown, path: string): PatternEvent[][] {
+function parsePattern(
+  value: unknown,
+  path: string,
+  parseEvent: EventParser,
+): PatternEvent[][] {
   if (!Array.isArray(value) || value.length === 0) {
     throw new ValidationError(`${path} must be a non-empty array of bars`);
   }
-  const bars = value.map((bar, i) => parseBar(bar, `${path}[${i}]`));
+  const bars = value.map((bar, i) => parseBar(bar, `${path}[${i}]`, parseEvent));
   const firstLength = bars[0].length;
   const mismatch = bars.findIndex((bar) => bar.length !== firstLength);
   if (mismatch > 0) {
@@ -164,7 +264,11 @@ function parseSection(value: unknown, path: string): Section {
   return section;
 }
 
-function parseExercise(value: unknown, path: string): Exercise {
+function parseExercise(
+  value: unknown,
+  path: string,
+  parseEvent: EventParser,
+): Exercise {
   if (!isObject(value)) {
     throw new ValidationError(`${path} must be an object`);
   }
@@ -173,7 +277,7 @@ function parseExercise(value: unknown, path: string): Exercise {
     number: requireInt(value.number, `${path}.number`, 1),
     name: requireString(value.name, `${path}.name`),
     sectionId: requireString(value.sectionId, `${path}.sectionId`),
-    pattern: parsePattern(value.pattern, `${path}.pattern`),
+    pattern: parsePattern(value.pattern, `${path}.pattern`, parseEvent),
     timeSignature: parseTimeSignature(
       value.timeSignature,
       `${path}.timeSignature`,
@@ -202,11 +306,18 @@ export function validateExerciseSet(raw: unknown): LoadResult {
     if (!isObject(raw)) {
       throw new ValidationError('exercise set must be an object');
     }
-    if (raw.schemaVersion !== SCHEMA_VERSION) {
-      throw new ValidationError(
-        `schemaVersion must be ${SCHEMA_VERSION} (got ${JSON.stringify(raw.schemaVersion)})`,
-      );
-    }
+    // Accept v1 (single-voice snare) or v2 (multi-voice); v1 events are migrated
+    // to v2 Hits by the chosen parser, so the result is always v2 (SPEC §12).
+    const parseEvent: EventParser =
+      raw.schemaVersion === 1
+        ? parsePatternEventV1
+        : raw.schemaVersion === 2
+          ? parsePatternEventV2
+          : (() => {
+              throw new ValidationError(
+                `schemaVersion must be 1 or 2 (got ${JSON.stringify(raw.schemaVersion)})`,
+              );
+            })();
     if (!Array.isArray(raw.sections) || raw.sections.length === 0) {
       throw new ValidationError('sections must be a non-empty array');
     }
@@ -226,7 +337,7 @@ export function validateExerciseSet(raw: unknown): LoadResult {
       sectionIds.add(sections[i].id);
     }
     const exercises = raw.exercises.map((ex, i) =>
-      parseExercise(ex, `exercises[${i}]`),
+      parseExercise(ex, `exercises[${i}]`, parseEvent),
     );
     for (let i = 0; i < exercises.length; i += 1) {
       if (!sectionIds.has(exercises[i].sectionId)) {
@@ -245,7 +356,7 @@ export function validateExerciseSet(raw: unknown): LoadResult {
         'defaultTargetReps',
         1,
       ),
-      schemaVersion: SCHEMA_VERSION,
+      schemaVersion: RUNTIME_SCHEMA_VERSION,
       sections,
       exercises,
     };

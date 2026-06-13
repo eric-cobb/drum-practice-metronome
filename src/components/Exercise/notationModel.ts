@@ -6,11 +6,12 @@
 import type { PatternEvent, Sticking, Subdivision } from '../../types';
 import { subdivisionsPerPulse } from '../../meter';
 
-/** A note carries a sticking; a rest carries none. Discriminated on `isRest` so
- *  consumers narrow to the sticking-bearing form (renderNotation, tests). */
+/** A note carries an optional sticking (foot voices have none); a rest carries
+ *  nothing. Discriminated on `isRest`. (Stage 10.1 reads the v2 Hit's sticking;
+ *  voices/accent/ghost/ornament rendering arrives in Stage 10.2.) */
 export type NoteSpec =
   | { duration: string; isRest: true }
-  | { duration: string; isRest: false; sticking: Sticking };
+  | { duration: string; isRest: false; sticking?: Sticking };
 
 /** Each pattern event is one note of this value. Triplet events share the base
  *  value of their straight counterpart; the triplet feel comes from tuplets. */
@@ -46,6 +47,7 @@ export function buildNoteSpecs(
       ? { duration, isRest: true }
       : { duration, isRest: false, sticking: event.sticking },
   );
+  // `event.sticking` is the v2 Hit's sticking (present for migrated snare hits).
 }
 
 /** Notes per beam group: the felt-pulse subdivision count (e.g. 4 sixteenths

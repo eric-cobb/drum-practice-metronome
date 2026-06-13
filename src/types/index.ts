@@ -71,10 +71,42 @@ export type Mode = 'free' | 'exercise';
 /** A single hand assignment. Rests are a separate PatternEvent, not a sticking. */
 export type Sticking = 'R' | 'L';
 
-/** One pattern event: a snare hit with a sticking, or a rest. Object-wrapped
- *  (rather than a bare "R" / "L" / "-") so Phase 10 can add voices, accents, and
- *  ornaments to the hit form without rewriting existing JSON (SPEC §7). */
-export type PatternEvent = { sticking: Sticking } | 'rest';
+/** A drum voice a hit can strike (SPEC §12). Hand voices carry a sticking; the
+ *  foot voices (kick, hi-hat foot) don't. */
+export type Voice =
+  | 'snare'
+  | 'kick'
+  | 'hihat-closed'
+  | 'hihat-open'
+  | 'hihat-foot'
+  | 'ride'
+  | 'ride-bell'
+  | 'crash'
+  | 'tom-high'
+  | 'tom-mid'
+  | 'tom-low';
+
+/** Grace-note ornament attached to a hit (SPEC §12). */
+export type Ornament = 'flam' | 'drag' | 'ruff' | 'buzz';
+
+/** Foot voices: no sticking, stems point down. */
+export const FOOT_VOICES: readonly Voice[] = ['kick', 'hihat-foot'];
+
+/** One struck note position — one or more voices played together, with optional
+ *  sticking, accent/ghost dynamics, and an ornament (SPEC §12 v2 schema). */
+export interface Hit {
+  voices: Voice[];
+  /** Hand used; omitted for foot voices (kick, hi-hat foot). */
+  sticking?: Sticking;
+  accent?: boolean;
+  ghost?: boolean;
+  ornament?: Ornament;
+}
+
+/** One pattern event: a multi-voice hit, or a rest. The runtime form is always
+ *  v2 — the loader migrates v1 single-voice snare events ({ sticking }) into
+ *  Hits ({ voices: ["snare"], sticking }) at load (SPEC §12 migration). */
+export type PatternEvent = Hit | 'rest';
 
 /** A first-class section within a set, referenced by exercises via `sectionId`.
  *  Sections are objects (not free text on each exercise) so renaming or
@@ -107,15 +139,20 @@ export interface Exercise {
   notes?: string;
 }
 
-/** A loaded, validated set of exercises (e.g. Stick Control). `schemaVersion`
- *  is fixed at 1 in v1; Phase 10 introduces v2 with a load-time migration. */
+/** Schema version of the on-disk JSON. v1 = single-voice snare; v2 = multi-voice
+ *  (SPEC §12). The loader accepts either and migrates v1 → v2, so the runtime
+ *  ExerciseSet below is always v2. */
+export type SchemaVersion = 1 | 2;
+
+/** A loaded, validated set of exercises. Always v2 at runtime — v1 files are
+ *  migrated at load (SPEC §12). */
 export interface ExerciseSet {
   id: string;
   title: string;
   source: string;
   defaultBpm: number;
   defaultTargetReps: number;
-  schemaVersion: 1;
+  schemaVersion: 2;
   /** Section structure for the selector. Each Exercise.sectionId must resolve
    *  to a Section.id in this array (validation enforces). */
   sections: Section[];
@@ -244,6 +281,9 @@ export interface Session {
   exerciseSetId?: string;
   exerciseId?: string;
   exerciseDisplayName?: string; // e.g. "#5 Paradiddle R"
+  /** Schema version of the exercise data at session time, so future analysis
+   *  tools can interpret historical sessions (SPEC §12). v2 at runtime. */
+  exerciseSchemaVersion?: SchemaVersion;
 
   startBpm: number;
   endBpm: number;

@@ -80,7 +80,7 @@ function buildBarNotes(
       duration: spec.isRest ? `${spec.duration}r` : spec.duration,
       clef: 'percussion',
     });
-    if (!spec.isRest) {
+    if (!spec.isRest && spec.sticking) {
       note.addModifier(
         new Annotation(spec.sticking)
           .setVerticalJustification(Annotation.VerticalJustify.BOTTOM)

@@ -4,9 +4,11 @@ import { renderExerciseNotation } from './renderNotation';
 import { loadBundledSets } from '../../data/loadExerciseSet';
 import type { Exercise, PatternEvent, Sticking } from '../../types';
 
-/** Build a pattern from a compact string: "R"/"L" = hits, "-" = rest. */
+/** Build a pattern from a compact string: "R"/"L" = snare hits, "-" = rest. */
 const ev = (s: string): PatternEvent[] =>
-  [...s].map((c) => (c === '-' ? 'rest' : { sticking: c as Sticking }));
+  [...s].map((c) =>
+    c === '-' ? 'rest' : { voices: ['snare'], sticking: c as Sticking },
+  );
 
 beforeAll(() => {
   // jsdom ships no <canvas>; give VexFlow a minimal 2D context stub so its text

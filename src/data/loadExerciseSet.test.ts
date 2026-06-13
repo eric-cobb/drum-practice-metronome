@@ -54,14 +54,24 @@ describe('validateExerciseSet — happy path', () => {
     }
   });
 
-  it('parses a 2D pattern of object-wrapped hits and "rest" events', () => {
+  it('migrates a v1 pattern to v2 (snare hits) and reports schemaVersion 2', () => {
     const result = validateExerciseSet(makeValidRaw());
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.set.schemaVersion).toBe(1);
+    expect(result.set.schemaVersion).toBe(2);
     expect(result.set.exercises[0].pattern).toEqual([
-      [{ sticking: 'R' }, { sticking: 'L' }, 'rest', { sticking: 'L' }],
-      [{ sticking: 'L' }, { sticking: 'R' }, 'rest', { sticking: 'R' }],
+      [
+        { voices: ['snare'], sticking: 'R' },
+        { voices: ['snare'], sticking: 'L' },
+        'rest',
+        { voices: ['snare'], sticking: 'L' },
+      ],
+      [
+        { voices: ['snare'], sticking: 'L' },
+        { voices: ['snare'], sticking: 'R' },
+        'rest',
+        { voices: ['snare'], sticking: 'R' },
+      ],
     ]);
   });
 
@@ -162,12 +172,16 @@ describe('validateExerciseSet — rejects malformed input with a clear reason', 
     expectError(raw, /pattern\[1\] has 3 events but .* has 2/);
   });
 
-  it('rejects a missing or wrong schemaVersion', () => {
+  it('rejects a missing or unsupported schemaVersion (accepts 1 and 2)', () => {
     const raw = makeValidRaw();
     delete raw.schemaVersion;
-    expectError(raw, /schemaVersion must be 1/);
+    expectError(raw, /schemaVersion must be 1 or 2/);
+    raw.schemaVersion = 3;
+    expectError(raw, /schemaVersion must be 1 or 2/);
+    // 2 is valid — a missing pattern field is what fails here, not the version.
     raw.schemaVersion = 2;
-    expectError(raw, /schemaVersion must be 1/);
+    const result = validateExerciseSet(raw);
+    expect(result.ok).toBe(false);
   });
 
   it('rejects a denominator that is not 2, 4, or 8', () => {
@@ -217,5 +231,97 @@ describe('loadBundledSets — the bundled set(s)', () => {
   it('ships the foundational-rudiments set as the default bundled content', () => {
     const sets = loadBundledSets();
     expect(sets.some((s) => s.id === 'foundational-rudiments')).toBe(true);
+  });
+});
+
+// --- v2 multi-voice schema (SPEC §12) ---------------------------------------
+
+/** A minimal valid v2 raw set, mutable per test. */
+function makeValidV2Raw(): Record<string, unknown> {
+  return {
+    id: 'v2-set',
+    title: 'V2 Set',
+    source: 'src',
+    defaultBpm: 80,
+    defaultTargetReps: 16,
+    schemaVersion: 2,
+    sections: [{ id: 's', title: 'S', order: 1 }],
+    exercises: [
+      {
+        id: 'e1',
+        number: 1,
+        name: 'Groove',
+        sectionId: 's',
+        pattern: [
+          [
+            { voices: ['hihat-closed', 'kick'], sticking: 'R' },
+            { voices: ['snare'], sticking: 'L', accent: true },
+            'rest',
+            { voices: ['kick'] },
+          ],
+        ],
+        timeSignature: { numerator: 4, denominator: 4 },
+        subdivision: '16th',
+      },
+    ],
+  };
+}
+
+describe('validateExerciseSet — v2 multi-voice', () => {
+  it('accepts multi-voice hits, accents, and foot voices without sticking', () => {
+    const result = validateExerciseSet(makeValidV2Raw());
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.set.schemaVersion).toBe(2);
+    expect(result.set.exercises[0].pattern[0]).toEqual([
+      { voices: ['hihat-closed', 'kick'], sticking: 'R' },
+      { voices: ['snare'], sticking: 'L', accent: true },
+      'rest',
+      { voices: ['kick'] },
+    ]);
+  });
+
+  /** Mutate the first event of the v2 fixture and assert it's rejected. */
+  const expectFirstEventError = (event: unknown, match: RegExp) => {
+    const raw = makeValidV2Raw();
+    (raw.exercises as Record<string, unknown>[])[0] = {
+      ...(raw.exercises as Record<string, unknown>[])[0],
+      pattern: [[event]],
+      timeSignature: { numerator: 1, denominator: 4 },
+      subdivision: 'quarter',
+    };
+    const result = validateExerciseSet(raw);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toMatch(match);
+  };
+
+  it('rejects an empty voices array', () => {
+    expectFirstEventError({ voices: [], sticking: 'R' }, /voices must be a non-empty array/);
+  });
+
+  it('rejects an unknown voice', () => {
+    expectFirstEventError({ voices: ['cowbell'], sticking: 'R' }, /must be a drum voice/);
+  });
+
+  it('requires sticking for hand-struck voices', () => {
+    expectFirstEventError({ voices: ['snare'] }, /sticking is required/);
+  });
+
+  it('forbids sticking when every voice is a foot voice', () => {
+    expectFirstEventError({ voices: ['kick'], sticking: 'R' }, /sticking is not allowed/);
+  });
+
+  it('rejects a hit that is both accent and ghost', () => {
+    expectFirstEventError(
+      { voices: ['snare'], sticking: 'R', accent: true, ghost: true },
+      /cannot be both accent and ghost/,
+    );
+  });
+
+  it('rejects an unknown ornament', () => {
+    expectFirstEventError(
+      { voices: ['snare'], sticking: 'R', ornament: 'spin' },
+      /ornament must be one of/,
+    );
   });
 });

@@ -10,9 +10,11 @@ import {
 } from './notationModel';
 import type { PatternEvent, Sticking } from '../../types';
 
-/** Build a pattern from a compact string: "R"/"L" = hits, "-" = rest. */
+/** Build a pattern from a compact string: "R"/"L" = snare hits, "-" = rest. */
 const ev = (s: string): PatternEvent[] =>
-  [...s].map((c) => (c === '-' ? 'rest' : { sticking: c as Sticking }));
+  [...s].map((c) =>
+    c === '-' ? 'rest' : { voices: ['snare'], sticking: c as Sticking },
+  );
 
 describe('subdivisionToDuration', () => {
   it('maps each subdivision to its VexFlow duration token', () => {
