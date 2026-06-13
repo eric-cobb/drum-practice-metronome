@@ -386,6 +386,12 @@ body,
 .notation-svg :is(path, line, rect) {
   stroke: var(--notation-ink);
 }
+/* Editor ornament labels (renderNotation.ts injectOrnamentLabels). A higher-
+   specificity rule than the ink rule above so it wins, in a themed var so it
+   recolors with light/dark. Higher contrast than the muted greys. */
+.notation-svg text.ornament-label {
+  fill: var(--fg-secondary);
+}
 
 /* Active-note highlight — three layers (DESIGN/ARCHITECTURE §Active note highlight):
    1) the band rect (peripheral), opacity-toggled by the Notation component;

@@ -82,7 +82,7 @@ const BUZZ_STEM_EXTRA_PX = 27;
 /** Isolated (un-beamed) buzz notes show a flag instead of a beam; the flag is
  *  taller than a beam join, so they need a longer stem to seat the slashes below
  *  it. */
-const BUZZ_STEM_EXTRA_FLAGGED_PX = 32;
+const BUZZ_STEM_EXTRA_FLAGGED_PX = 28;
 
 /** A buzz tremolo positioned to clear whatever sits at the top of the stem:
  *
@@ -377,14 +377,6 @@ function injectOrnamentLabels(
     }
   }
 
-  // Resolve the muted ink to a concrete color in JS — an inline `fill: var(…)`
-  // on an SVG element isn't reliably resolved by the CSSOM, and a plain `fill`
-  // attribute loses to the `.notation-svg text` stylesheet rule.
-  const ink =
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--fg-tertiary')
-      .trim() || '#6b7280';
-
   const NS = 'http://www.w3.org/2000/svg';
   specs.forEach((spec, i) => {
     const note = primary[i];
@@ -393,10 +385,12 @@ function injectOrnamentLabels(
     el.setAttribute('x', String(note.getAbsoluteX() + note.getGlyphWidth() / 2));
     el.setAttribute('y', String(labelY));
     el.setAttribute('text-anchor', 'middle');
+    // Color comes from the `.notation-svg .ornament-label` rule (a themed CSS
+    // var), so it recolors live on a light/dark toggle — no inline fill, which
+    // would bake in the color at render time.
     el.setAttribute('class', 'ornament-label');
     el.style.fontFamily = STICKING_FONT_FAMILY;
     el.style.fontSize = '13px';
-    el.style.fill = ink; // inline style beats the .notation-svg text rule
     el.textContent = spec.ornament;
     svg.appendChild(el);
   });
