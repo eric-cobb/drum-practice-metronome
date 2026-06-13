@@ -79,6 +79,10 @@ const TREMOLO_FONT_SIZE = 30;
  *  beam and opens vertical room for the buzz slashes between it and the notehead
  *  — without tilting the beam (every stem in the group grows equally). */
 const BUZZ_STEM_EXTRA_PX = 27;
+/** Isolated (un-beamed) buzz notes show a flag instead of a beam; the flag is
+ *  taller than a beam join, so they need a longer stem to seat the slashes below
+ *  it. */
+const BUZZ_STEM_EXTRA_FLAGGED_PX = 60;
 
 /** A buzz tremolo positioned to clear whatever sits at the top of the stem:
  *
@@ -360,6 +364,19 @@ function injectOrnamentLabels(
   });
   const labelY = (stickingY > -Infinity ? stickingY : fallbackY) + 15;
 
+  // The render canvas is clipped to its viewBox (0 0 W 220); a label below the
+  // staff would be cut off, so grow the SVG height + viewBox to fit it.
+  const needed = labelY + 12;
+  if (needed > parseFloat(svg.getAttribute('height') ?? '0')) {
+    svg.setAttribute('height', String(needed));
+    svg.style.height = `${needed}`;
+    const vb = svg.getAttribute('viewBox')?.split(/\s+/);
+    if (vb?.length === 4) {
+      vb[3] = String(needed);
+      svg.setAttribute('viewBox', vb.join(' '));
+    }
+  }
+
   const NS = 'http://www.w3.org/2000/svg';
   specs.forEach((spec, i) => {
     const note = primary[i];
@@ -475,13 +492,25 @@ export function renderExerciseNotation(
         s.ornament === 'buzz' && s.upKeys.length > 0 ? [i] : [],
       );
       if (buzzIdx.length > 0) {
-        const lift = new Set<number>(buzzIdx);
+        // Beamed buzz: lift the whole run uniformly. The Beam re-syncs each
+        // stem's drawn extension from the override when it formats, so setting
+        // the length here is enough.
+        const beamed = new Set<number>();
         for (const run of upRuns) {
-          if (run.some((i) => buzzIdx.includes(i))) run.forEach((i) => lift.add(i));
+          if (run.some((i) => buzzIdx.includes(i))) run.forEach((i) => beamed.add(i));
         }
-        lift.forEach((i) =>
+        beamed.forEach((i) =>
           (up[i] as StaveNote).setStemLength(Stem.HEIGHT + BUZZ_STEM_EXTRA_PX),
         );
+        // Isolated (flagged) buzz: no Beam to push the override into the stem, so
+        // re-apply the stem direction to force the re-sync (safe — the note isn't
+        // beamed). Lift more to clear the flag.
+        for (const i of buzzIdx) {
+          if (beamed.has(i)) continue;
+          const n = up[i] as StaveNote;
+          n.setStemLength(Stem.HEIGHT + BUZZ_STEM_EXTRA_FLAGGED_PX);
+          n.setStemDirection(n.getStemDirection());
+        }
       }
       const upBeams = upRuns.map(
         (run) => new Beam(run.map((i) => up[i] as StaveNote)),
