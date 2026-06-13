@@ -73,7 +73,12 @@ export function Popover({
           role="dialog"
           aria-label={label}
           className={cn(
-            'popover-in surface-popover absolute z-50 rounded-2xl p-4',
+            // `will-change-transform` keeps the open panel on its own compositor
+            // layer. Without it, once the entrance animation ends the panel drops
+            // to the main layer and the play button — continuously transform-
+            // animated (and thus composited) while playing — paints over it
+            // despite z-50. Promoting the panel makes layer order honor z-index.
+            'popover-in surface-popover absolute z-50 rounded-2xl p-4 will-change-transform',
             POS[placement],
             ALIGN[align],
             widthClass,
