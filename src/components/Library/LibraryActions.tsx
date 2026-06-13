@@ -67,13 +67,11 @@ export function LibraryActions() {
   return (
     <div className="flex flex-col items-end gap-1.5">
       <div className="flex items-center gap-2">
-        <input
-          ref={fileRef}
-          type="file"
-          accept="application/json,.json"
-          onChange={onPick}
-          className="hidden"
-        />
+        {/* No `accept` filter: the application/json MIME makes some OS file
+            dialogs grey out .json files (the system reports a different type),
+            making them unselectable. We validate the contents on import and
+            surface a clear error for non-JSON, so an open picker is safe. */}
+        <input ref={fileRef} type="file" onChange={onPick} className="hidden" />
         <Button
           variant="primary"
           size="sm"

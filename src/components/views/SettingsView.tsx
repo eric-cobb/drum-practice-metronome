@@ -211,13 +211,9 @@ export function SettingsView() {
               />
               Replace all
             </label>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="application/json,.json"
-              onChange={onPickFile}
-              className="hidden"
-            />
+            {/* No `accept` filter — see LibraryActions: the application/json
+                MIME can grey out .json files in the OS dialog. */}
+            <input ref={fileRef} type="file" onChange={onPickFile} className="hidden" />
             <Button variant="secondary" size="sm" onClick={() => fileRef.current?.click()}>
               Import
             </Button>
