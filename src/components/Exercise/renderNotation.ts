@@ -385,12 +385,16 @@ function injectOrnamentLabels(
     el.setAttribute('x', String(note.getAbsoluteX() + note.getGlyphWidth() / 2));
     el.setAttribute('y', String(labelY));
     el.setAttribute('text-anchor', 'middle');
+    // Font as ATTRIBUTES, not inline style: the SVG root carries VexFlow's music
+    // font (Bravura) as an inherited font-family attribute, and an element's own
+    // font-family attribute beats it — whereas an inline style.fontFamily here
+    // didn't, leaving the label rendered in music glyphs (garbled). This mirrors
+    // how VexFlow's own sticking text stays in the sans face.
+    el.setAttribute('font-family', STICKING_FONT_FAMILY);
+    el.setAttribute('font-size', '14px');
     // Color comes from the `.notation-svg .ornament-label` rule (a themed CSS
-    // var), so it recolors live on a light/dark toggle — no inline fill, which
-    // would bake in the color at render time.
+    // var) so it recolors live on a light/dark toggle.
     el.setAttribute('class', 'ornament-label');
-    el.style.fontFamily = STICKING_FONT_FAMILY;
-    el.style.fontSize = '13px';
     el.textContent = spec.ornament;
     svg.appendChild(el);
   });

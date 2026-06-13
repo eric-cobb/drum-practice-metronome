@@ -352,7 +352,7 @@ body {
    the root font size scales the whole UI up proportionally (the v2 default of
    16px read small). Tune here. */
 html {
-  font-size: 17px;
+  font-size: 19px;
 }
 
 /* Full-height shell so the three zones fill the viewport without page scroll. */
