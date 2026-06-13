@@ -73,19 +73,18 @@ const TREMOLO_SPACING = 7;
 /** Glyph size for the tremolo slashes — VexFlow's resolved `Tremolo.fontSize`
  *  (falls back to the global default of 30). */
 const TREMOLO_FONT_SIZE = 30;
-/** Shrink the buzz slashes to ~70% — see BeamClearTremolo. */
-const TREMOLO_SIZE_SCALE = 0.7;
+/** Extra stem length (px, on top of Stem.HEIGHT = 35) given to every note in a
+ *  beam group that contains a buzz tremolo. The beam is anchored to the stem
+ *  tips (Beam.getBeamYToDraw), so lengthening the whole group's stems lifts the
+ *  beam and opens vertical room for the buzz slashes between it and the notehead
+ *  — without tilting the beam (every stem in the group grows equally). */
+const BUZZ_STEM_EXTRA_PX = 22;
 
-/** A buzz tremolo with smaller slashes than VexFlow's stock Tremolo.
- *
- *  Buzz notes here are beamed sixteenths whose stem is short — the beam pins the
- *  stem tip to the beam line (Beam.applyStemExtensions), so the stem can't be
- *  lengthened to make room. Full-size slashes either blur into the beam above
- *  (stock position) or run into the notehead below (if pushed down). Rendering
- *  them smaller at the stock anchor gains air on BOTH ends: the lighter glyphs
- *  read as distinct from the heavier beam and stay clear of the notehead.
- *  Mirrors stock Tremolo.draw with a reduced glyph size; the inlined spacing and
- *  base size are VexFlow's own metric defaults. */
+/** A buzz tremolo whose three full-size slashes sit two spacings below the stem
+ *  tip — far enough under the (lifted, see BUZZ_STEM_EXTRA_PX) beam to read as
+ *  distinct from it, while the extra stem keeps them clear of the notehead.
+ *  Mirrors stock Tremolo.draw (which starts at one spacing) with a larger
+ *  offset; the inlined spacing and size are VexFlow's own metric defaults. */
 class BeamClearTremolo extends Tremolo {
   override draw(): void {
     const ctx = this.checkContext();
@@ -93,19 +92,16 @@ class BeamClearTremolo extends Tremolo {
     this.setRendered();
     const stemDirection = note.getStemDirection();
     const scale = note.getFontScale();
-    const ySpacing = TREMOLO_SPACING * stemDirection * scale * TREMOLO_SIZE_SCALE;
+    const ySpacing = TREMOLO_SPACING * stemDirection * scale;
     const x =
       note.getAbsoluteX() +
       (stemDirection === Stem.UP
         ? note.getGlyphWidth() - Stem.WIDTH / 2
         : Stem.WIDTH / 2);
-    // Stock anchor (one full-size spacing below the tip); smaller slashes from
-    // here clear both the beam above and the notehead below.
-    let y = note.getStemExtents().topY + TREMOLO_SPACING * stemDirection * scale;
-    this.fontInfo = {
-      ...this.fontInfo,
-      size: TREMOLO_FONT_SIZE * scale * TREMOLO_SIZE_SCALE,
-    };
+    // Stock Tremolo starts at topY + ySpacing; the extra spacing drops the top
+    // slash clear of the beam (the lifted stem leaves room below for the rest).
+    let y = note.getStemExtents().topY + ySpacing * 2;
+    this.fontInfo = { ...this.fontInfo, size: TREMOLO_FONT_SIZE * scale };
     for (let i = 0; i < this.num; i++) {
       this.renderText(ctx, x, y);
       y += ySpacing;
@@ -418,7 +414,23 @@ export function renderExerciseNotation(
       // path (multi-voice triplets are a later refinement).
       // The masks exclude ghost/rest positions, so these indices are all real
       // StaveNotes (cast from the Note[] tickable arrays).
-      const upBeams = beamRuns(beamMask(specs, 'up'), beamGroup).map(
+      const upRuns = beamRuns(beamMask(specs, 'up'), beamGroup);
+      // Buzz notes carry a tremolo whose slashes need vertical room. Lengthen
+      // every stem in a run that holds one (and any un-beamed lone buzz) so the
+      // beam lifts uniformly — see BUZZ_STEM_EXTRA_PX. up[i] aligns with specs[i].
+      const buzzIdx = specs.flatMap((s, i) =>
+        s.ornament === 'buzz' && s.upKeys.length > 0 ? [i] : [],
+      );
+      if (buzzIdx.length > 0) {
+        const lift = new Set<number>(buzzIdx);
+        for (const run of upRuns) {
+          if (run.some((i) => buzzIdx.includes(i))) run.forEach((i) => lift.add(i));
+        }
+        lift.forEach((i) =>
+          (up[i] as StaveNote).setStemLength(Stem.HEIGHT + BUZZ_STEM_EXTRA_PX),
+        );
+      }
+      const upBeams = upRuns.map(
         (run) => new Beam(run.map((i) => up[i] as StaveNote)),
       );
       const downBeams =
