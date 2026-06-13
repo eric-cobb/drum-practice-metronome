@@ -112,6 +112,25 @@ describe('renderExerciseNotation', () => {
     expect(container.querySelector('svg')).not.toBeNull();
   });
 
+  it('parenthesizes ghost noteheads (more glyphs than a plain note)', () => {
+    const make = (ghost: boolean): Exercise => ({
+      id: ghost ? 'g' : 'p',
+      number: 1,
+      name: 'x',
+      sectionId: 'main',
+      pattern: [[{ voices: ['snare'], sticking: 'R', ghost }]],
+      timeSignature: { numerator: 1, denominator: 4 },
+      subdivision: 'quarter',
+    });
+    const count = (ex: Exercise) => {
+      const c = document.createElement('div');
+      renderExerciseNotation(c, ex, 400);
+      return c.querySelectorAll('svg *').length;
+    };
+    // The two parentheses add rendered elements the plain note doesn't have.
+    expect(count(make(true))).toBeGreaterThan(count(make(false)));
+  });
+
   it('clears the container on re-render (no stacked SVGs)', () => {
     const sets = loadBundledSets();
     const set = sets[0];

@@ -25,6 +25,7 @@ import {
   Stave,
   StaveNote,
   Stem,
+  Tremolo,
   Tuplet,
   Voice,
 } from 'vexflow';
@@ -84,28 +85,39 @@ function staveNote(keys: string[], duration: string, stemUp: boolean): StaveNote
   });
 }
 
-/** Grace-note count per ornament (SPEC §12): flam 1, drag 2, ruff 3. Buzz is
- *  approximated as a single slashed grace (the true z-notehead is a later
- *  refinement). */
-const ORNAMENT_GRACE_COUNT: Record<Ornament, number> = {
-  flam: 1,
-  drag: 2,
-  ruff: 3,
-  buzz: 1,
+/** Grace-note config per non-buzz ornament (SPEC §12): flam = one slashed
+ *  eighth grace; drag = two and ruff = three sixteenth graces (two beams),
+ *  distinguished by count per rudimental convention. Buzz is NOT a grace — it's
+ *  a tremolo on the main note (handled in applyModifiers). */
+const ORNAMENT_GRACES: Record<
+  Exclude<Ornament, 'buzz'>,
+  { count: number; duration: string; slash: boolean }
+> = {
+  flam: { count: 1, duration: '8', slash: true },
+  drag: { count: 2, duration: '16', slash: false },
+  ruff: { count: 3, duration: '16', slash: false },
 };
 
-/** Build the ornament's grace-note group on the parent's primary line. */
-function buildGraceGroup(spec: PositionSpec): GraceNoteGroup | null {
-  if (!spec.ornament) return null;
+/** Build the ornament's grace-note group on the parent's line, beamed and with a
+ *  slur to the main note. VexFlow positions the graces just left of the main
+ *  notehead once the group is beamed (multi) and attached as a modifier. Returns
+ *  null for buzz / no ornament. */
+function buildGraceGroup(spec: PositionSpec, stemUp: boolean): GraceNoteGroup | null {
+  if (!spec.ornament || spec.ornament === 'buzz') return null;
+  const cfg = ORNAMENT_GRACES[spec.ornament];
   const key = spec.upKeys[0] ?? spec.downKeys[0] ?? 'c/5';
-  const count = ORNAMENT_GRACE_COUNT[spec.ornament];
-  const single = count === 1;
   const graces = Array.from(
-    { length: count },
-    () => new GraceNote({ keys: [key], duration: single ? '8' : '16', slash: single }),
+    { length: cfg.count },
+    () =>
+      new GraceNote({
+        keys: [key],
+        duration: cfg.duration,
+        slash: cfg.slash,
+        stemDirection: stemUp ? Stem.UP : Stem.DOWN,
+      }),
   );
-  const group = new GraceNoteGroup(graces, false);
-  if (count > 1) group.beamNotes();
+  const group = new GraceNoteGroup(graces, true); // true = draw the slur to the main note
+  if (cfg.count > 1) group.beamNotes();
   return group;
 }
 
@@ -116,6 +128,7 @@ function applyModifiers(
   note: StaveNote,
   spec: PositionSpec,
   stickingYShift: number,
+  stemUp: boolean,
 ): void {
   if (spec.sticking) {
     note.addModifier(
@@ -140,10 +153,16 @@ function applyModifiers(
       0,
     );
   }
-  const grace = buildGraceGroup(spec);
-  if (grace) note.addModifier(grace, 0);
+  // Ornament: buzz → tremolo (3 stem slashes) on the main note; flam/drag/ruff
+  // → a grace-note group to the note's left.
+  if (spec.ornament === 'buzz') {
+    note.addModifier(new Tremolo(3), 0);
+  } else {
+    const grace = buildGraceGroup(spec, stemUp);
+    if (grace) note.addModifier(grace, 0);
+  }
   if (spec.ghost) {
-    // Parenthesize the notehead(s) to mark a ghost note.
+    // Parenthesize the notehead(s) to mark a ghost note (full-value, not grace).
     Parenthesis.buildAndAttach([note]);
   }
 }
@@ -202,7 +221,7 @@ function buildBarVoices(specs: PositionSpec[]): BarVoices {
     }
 
     const prim = upNote ?? downNote;
-    if (prim) applyModifiers(prim, spec, stickingYShift);
+    if (prim) applyModifiers(prim, spec, stickingYShift, upNote !== null);
     primary.push(prim);
   }
 
