@@ -39,7 +39,12 @@ export function PlayButton({
 
   return (
     <div
-      className={cn('relative inline-grid place-items-center', className)}
+      // `isolate` confines the button's bloom/rings — and especially the WAAPI
+      // pulse transform, which the browser composites onto its own layer while
+      // playing — to a self-contained stacking context. Without it that
+      // composited layer escapes above sibling popovers (BPM/config panels),
+      // showing the button through them even though the panels are opaque.
+      className={cn('relative inline-grid place-items-center isolate', className)}
       style={{ width: d, height: d }}
     >
       {/* Atmospheric bloom — behind the face, never clickable. */}
