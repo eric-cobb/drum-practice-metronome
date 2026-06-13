@@ -98,9 +98,9 @@ class BeamClearTremolo extends Tremolo {
       (stemDirection === Stem.UP
         ? note.getGlyphWidth() - Stem.WIDTH / 2
         : Stem.WIDTH / 2);
-    // Stock Tremolo starts at topY + ySpacing; the extra spacing drops the top
+    // Stock Tremolo starts at topY + ySpacing; the extra offset drops the top
     // slash clear of the beam (the lifted stem leaves room below for the rest).
-    let y = note.getStemExtents().topY + ySpacing * 2;
+    let y = note.getStemExtents().topY + ySpacing * 2.6;
     this.fontInfo = { ...this.fontInfo, size: TREMOLO_FONT_SIZE * scale };
     for (let i = 0; i < this.num; i++) {
       this.renderText(ctx, x, y);
