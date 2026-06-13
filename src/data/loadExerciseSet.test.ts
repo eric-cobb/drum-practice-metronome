@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { loadBundledSets, validateExerciseSet } from './loadExerciseSet';
+import {
+  loadBundledSets,
+  migrateStoredSet,
+  validateExerciseSet,
+} from './loadExerciseSet';
+import type { ExerciseSet } from '../types';
 
 /** A fresh, minimal valid raw set each call, so tests can mutate it freely. */
 function makeValidRaw(): Record<string, unknown> {
@@ -210,6 +215,60 @@ describe('validateExerciseSet — rejects malformed input with a clear reason', 
     const raw = makeValidRaw();
     (raw.exercises as Record<string, unknown>[])[0].number = 1.5;
     expectError(raw, /exercises\[0\]\.number must be an integer/);
+  });
+});
+
+describe('migrateStoredSet — repair pre-Phase-10 stored user sets', () => {
+  /** A user set as it was stored in IndexedDB before the v2 schema: internal
+   *  subdivision token, schemaVersion 1, pattern events lacking `voices`. */
+  const v1Stored = (): ExerciseSet =>
+    ({
+      id: 'stick-control',
+      title: 'Stick Control',
+      source: 'GLS',
+      defaultBpm: 80,
+      defaultTargetReps: 20,
+      schemaVersion: 1,
+      sections: [{ id: 's', title: 'S', order: 1 }],
+      exercises: [
+        {
+          id: 'e1',
+          number: 1,
+          name: 'Ex 1',
+          sectionId: 's',
+          timeSignature: { numerator: 4, denominator: 4 },
+          subdivision: 'sixteenth',
+          pattern: [[{ sticking: 'R' }, 'rest', { sticking: 'L' }]],
+        },
+      ],
+      // The stored shape is structurally v1; cast through unknown for the test.
+    }) as unknown as ExerciseSet;
+
+  it('adds voices to v1 events and bumps the version', () => {
+    const { set, changed } = migrateStoredSet(v1Stored());
+    expect(changed).toBe(true);
+    expect(set.schemaVersion).toBe(2);
+    expect(set.exercises[0].pattern[0]).toEqual([
+      { voices: ['snare'], sticking: 'R' },
+      'rest',
+      { voices: ['snare'], sticking: 'L' },
+    ]);
+  });
+
+  it('leaves an already-v2 set untouched (no needless re-write)', () => {
+    const v2: ExerciseSet = {
+      ...v1Stored(),
+      schemaVersion: 2,
+      exercises: [
+        {
+          ...v1Stored().exercises[0],
+          pattern: [[{ voices: ['snare'], sticking: 'R' }, 'rest']],
+        },
+      ],
+    };
+    const { set, changed } = migrateStoredSet(v2);
+    expect(changed).toBe(false);
+    expect(set).toBe(v2);
   });
 });
 

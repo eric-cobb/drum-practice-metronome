@@ -416,9 +416,48 @@ export function getBundledSetIds(): Set<string> {
 
 // --- User-imported sets (async, from Dexie) ---------------------------------
 
+/** Repair a user set loaded from IndexedDB that predates the v2 multi-voice
+ *  schema (Phase 10). Such rows were stored verbatim in the v1 shape — pattern
+ *  events `{ sticking }` with no `voices` — which the v2 renderer can't read
+ *  (`event.voices is not iterable`). Re-runs the v1→v2 event migration directly
+ *  on the already-internal stored shape (subdivision tokens are already mapped,
+ *  so validateExerciseSet can't be reused). Returns the set unchanged when it's
+ *  already v2 so callers can skip a needless re-write. */
+export function migrateStoredSet(data: ExerciseSet): {
+  set: ExerciseSet;
+  changed: boolean;
+} {
+  let changed = data.schemaVersion !== 2;
+  const migrateEvent = (ev: PatternEvent): PatternEvent => {
+    if (ev === 'rest') return ev;
+    const obj = ev as { voices?: unknown; sticking?: Sticking };
+    if (Array.isArray(obj.voices)) return ev; // already a v2 hit
+    changed = true;
+    const hit: Hit = { voices: ['snare'] };
+    if (obj.sticking) hit.sticking = obj.sticking;
+    return hit;
+  };
+  const exercises = data.exercises.map((ex) => ({
+    ...ex,
+    pattern: ex.pattern.map((bar) => bar.map(migrateEvent)),
+  }));
+  if (!changed) return { set: data, changed: false };
+  return { set: { ...data, schemaVersion: 2, exercises }, changed: true };
+}
+
 export async function loadUserSets(): Promise<LoadedSet[]> {
   const records = await db.userSets.toArray();
-  return records.map((r) => ({ ...r.data, origin: 'user-imported' as SetOrigin }));
+  const sets: LoadedSet[] = [];
+  for (const r of records) {
+    const { set, changed } = migrateStoredSet(r.data);
+    // Persist the upgrade once so the repair is permanent (and the editor /
+    // export see v2). importedAt is preserved so the Manage-sets order is stable.
+    if (changed) {
+      await db.userSets.put({ id: r.id, importedAt: r.importedAt, data: set });
+    }
+    sets.push({ ...set, origin: 'user-imported' as SetOrigin });
+  }
+  return sets;
 }
 
 /** Merge bundled + user-imported into a single registry. On id collision the
