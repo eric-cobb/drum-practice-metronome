@@ -90,6 +90,28 @@ describe('renderExerciseNotation', () => {
     expect(container.querySelectorAll('.band-layer rect')).toHaveLength(4);
   });
 
+  it('renders ghosts, ornaments, and an open hi-hat without throwing', () => {
+    const exercise: Exercise = {
+      id: 'orn-test',
+      number: 1,
+      name: 'Ornaments',
+      sectionId: 'main',
+      pattern: [
+        [
+          { voices: ['snare'], sticking: 'R', accent: true, ornament: 'flam' },
+          { voices: ['snare'], sticking: 'L', ghost: true },
+          { voices: ['snare'], sticking: 'R', ornament: 'drag' },
+          { voices: ['hihat-open'] },
+        ],
+      ],
+      timeSignature: { numerator: 2, denominator: 4 },
+      subdivision: 'eighth',
+    };
+    const container = document.createElement('div');
+    expect(renderExerciseNotation(container, exercise, 640).ok).toBe(true);
+    expect(container.querySelector('svg')).not.toBeNull();
+  });
+
   it('clears the container on re-render (no stacked SVGs)', () => {
     const sets = loadBundledSets();
     const set = sets[0];

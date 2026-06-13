@@ -8,7 +8,8 @@
   "sections": [
     { "id": "coordination", "title": "Hands & feet", "order": 1 },
     { "id": "grooves", "title": "Grooves", "order": 2 },
-    { "id": "dynamics", "title": "Dynamics", "order": 3 }
+    { "id": "dynamics", "title": "Dynamics", "order": 3 },
+    { "id": "ornaments", "title": "Ornaments & ghosts", "order": 4 }
   ],
   "exercises": [
     {
@@ -79,6 +80,56 @@
           { "voices": ["snare"], "sticking": "L" },
           { "voices": ["snare"], "sticking": "R" },
           { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "flams-ghosts",
+      "number": 4,
+      "name": "Flams, drags & ghosts",
+      "sectionId": "ornaments",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "An ornament on each quarter (flam, drag, ruff, buzz) with ghost notes on the in-betweens.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "L", "ghost": true },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "ghost": true },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "L", "ghost": true },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "ghost": true },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "ruff" },
+          { "voices": ["snare"], "sticking": "L", "ghost": true },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "ghost": true },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "buzz" },
+          { "voices": ["snare"], "sticking": "L", "ghost": true },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "ghost": true }
+        ]
+      ]
+    },
+    {
+      "id": "open-hihat",
+      "number": 5,
+      "name": "Open hi-hat",
+      "sectionId": "ornaments",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "An open hi-hat (○) on the last upbeat resolves on the downbeat.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-open"] }
         ]
       ]
     }

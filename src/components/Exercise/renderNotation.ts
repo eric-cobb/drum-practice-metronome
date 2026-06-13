@@ -17,7 +17,10 @@ import {
   Beam,
   Formatter,
   GhostNote,
+  GraceNote,
+  GraceNoteGroup,
   Modifier,
+  Parenthesis,
   Renderer,
   Stave,
   StaveNote,
@@ -26,7 +29,7 @@ import {
   Voice,
 } from 'vexflow';
 import type { Note } from 'vexflow';
-import type { Exercise, TimeSignature } from '../../types';
+import type { Exercise, Ornament, TimeSignature } from '../../types';
 import { getBeatGrouping } from '../../meter';
 import {
   beamGroupSize,
@@ -81,9 +84,34 @@ function staveNote(keys: string[], duration: string, stemUp: boolean): StaveNote
   });
 }
 
-/** Attach the sticking annotation (below) and accent articulation (above) to a
- *  note. `stickingYShift` clears the label past any down-stem voices in the bar.
- *  (Ghost parentheses + ornament grace notes are a later refinement.) */
+/** Grace-note count per ornament (SPEC §12): flam 1, drag 2, ruff 3. Buzz is
+ *  approximated as a single slashed grace (the true z-notehead is a later
+ *  refinement). */
+const ORNAMENT_GRACE_COUNT: Record<Ornament, number> = {
+  flam: 1,
+  drag: 2,
+  ruff: 3,
+  buzz: 1,
+};
+
+/** Build the ornament's grace-note group on the parent's primary line. */
+function buildGraceGroup(spec: PositionSpec): GraceNoteGroup | null {
+  if (!spec.ornament) return null;
+  const key = spec.upKeys[0] ?? spec.downKeys[0] ?? 'c/5';
+  const count = ORNAMENT_GRACE_COUNT[spec.ornament];
+  const single = count === 1;
+  const graces = Array.from(
+    { length: count },
+    () => new GraceNote({ keys: [key], duration: single ? '8' : '16', slash: single }),
+  );
+  const group = new GraceNoteGroup(graces, false);
+  if (count > 1) group.beamNotes();
+  return group;
+}
+
+/** Attach the modifiers a hit can carry: sticking (below), accent and open-hat
+ *  marks (above), ghost parentheses around the notehead, and an ornament grace
+ *  group. `stickingYShift` clears the label past any down-stem voices. */
 function applyModifiers(
   note: StaveNote,
   spec: PositionSpec,
@@ -100,6 +128,23 @@ function applyModifiers(
   }
   if (spec.accent) {
     note.addModifier(new Articulation('a>').setPosition(Modifier.Position.ABOVE), 0);
+  }
+  if (spec.hihatOpen) {
+    // Open hi-hat: a small ○ above the note. VexFlow's articulation table has no
+    // open-circle code, so render it as a text annotation rather than an
+    // (invisible) unknown articulation.
+    note.addModifier(
+      new Annotation('○')
+        .setVerticalJustification(Annotation.VerticalJustify.TOP)
+        .setFont(STICKING_FONT_FAMILY, 13, 'normal'),
+      0,
+    );
+  }
+  const grace = buildGraceGroup(spec);
+  if (grace) note.addModifier(grace, 0);
+  if (spec.ghost) {
+    // Parenthesize the notehead(s) to mark a ghost note.
+    Parenthesis.buildAndAttach([note]);
   }
 }
 
