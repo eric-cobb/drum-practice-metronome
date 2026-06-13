@@ -12,28 +12,29 @@
 
 import {
   Annotation,
+  Articulation,
   Barline,
   Beam,
   Formatter,
+  GhostNote,
+  Modifier,
   Renderer,
   Stave,
   StaveNote,
+  Stem,
   Tuplet,
   Voice,
 } from 'vexflow';
-import type {
-  Exercise,
-  PatternEvent,
-  Subdivision,
-  TimeSignature,
-} from '../../types';
+import type { Note } from 'vexflow';
+import type { Exercise, TimeSignature } from '../../types';
 import { getBeatGrouping } from '../../meter';
 import {
   beamGroupSize,
   beamRuns,
-  buildNoteSpecs,
+  buildPositionSpecs,
   tupletGroupSize,
   tupletRuns,
+  type PositionSpec,
 } from './notationModel';
 
 export type RenderResult = { ok: true } | { ok: false; error: string };
@@ -68,33 +69,99 @@ function vexTimeSignature(ts: TimeSignature): string {
   return `${ts.numerator}/${ts.denominator}`;
 }
 
-/** Build the StaveNote list for one bar and attach R/L sticking annotations. */
-function buildBarNotes(
-  bar: PatternEvent[],
-  subdivision: Subdivision,
-): StaveNote[] {
-  const specs = buildNoteSpecs(bar, subdivision);
-  return specs.map((spec) => {
-    const note = new StaveNote({
-      keys: ['c/5'],
-      duration: spec.isRest ? `${spec.duration}r` : spec.duration,
-      clef: 'percussion',
-    });
-    if (!spec.isRest && spec.sticking) {
-      note.addModifier(
-        new Annotation(spec.sticking)
-          .setVerticalJustification(Annotation.VerticalJustify.BOTTOM)
-          .setFont(
-            STICKING_FONT_FAMILY,
-            STICKING_FONT_SIZE,
-            STICKING_FONT_WEIGHT,
-          )
-          .setYShift(STICKING_Y_SHIFT_PX),
-        0,
-      );
-    }
-    return note;
+function staveNote(keys: string[], duration: string, stemUp: boolean): StaveNote {
+  return new StaveNote({
+    keys,
+    duration,
+    clef: 'percussion',
+    stemDirection: stemUp ? Stem.UP : Stem.DOWN,
   });
+}
+
+/** Attach the sticking annotation (below) and accent articulation (above) to a
+ *  note. (Ghost parentheses + ornament grace notes are a later refinement.) */
+function applyModifiers(note: StaveNote, spec: PositionSpec): void {
+  if (spec.sticking) {
+    note.addModifier(
+      new Annotation(spec.sticking)
+        .setVerticalJustification(Annotation.VerticalJustify.BOTTOM)
+        .setFont(STICKING_FONT_FAMILY, STICKING_FONT_SIZE, STICKING_FONT_WEIGHT)
+        .setYShift(STICKING_Y_SHIFT_PX),
+      0,
+    );
+  }
+  if (spec.accent) {
+    note.addModifier(new Articulation('a>').setPosition(Modifier.Position.ABOVE), 0);
+  }
+}
+
+interface BarVoices {
+  /** Stems-up notes, one tickable per position (StaveNote or GhostNote spacer). */
+  up: Note[];
+  /** Stems-down notes, or null when the bar has no foot/down voices (single-voice). */
+  down: Note[] | null;
+  /** The note to highlight per position (the up note, else the down note); null
+   *  for rests. */
+  primary: (StaveNote | null)[];
+}
+
+/** Split a bar's positions into stems-up and stems-down VexFlow voices, filling
+ *  the empty side of each position with a GhostNote so the two voices stay
+ *  aligned in time (ARCHITECTURE multi-voice rendering). A bar with no down
+ *  voices renders as a single voice (the v1 snare path). */
+function buildBarVoices(specs: PositionSpec[]): BarVoices {
+  const hasDown = specs.some((s) => !s.isRest && s.downKeys.length > 0);
+  const up: Note[] = [];
+  const down: Note[] = [];
+  const primary: (StaveNote | null)[] = [];
+
+  for (const spec of specs) {
+    if (spec.isRest) {
+      up.push(
+        new StaveNote({
+          keys: ['c/5'],
+          duration: `${spec.duration}r`,
+          clef: 'percussion',
+        }),
+      );
+      if (hasDown) down.push(new GhostNote(spec.duration));
+      primary.push(null);
+      continue;
+    }
+
+    let upNote: StaveNote | null = null;
+    if (spec.upKeys.length > 0) {
+      upNote = staveNote(spec.upKeys, spec.duration, true);
+      up.push(upNote);
+    } else if (hasDown) {
+      up.push(new GhostNote(spec.duration));
+    }
+
+    let downNote: StaveNote | null = null;
+    if (spec.downKeys.length > 0) {
+      downNote = staveNote(spec.downKeys, spec.duration, false);
+      down.push(downNote);
+    } else if (hasDown) {
+      down.push(new GhostNote(spec.duration));
+    }
+
+    const prim = upNote ?? downNote;
+    if (prim) applyModifiers(prim, spec);
+    primary.push(prim);
+  }
+
+  return { up, down: hasDown ? down : null, primary };
+}
+
+/** Beam mask for one voice: a position is "rest-like" (breaks beams) when it's a
+ *  rest or has no note on that voice's side. */
+function beamMask(
+  specs: PositionSpec[],
+  side: 'up' | 'down',
+): { isRest: boolean }[] {
+  return specs.map((s) => ({
+    isRest: s.isRest || (side === 'up' ? s.upKeys.length : s.downKeys.length) === 0,
+  }));
 }
 
 /** Inject a `<g class="band-layer">` of `<rect class="highlight-band">` elements
@@ -106,7 +173,7 @@ function buildBarNotes(
  *  CSS fill carries the sky tint and themes via --notation-active. */
 function injectBandLayer(
   container: HTMLDivElement,
-  bars: { stave: Stave; notes: StaveNote[] }[],
+  bars: { stave: Stave; primary: (StaveNote | null)[] }[],
 ): void {
   const svg = container.querySelector('svg');
   if (!svg) return;
@@ -115,12 +182,12 @@ function injectBandLayer(
   layer.setAttribute('class', 'band-layer');
   svg.insertBefore(layer, svg.firstChild);
 
-  bars.forEach(({ stave, notes }, barIndex) => {
+  bars.forEach(({ stave, primary }, barIndex) => {
     const yTop = stave.getYForLine(0) - 4;
     const yBottom = stave.getYForLine(4) + 4;
     const height = yBottom - yTop;
-    notes.forEach((note, noteIndex) => {
-      if (note.isRest()) return;
+    primary.forEach((note, noteIndex) => {
+      if (!note) return;
       const noteX = note.getAbsoluteX();
       const band = document.createElementNS(ns, 'rect');
       band.setAttribute('id', `band-${barIndex}-${noteIndex}`);
@@ -171,7 +238,7 @@ export function renderExerciseNotation(
     // band-layer rects that back the active-note highlight (DESIGN §Active note
     // highlight, three-layer treatment). The band's geometry depends on the
     // formatted note positions, which aren't known until after `voice.draw`.
-    const barLayouts: { stave: Stave; notes: StaveNote[] }[] = [];
+    const barLayouts: { stave: Stave; primary: (StaveNote | null)[] }[] = [];
 
     // Previews (interactive: false) omit the clef + time signature: at card
     // scale they're not informative, and reserving width for them on bar 0
@@ -211,40 +278,56 @@ export function renderExerciseNotation(
       }
       stave.setContext(ctx).draw();
 
-      const notes = buildBarNotes(bar, exercise.subdivision);
-      const specs = buildNoteSpecs(bar, exercise.subdivision);
+      const specs = buildPositionSpecs(bar, exercise.subdivision);
+      const { up, down, primary } = buildBarVoices(specs);
 
-      const beams = beamRuns(specs, beamGroup).map(
-        (run) => new Beam(run.map((i) => notes[i])),
+      const newVoice = () =>
+        new Voice({ numBeats: ts.numerator, beatValue: ts.denominator }).setStrict(
+          false,
+        );
+      const upVoice = newVoice().addTickables(up);
+      const voices = [upVoice];
+      let downVoice: Voice | null = null;
+      if (down) {
+        downVoice = newVoice().addTickables(down);
+        voices.push(downVoice);
+      }
+
+      // Beam each voice over its own real notes; tuplets only on the single-voice
+      // path (multi-voice triplets are a later refinement).
+      // The masks exclude ghost/rest positions, so these indices are all real
+      // StaveNotes (cast from the Note[] tickable arrays).
+      const upBeams = beamRuns(beamMask(specs, 'up'), beamGroup).map(
+        (run) => new Beam(run.map((i) => up[i] as StaveNote)),
       );
-      const tuplets = tupletRuns(specs, tupletGroup).map(
-        (run) => new Tuplet(run.map((i) => notes[i])),
-      );
+      const downBeams =
+        down === null
+          ? []
+          : beamRuns(beamMask(specs, 'down'), beamGroup).map(
+              (run) => new Beam(run.map((i) => down[i] as StaveNote)),
+            );
+      const tuplets =
+        down === null
+          ? tupletRuns(specs, tupletGroup).map(
+              (run) => new Tuplet(run.map((i) => up[i] as StaveNote)),
+            )
+          : [];
 
-      const voice = new Voice({
-        numBeats: ts.numerator,
-        beatValue: ts.denominator,
-      });
-      voice.setStrict(false);
-      voice.addTickables(notes);
-
-      new Formatter().joinVoices([voice]).formatToStave([voice], stave);
-      voice.draw(ctx, stave);
-      beams.forEach((beam) => beam.setContext(ctx).draw());
+      new Formatter().joinVoices(voices).formatToStave(voices, stave);
+      voices.forEach((v) => v.draw(ctx, stave));
+      [...upBeams, ...downBeams].forEach((beam) => beam.setContext(ctx).draw());
       tuplets.forEach((tuplet) => tuplet.setContext(ctx).draw());
 
-      // Tag each rendered note with its (barIndex, noteIndex) for the
-      // highlight lookup (ARCHITECTURE §Note index tracking). Skipped for
+      // Tag the highlighted note per position with its (barIndex, noteIndex) for
+      // the highlight lookup (ARCHITECTURE §Note index tracking). Skipped for
       // non-interactive previews to avoid duplicate global ids.
       if (interactive) {
-        notes.forEach((note, noteIndex) =>
-          note
-            .getSVGElement()
-            ?.setAttribute('id', `note-${barIndex}-${noteIndex}`),
+        primary.forEach((note, noteIndex) =>
+          note?.getSVGElement()?.setAttribute('id', `note-${barIndex}-${noteIndex}`),
         );
       }
 
-      barLayouts.push({ stave, notes });
+      barLayouts.push({ stave, primary });
     });
 
     if (interactive) injectBandLayer(container, barLayouts);

@@ -88,6 +88,11 @@ interface MetronomeState {
   // dropout. When active, playback starts at ramp.startBpm.
   ramp: RampConfig | null;
 
+  // Per-position accent map of the active exercise (bar → note → accented), or
+  // null outside Exercise mode. Drives the +6dB accent click (SPEC §12). Set by
+  // the exercise store when config is applied; cleared in Free mode.
+  patternAccents: boolean[][] | null;
+
   // Rep counter (SPEC §2)
   barsPerRep: number;
   targetReps: number;
@@ -124,6 +129,7 @@ interface MetronomeState {
   toggleAccent: (beatIndex: number) => void;
   setDropout: (dropout: DropoutConfig | null) => void;
   setRamp: (ramp: RampConfig | null) => void;
+  setPatternAccents: (patternAccents: boolean[][] | null) => void;
 
   // Rep-counter actions
   setBarsPerRep: (barsPerRep: number) => void;
@@ -158,6 +164,7 @@ export const useMetronomeStore = create<MetronomeState>((set, get) => ({
   accentPattern: patternForTimeSignature(INITIAL_TIME_SIGNATURE, []),
   dropout: null,
   ramp: null,
+  patternAccents: null,
 
   barsPerRep: 2,
   targetReps: 20,
@@ -229,6 +236,8 @@ export const useMetronomeStore = create<MetronomeState>((set, get) => ({
   setDropout: (dropout) => set({ dropout }),
 
   setRamp: (ramp) => set({ ramp }),
+
+  setPatternAccents: (patternAccents) => set({ patternAccents }),
 
   toggleAccent: (beatIndex) =>
     set((state) => {

@@ -189,7 +189,7 @@ function publishPosition(time: number): void {
  *  subdivision). */
 function scheduleMainTick(time: number): void {
   const ctx = getAudioContext();
-  const { subdivision, timeSignature, accentPattern, barsPerRep } =
+  const { subdivision, timeSignature, accentPattern, barsPerRep, patternAccents } =
     useMetronomeStore.getState();
   const { isCompound } = getBeatGrouping(timeSignature);
   const subsPerPulse = subdivisionsPerPulse(
@@ -207,13 +207,19 @@ function scheduleMainTick(time: number): void {
   // visuals below — the indicator keeps pulsing through muted bars.
   refreshDropoutForBar(position.barCount);
 
+  // A note position accented by the exercise pattern plays the louder 'accent'
+  // click (SPEC §12). In Exercise mode the click subdivision always matches the
+  // pattern's, so the accent map lines up with note positions.
+  const patternAccented = patternAccents?.[barIdx]?.[noteIdx] ?? false;
+
   if (isMainBeat(position)) {
-    const accented =
+    const beatAccent =
       accentPattern[position.pulseInBar] ?? position.pulseInBar === 0;
-    if (!dropoutMuted) playClick(ctx, time, accented ? 'accent' : 'beat');
+    const level = patternAccented || beatAccent ? 'accent' : 'beat';
+    if (!dropoutMuted) playClick(ctx, time, level);
     publishPosition(time);
   } else {
-    if (!dropoutMuted) playClick(ctx, time, 'sub');
+    if (!dropoutMuted) playClick(ctx, time, patternAccented ? 'accent' : 'sub');
   }
 
   // Current-note highlight: emit at play time so the notation cursor lands on

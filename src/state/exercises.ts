@@ -452,6 +452,12 @@ export const useExerciseStore = create<ExerciseState>((set, get) => {
         barsPerRep: exercise.pattern.length,
         targetReps: exercise.targetReps ?? state.loadedSet.defaultTargetReps,
       });
+      // Per-position accent map → louder click on accented pattern notes
+      // (SPEC §12). Cleared when switching to Free mode (mode.ts).
+      const accents = exercise.pattern.map((bar) =>
+        bar.map((ev) => ev !== 'rest' && ev.accent === true),
+      );
+      useMetronomeStore.getState().setPatternAccents(accents);
     },
 
     // --- User-set CRUD --------------------------------------------------

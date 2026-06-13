@@ -3,8 +3,88 @@
 // duration/grouping logic is unit-testable in Node; renderNotation.ts consumes
 // these specs and does the actual drawing.
 
-import type { PatternEvent, Sticking, Subdivision } from '../../types';
+import type {
+  Ornament,
+  PatternEvent,
+  Sticking,
+  Subdivision,
+  Voice,
+} from '../../types';
 import { subdivisionsPerPulse } from '../../meter';
+
+/** Voice → VexFlow staff key (with notehead glyph) + stem direction (SPEC §12 /
+ *  ARCHITECTURE multi-voice rendering). Cross noteheads use the `/x2` glyph,
+ *  the ride bell a diamond `/d0`; normal voices have no glyph suffix. */
+interface VoiceVex {
+  key: string;
+  stemUp: boolean;
+}
+export const VOICE_VEX: Record<Voice, VoiceVex> = {
+  snare: { key: 'c/5', stemUp: true },
+  kick: { key: 'f/4', stemUp: false },
+  'hihat-closed': { key: 'g/5/x2', stemUp: true },
+  'hihat-open': { key: 'g/5/x2', stemUp: true },
+  'hihat-foot': { key: 'd/4/x2', stemUp: false },
+  ride: { key: 'f/5/x2', stemUp: true },
+  'ride-bell': { key: 'f/5/d0', stemUp: true },
+  crash: { key: 'a/5/x2', stemUp: true },
+  'tom-high': { key: 'e/5', stemUp: true },
+  'tom-mid': { key: 'd/5', stemUp: true },
+  'tom-low': { key: 'a/4', stemUp: true },
+};
+
+/** One note position resolved for rendering: its stems-up and stems-down voice
+ *  keys plus the modifiers that apply (SPEC §12). A rest has empty key arrays. */
+export interface PositionSpec {
+  duration: string;
+  isRest: boolean;
+  upKeys: string[];
+  downKeys: string[];
+  sticking?: Sticking;
+  accent: boolean;
+  ghost: boolean;
+  ornament?: Ornament;
+  /** Any voice is an open hi-hat (renders the ○ marker). */
+  hihatOpen: boolean;
+}
+
+/** Resolve each pattern event into a PositionSpec for the multi-voice renderer. */
+export function buildPositionSpecs(
+  pattern: PatternEvent[],
+  subdivision: Subdivision,
+): PositionSpec[] {
+  const duration = DURATIONS[subdivision];
+  return pattern.map((event) => {
+    if (event === 'rest') {
+      return {
+        duration,
+        isRest: true,
+        upKeys: [],
+        downKeys: [],
+        accent: false,
+        ghost: false,
+        hihatOpen: false,
+      };
+    }
+    const upKeys: string[] = [];
+    const downKeys: string[] = [];
+    for (const voice of event.voices) {
+      const vex = VOICE_VEX[voice];
+      (vex.stemUp ? upKeys : downKeys).push(vex.key);
+    }
+    return {
+      duration,
+      isRest: false,
+      upKeys,
+      downKeys,
+      sticking: event.sticking,
+      accent: event.accent ?? false,
+      ghost: event.ghost ?? false,
+      ornament: event.ornament,
+      hihatOpen: event.voices.includes('hihat-open'),
+    };
+  });
+}
 
 /** A note carries an optional sticking (foot voices have none); a rest carries
  *  nothing. Discriminated on `isRest`. (Stage 10.1 reads the v2 Hit's sticking;
@@ -70,7 +150,10 @@ export function tupletGroupSize(subdivision: Subdivision): number {
 /** Note indices to beam together: maximal runs (length ≥ 2) of consecutive
  *  non-rest notes within each `groupSize` chunk. Rests and chunk boundaries
  *  break beams; a lone note keeps its flag instead. */
-export function beamRuns(specs: NoteSpec[], groupSize: number): number[][] {
+export function beamRuns(
+  specs: readonly { isRest: boolean }[],
+  groupSize: number,
+): number[][] {
   if (groupSize < 2) return [];
   const runs: number[][] = [];
   for (let start = 0; start < specs.length; start += groupSize) {
@@ -91,7 +174,10 @@ export function beamRuns(specs: NoteSpec[], groupSize: number): number[][] {
 
 /** Note indices grouped into tuplet brackets (chunks of `size`, rests included),
  *  or [] when not a tuplet. */
-export function tupletRuns(specs: NoteSpec[], size: number): number[][] {
+export function tupletRuns(
+  specs: readonly { isRest: boolean }[],
+  size: number,
+): number[][] {
   if (size < 2) return [];
   const runs: number[][] = [];
   for (let start = 0; start < specs.length; start += size) {

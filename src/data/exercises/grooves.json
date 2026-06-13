@@ -1,0 +1,86 @@
+{
+  "id": "grooves-demo",
+  "title": "Grooves & Accents (demo)",
+  "source": "Original demo content",
+  "defaultBpm": 80,
+  "defaultTargetReps": 16,
+  "schemaVersion": 2,
+  "sections": [
+    { "id": "coordination", "title": "Hands & feet", "order": 1 },
+    { "id": "grooves", "title": "Grooves", "order": 2 },
+    { "id": "dynamics", "title": "Dynamics", "order": 3 }
+  ],
+  "exercises": [
+    {
+      "id": "snare-kick",
+      "number": 1,
+      "name": "Snare & kick",
+      "sectionId": "coordination",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "Snare on the upbeats (stems up), kick on the offbeats (stems down). Demonstrates a two-voice staff.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["kick"] },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["kick"] },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["kick"] },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["kick"] }
+        ]
+      ]
+    },
+    {
+      "id": "eighth-rock",
+      "number": 2,
+      "name": "Eighth-note rock",
+      "sectionId": "grooves",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "Hi-hat on every eighth, kick on 1 and 3, accented snare backbeat on 2 and 4.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"], "sticking": "R" },
+          { "voices": ["hihat-closed"], "sticking": "R" },
+          { "voices": ["hihat-closed", "snare"], "sticking": "R", "accent": true },
+          { "voices": ["hihat-closed"], "sticking": "R" },
+          { "voices": ["hihat-closed", "kick"], "sticking": "R" },
+          { "voices": ["hihat-closed"], "sticking": "R" },
+          { "voices": ["hihat-closed", "snare"], "sticking": "R", "accent": true },
+          { "voices": ["hihat-closed"], "sticking": "R" }
+        ]
+      ]
+    },
+    {
+      "id": "accented-singles",
+      "number": 3,
+      "name": "Accented singles",
+      "sectionId": "dynamics",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "Single strokes with an accent on each quarter — the accented notes also click louder.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    }
+  ]
+}

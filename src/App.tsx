@@ -28,6 +28,12 @@ export default function App() {
     void initSets().then(() => {
       const activeSetId = useExerciseStore.getState().activeSetId;
       if (activeSetId) void loadProgressForSet(activeSetId);
+      // initSets applies the active exercise's config (including its pattern
+      // accents) even when starting in Free mode; clear them so Free mode never
+      // inherits exercise accents (SPEC §12).
+      if (useModeStore.getState().mode !== 'exercise') {
+        useMetronomeStore.getState().setPatternAccents(null);
+      }
     });
     initTransport();
     initSessionRecorder();

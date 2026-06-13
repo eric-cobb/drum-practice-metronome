@@ -65,6 +65,31 @@ describe('renderExerciseNotation', () => {
     expect(renderExerciseNotation(container, exercise, 480).ok).toBe(true);
   });
 
+  it('renders a multi-voice bar (hands up, kick down) with accents', () => {
+    const exercise: Exercise = {
+      id: 'mv-test',
+      number: 1,
+      name: 'Groove',
+      sectionId: 'main',
+      pattern: [
+        [
+          { voices: ['hihat-closed', 'kick'], sticking: 'R' },
+          { voices: ['hihat-closed'], sticking: 'R' },
+          { voices: ['hihat-closed', 'snare'], sticking: 'R', accent: true },
+          { voices: ['hihat-closed'], sticking: 'R' },
+        ],
+      ],
+      timeSignature: { numerator: 2, denominator: 4 },
+      subdivision: 'eighth',
+    };
+    const container = document.createElement('div');
+    expect(renderExerciseNotation(container, exercise, 640).ok).toBe(true);
+    expect(container.querySelector('svg')).not.toBeNull();
+    // One highlight band per non-rest position (all 4 here), confirming the
+    // multi-voice bar formatted and laid out without throwing.
+    expect(container.querySelectorAll('.band-layer rect')).toHaveLength(4);
+  });
+
   it('clears the container on re-render (no stacked SVGs)', () => {
     const sets = loadBundledSets();
     const set = sets[0];
