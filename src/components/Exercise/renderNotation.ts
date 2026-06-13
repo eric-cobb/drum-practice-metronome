@@ -346,22 +346,35 @@ function injectOrnamentLabels(
   container: HTMLDivElement,
   specs: PositionSpec[],
   primary: (StaveNote | null)[],
-  y: number,
+  fallbackY: number,
 ): void {
   const svg = container.querySelector('svg');
   if (!svg) return;
+  // Sit the label below the lowest sticking annotation rather than guessing the
+  // 18px label's position. Sticking is a BOTTOM `.vf-annotation`; the open-hihat
+  // ○ is a TOP one with a smaller y, so the max y is the lowest sticking.
+  let stickingY = -Infinity;
+  svg.querySelectorAll('.vf-annotation text').forEach((t) => {
+    const ty = parseFloat(t.getAttribute('y') ?? '');
+    if (Number.isFinite(ty)) stickingY = Math.max(stickingY, ty);
+  });
+  const labelY = (stickingY > -Infinity ? stickingY : fallbackY) + 15;
+
   const NS = 'http://www.w3.org/2000/svg';
   specs.forEach((spec, i) => {
     const note = primary[i];
     if (!spec.ornament || !note) return;
     const el = document.createElementNS(NS, 'text');
     el.setAttribute('x', String(note.getAbsoluteX() + note.getGlyphWidth() / 2));
-    el.setAttribute('y', String(y));
+    el.setAttribute('y', String(labelY));
     el.setAttribute('text-anchor', 'middle');
     el.setAttribute('class', 'ornament-label');
     el.style.fontFamily = STICKING_FONT_FAMILY;
     el.style.fontSize = '11px';
-    el.style.fill = 'var(--color-fg-tertiary)';
+    // Runtime CSS var (the Tailwind `--color-*` theme tokens aren't emitted as
+    // usable custom properties); otherwise the .notation-svg text rule wins and
+    // paints it dark ink.
+    el.style.fill = 'var(--fg-tertiary)';
     el.textContent = spec.ornament;
     svg.appendChild(el);
   });
