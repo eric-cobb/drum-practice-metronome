@@ -5,6 +5,10 @@
 // restores the snapshot, so dipping into Exercise mode doesn't clobber a warm-up
 // tempo. The snapshot is in-memory only for now (persistence is SPEC §8 / later).
 //
+// The mode itself IS persisted to localStorage so a browser refresh stays on the
+// exercise page rather than dropping back to the Free metronome — the active
+// exercise's config is re-applied at startup by initSets regardless of mode.
+//
 // Stopping playback on a mode switch (SPEC §3) is done by the toggle component,
 // which owns the scheduler call — keeping the scheduler out of the stores.
 
@@ -12,6 +16,13 @@ import { create } from 'zustand';
 import type { MetronomeConfig, Mode } from '../types';
 import { useMetronomeStore } from './metronome';
 import { useExerciseStore } from './exercises';
+
+const STORAGE_KEY = 'metronome-mode';
+
+function loadMode(): Mode {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  return stored === 'exercise' || stored === 'free' ? stored : 'free';
+}
 
 function captureMetronomeConfig(): MetronomeConfig {
   const s = useMetronomeStore.getState();
@@ -36,11 +47,12 @@ interface ModeState {
 }
 
 export const useModeStore = create<ModeState>((set, get) => ({
-  mode: 'free',
+  mode: loadMode(),
   freeSnapshot: null,
 
   setMode: (mode) => {
     if (mode === get().mode) return;
+    localStorage.setItem(STORAGE_KEY, mode);
     if (mode === 'exercise') {
       set({ freeSnapshot: captureMetronomeConfig() });
       useExerciseStore.getState().applyCurrentToMetronome();
