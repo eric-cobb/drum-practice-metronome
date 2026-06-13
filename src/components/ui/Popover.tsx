@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from './cn';
 
 type Placement = 'top' | 'bottom';
@@ -16,21 +23,19 @@ interface PopoverProps {
   label?: string;
 }
 
-const POS: Record<Placement, string> = {
-  top: 'bottom-full mb-2',
-  bottom: 'top-full mt-2',
-};
-const ALIGN: Record<Align, string> = {
-  start: 'left-0',
-  center: 'left-1/2 -translate-x-1/2',
-  end: 'right-0',
-};
+const GAP = 8;
 
 /** v2 anchored popover (DESIGN-v2 §6 / §7): the elevated popover surface with
  *  the entrance animation, closing on click-outside or Escape and restoring
- *  focus to the trigger. Used for the BPM / rep / config-pill dropdowns. The
- *  full exercise-selector popover (backdrop, arrow) is a separate Stage 4
- *  component. */
+ *  focus to the trigger.
+ *
+ *  The panel is rendered in a portal at document.body, positioned with fixed
+ *  coordinates from the trigger's rect. This is deliberate: the Practice play
+ *  button runs per-beat transform animations that the browser composites onto
+ *  their own GPU layers, and an in-flow popover — at ANY z-index — gets painted
+ *  under those layers while playing. A body-level portal sits at the root of the
+ *  stacking order, after the whole app, so nothing inside the app can composite
+ *  over it. */
 export function Popover({
   trigger,
   children,
@@ -40,19 +45,57 @@ export function Popover({
   label,
 }: PopoverProps) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [coords, setCoords] = useState<{ top: number; left: number } | null>(null);
 
   const close = () => setOpen(false);
+
+  // Position the portalled panel against the trigger. Re-runs on open and while
+  // open on scroll/resize so it tracks the anchor.
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const a = anchorRef.current?.getBoundingClientRect();
+      if (!a) return;
+      const panel = panelRef.current;
+      const pw = panel?.offsetWidth ?? 0;
+      const ph = panel?.offsetHeight ?? 0;
+      const top = placement === 'bottom' ? a.bottom + GAP : a.top - GAP - ph;
+      let left =
+        align === 'start'
+          ? a.left
+          : align === 'end'
+            ? a.right - pw
+            : a.left + a.width / 2 - pw / 2;
+      // Keep within the viewport horizontally.
+      left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+      setCoords({ top, left });
+    };
+    place();
+    window.addEventListener('scroll', place, true);
+    window.addEventListener('resize', place);
+    return () => {
+      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('resize', place);
+    };
+  }, [open, placement, align]);
 
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: MouseEvent) => {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (
+        !anchorRef.current?.contains(t) &&
+        !panelRef.current?.contains(t)
+      ) {
+        setOpen(false);
+      }
     };
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setOpen(false);
-        rootRef.current
+        anchorRef.current
           ?.querySelector<HTMLElement>('[data-popover-trigger]')
           ?.focus();
       }
@@ -66,27 +109,32 @@ export function Popover({
   }, [open]);
 
   return (
-    <div ref={rootRef} className="relative inline-flex">
+    <div ref={anchorRef} className="relative inline-flex">
       {trigger({ open, toggle: () => setOpen((o) => !o) })}
-      {open && (
-        <div
-          role="dialog"
-          aria-label={label}
-          className={cn(
-            // `will-change-transform` keeps the open panel on its own compositor
-            // layer. Without it, once the entrance animation ends the panel drops
-            // to the main layer and the play button — continuously transform-
-            // animated (and thus composited) while playing — paints over it
-            // despite z-50. Promoting the panel makes layer order honor z-index.
-            'popover-in surface-popover absolute z-50 rounded-2xl p-4 will-change-transform',
-            POS[placement],
-            ALIGN[align],
-            widthClass,
-          )}
-        >
-          {children(close)}
-        </div>
-      )}
+      {open &&
+        createPortal(
+          <div
+            ref={panelRef}
+            role="dialog"
+            aria-label={label}
+            style={{
+              position: 'fixed',
+              top: coords?.top ?? -9999,
+              left: coords?.left ?? -9999,
+              // Hide the pre-measurement frame so it doesn't flash at -9999.
+              visibility: coords ? 'visible' : 'hidden',
+            }}
+            className={cn(
+              // Own composite layer + top-of-root z so it sits above the play
+              // button's per-beat GPU layers.
+              'popover-in surface-popover z-[1000] rounded-2xl p-4 will-change-transform',
+              widthClass,
+            )}
+          >
+            {children(close)}
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }
