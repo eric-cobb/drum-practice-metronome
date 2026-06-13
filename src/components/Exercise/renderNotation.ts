@@ -173,9 +173,15 @@ export function renderExerciseNotation(
     // formatted note positions, which aren't known until after `voice.draw`.
     const barLayouts: { stave: Stave; notes: StaveNote[] }[] = [];
 
-    // Width allocation: the clef + time sig live only on bar 0; the remaining
-    // width is shared equally among bars for their note area.
-    const totalNoteArea = usableWidth - PADDING_X * 2 - CLEF_AND_TS_WIDTH;
+    // Previews (interactive: false) omit the clef + time signature: at card
+    // scale they're not informative, and reserving width for them on bar 0
+    // unevenly compresses the later measures. Dropping them lets every measure
+    // share the width equally.
+    const clefTsWidth = interactive ? CLEF_AND_TS_WIDTH : 0;
+
+    // Width allocation: the clef + time sig (when shown) live only on bar 0; the
+    // remaining width is shared equally among bars for their note area.
+    const totalNoteArea = usableWidth - PADDING_X * 2 - clefTsWidth;
     const barWidth = Math.max(80, Math.floor(totalNoteArea / barCount));
     const beamGroup = beamGroupSize(
       exercise.subdivision,
@@ -188,18 +194,18 @@ export function renderExerciseNotation(
       const isFirst = barIndex === 0;
       const staveX = isFirst
         ? PADDING_X
-        : PADDING_X + CLEF_AND_TS_WIDTH + barWidth * barIndex;
-      const staveWidth = isFirst ? barWidth + CLEF_AND_TS_WIDTH : barWidth;
+        : PADDING_X + clefTsWidth + barWidth * barIndex;
+      const staveWidth = isFirst ? barWidth + clefTsWidth : barWidth;
 
       // VexFlow 5 expects camelCase here; the ARCHITECTURE doc uses the v4
       // snake_case (`spacing_between_lines_px`) — same option, just renamed.
       const stave = new Stave(staveX, STAVE_Y, staveWidth, {
         spacingBetweenLinesPx: STAFF_LINE_SPACING,
       });
-      if (isFirst) {
+      if (isFirst && interactive) {
         stave.setClef('percussion'); // standard 5-line percussion clef
         stave.addTimeSignature(vexTimeSignature(ts));
-      } else {
+      } else if (!isFirst) {
         // Avoid a double bar line at the join with the previous bar.
         stave.setBegBarType(Barline.type.NONE);
       }
