@@ -392,6 +392,10 @@ function injectOrnamentLabels(
     // how VexFlow's own sticking text stays in the sans face.
     el.setAttribute('font-family', STICKING_FONT_FAMILY);
     el.setAttribute('font-size', '14px');
+    // No stroke: the notation paints text with the staff ink stroke, which
+    // outlines each glyph on top of the fill and reads as garbled/doubled. The
+    // sticking labels set this too.
+    el.setAttribute('stroke', 'none');
     // Color comes from the `.notation-svg .ornament-label` rule (a themed CSS
     // var) so it recolors live on a light/dark toggle.
     el.setAttribute('class', 'ornament-label');
