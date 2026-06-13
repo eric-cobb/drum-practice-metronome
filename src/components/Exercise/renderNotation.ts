@@ -78,7 +78,7 @@ const TREMOLO_FONT_SIZE = 30;
  *  tips (Beam.getBeamYToDraw), so lengthening the whole group's stems lifts the
  *  beam and opens vertical room for the buzz slashes between it and the notehead
  *  — without tilting the beam (every stem in the group grows equally). */
-const BUZZ_STEM_EXTRA_PX = 22;
+const BUZZ_STEM_EXTRA_PX = 27;
 
 /** A buzz tremolo whose three full-size slashes sit two spacings below the stem
  *  tip — far enough under the (lifted, see BUZZ_STEM_EXTRA_PX) beam to read as
@@ -100,7 +100,7 @@ class BeamClearTremolo extends Tremolo {
         : Stem.WIDTH / 2);
     // Stock Tremolo starts at topY + ySpacing; the extra offset drops the top
     // slash clear of the beam (the lifted stem leaves room below for the rest).
-    let y = note.getStemExtents().topY + ySpacing * 2.6;
+    let y = note.getStemExtents().topY + ySpacing * 3.2;
     this.fontInfo = { ...this.fontInfo, size: TREMOLO_FONT_SIZE * scale };
     for (let i = 0; i < this.num; i++) {
       this.renderText(ctx, x, y);
