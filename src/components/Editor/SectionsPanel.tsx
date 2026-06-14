@@ -22,7 +22,8 @@ import { cn } from '../ui';
 
 const iconBtn =
   'rounded-md p-1 text-fg-tertiary hover:bg-fg/5 hover:text-fg disabled:opacity-30 ' +
-  'disabled:hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+  'disabled:hover:bg-transparent disabled:pointer-events-none focus:outline-none ' +
+  'focus-visible:ring-2 focus-visible:ring-accent';
 
 const dragHandle =
   'cursor-grab touch-none rounded-md p-1 text-fg-tertiary hover:bg-fg/5 hover:text-fg ' +
@@ -131,12 +132,10 @@ function SortableSectionRow({
         className="h-9 flex-1 rounded-[8px] surface-deep px-2.5 text-sm text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       />
       <span className="w-12 text-right text-xs tabular-nums text-fg-tertiary">{used} ex.</span>
-      <button
-        type="button"
-        className={cn(iconBtn, 'hover:bg-danger/10 hover:text-danger-text')}
-        disabled={!canDelete}
-        onClick={() => deleteSection(section.id)}
-        aria-label={`Delete ${section.title}`}
+      {/* Wrapper carries the title so the tooltip still shows when the button is
+          disabled (a disabled button receives no hover events). */}
+      <span
+        className="inline-flex"
         title={
           isOnly
             ? 'A set needs at least one section'
@@ -145,8 +144,16 @@ function SortableSectionRow({
               : 'Delete section'
         }
       >
-        <Trash2 size={16} strokeWidth={1.5} aria-hidden />
-      </button>
+        <button
+          type="button"
+          className={cn(iconBtn, 'hover:bg-danger/10 hover:text-danger-text')}
+          disabled={!canDelete}
+          onClick={() => deleteSection(section.id)}
+          aria-label={`Delete ${section.title}`}
+        >
+          <Trash2 size={16} strokeWidth={1.5} aria-hidden />
+        </button>
+      </span>
     </li>
   );
 }

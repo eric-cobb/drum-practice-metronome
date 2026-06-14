@@ -22,7 +22,8 @@ import { cn } from '../ui';
 
 const iconBtn =
   'rounded-md p-1 text-fg-tertiary hover:bg-fg/5 hover:text-fg disabled:opacity-30 ' +
-  'disabled:hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+  'disabled:hover:bg-transparent disabled:pointer-events-none focus:outline-none ' +
+  'focus-visible:ring-2 focus-visible:ring-accent';
 
 const dragHandle =
   'cursor-grab touch-none rounded-md p-1 text-fg-tertiary hover:bg-fg/5 hover:text-fg ' +
@@ -139,16 +140,22 @@ function SortableExerciseRow({
         </span>
         <span className="shrink-0 truncate text-xs text-fg-tertiary">{sectionTitle}</span>
       </button>
-      <button
-        type="button"
-        className={cn(iconBtn, 'hover:bg-danger/10 hover:text-danger-text')}
-        disabled={!canDelete}
-        onClick={() => deleteExercise(exercise.id)}
-        aria-label={`Delete ${exercise.name}`}
+      {/* Wrapper carries the title so the tooltip still shows when the button is
+          disabled (a disabled button receives no hover events). */}
+      <span
+        className="inline-flex"
         title={canDelete ? 'Delete exercise' : 'A set needs at least one exercise'}
       >
-        <Trash2 size={16} strokeWidth={1.5} aria-hidden />
-      </button>
+        <button
+          type="button"
+          className={cn(iconBtn, 'hover:bg-danger/10 hover:text-danger-text')}
+          disabled={!canDelete}
+          onClick={() => deleteExercise(exercise.id)}
+          aria-label={`Delete ${exercise.name}`}
+        >
+          <Trash2 size={16} strokeWidth={1.5} aria-hidden />
+        </button>
+      </span>
     </li>
   );
 }
