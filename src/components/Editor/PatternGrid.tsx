@@ -12,8 +12,11 @@ const ORNAMENT_ABBR: Record<Ornament, string> = {
 };
 
 const CELL = 'h-9 w-9 shrink-0 text-sm tabular-nums';
+// Fixed width (matches the position-number row's spacer) so every row's cells
+// start at the same x — otherwise the varying label widths ("Stroke" vs "Orn.")
+// shift each row's columns out of alignment.
 const ROW_LABEL =
-  'flex h-9 items-center justify-end pr-3 text-xs font-medium text-fg-tertiary';
+  'flex h-9 w-16 shrink-0 items-center justify-end pr-3 text-xs font-medium text-fg-tertiary';
 
 interface Column {
   bar: number;
