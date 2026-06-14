@@ -45,7 +45,9 @@ export type RenderResult = { ok: true } | { ok: false; error: string };
 
 const PADDING_X = 12;
 const STAVE_Y = 50;
-const HEIGHT = 220;
+/** SVG canvas height (px). Exported so the Notation component can size its
+ *  scale-to-fit wrapper without re-measuring. */
+export const NOTATION_HEIGHT = 220;
 const MIN_WIDTH = 320;
 /** Approximate horizontal allocation VexFlow needs for the clef + time
  *  signature glyphs on the first bar of the line (scaled for the larger staff). */
@@ -424,7 +426,7 @@ export function renderExerciseNotation(
     const barCount = bars.length;
 
     const renderer = new Renderer(container, Renderer.Backends.SVG);
-    renderer.resize(usableWidth, HEIGHT);
+    renderer.resize(usableWidth, NOTATION_HEIGHT);
     container.querySelector('svg')?.classList.add('notation-svg');
     const ctx = renderer.getContext();
 
