@@ -43,9 +43,11 @@ export function Notation() {
   }, [exercise]);
 
   // Render at least the natural width (fill wider containers; scale down narrow
-  // ones). scale ≤ 1 so we never upscale a small exercise into blur.
-  const renderWidth = Math.max(boxWidth, naturalWidth);
-  const scale = boxWidth > 0 && renderWidth > 0 ? Math.min(1, boxWidth / renderWidth) : 1;
+  // ones). scale ≤ 1 so we never upscale a small exercise into blur. On mobile
+  // boxWidth < naturalWidth, so renderWidth pins to naturalWidth and doesn't
+  // change as boxWidth jitters — only `scale` (a CSS transform) follows it.
+  const renderWidth = boxWidth > 0 ? Math.max(boxWidth, naturalWidth) : 0;
+  const scale = renderWidth > 0 ? Math.min(1, boxWidth / renderWidth) : 1;
 
   // Move the current-note highlight in step with the audio. Toggling classes /
   // attributes on the existing SVG nodes (no setState) keeps this off React's
@@ -80,13 +82,17 @@ export function Notation() {
     };
   }, []);
 
-  // Draw into the inner (scaled) host when the exercise or render width changes.
+  // Redraw only when the exercise or the render WIDTH changes — never on plain
+  // boxWidth jitter (mobile fires those constantly). Re-creating the SVG mid-
+  // play would rebuild the highlight bands out from under the running highlight
+  // and desync it. The fit `scale` is a CSS transform applied below, so it can
+  // follow boxWidth without a redraw.
   useEffect(() => {
     const el = innerRef.current;
-    if (!el || !exercise || boxWidth === 0) return;
+    if (!el || !exercise || renderWidth === 0) return;
     const result = renderExerciseNotation(el, exercise, renderWidth);
     setError(result.ok ? null : result.error);
-  }, [exercise, renderWidth, boxWidth]);
+  }, [exercise, renderWidth]);
 
   const label = exercise
     ? `Exercise ${exercise.number}, ${exercise.name}, ${SUBDIVISION_LABELS[exercise.subdivision]} notes in ${exercise.timeSignature.numerator}/${exercise.timeSignature.denominator}`
