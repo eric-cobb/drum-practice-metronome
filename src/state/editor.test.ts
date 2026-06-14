@@ -75,7 +75,7 @@ describe('editor store', () => {
     expect(before).toBe('rest'); // captured value unchanged
   });
 
-  it('addSection / rename / move (renumbers order) / delete (guarded)', () => {
+  it('addSection / rename / reorder (renumbers order) / delete (guarded)', () => {
     const s = () => useEditorStore.getState();
     s().openNew('my-set');
     s().addSection();
@@ -85,7 +85,7 @@ describe('editor store', () => {
     s().renameSection(b.id, 'Rolls');
     expect(s().draft!.sections.find((x) => x.id === b.id)?.title).toBe('Rolls');
 
-    s().moveSection(b.id, -1); // b before a
+    s().reorderSections([b.id, a.id]); // b before a
     expect(s().draft!.sections.map((x) => x.id)).toEqual([b.id, a.id]);
     // order renumbered to match array position
     expect(s().draft!.sections.map((x) => x.order)).toEqual([1, 2]);
@@ -115,12 +115,12 @@ describe('editor store', () => {
     expect(s().draft!.exercises).toHaveLength(1);
   });
 
-  it('moveExercise reorders the list', () => {
+  it('reorderExercises reorders the list', () => {
     const s = () => useEditorStore.getState();
     s().openNew('my-set');
     s().addExercise();
     const [first, second] = s().draft!.exercises;
-    s().moveExercise(second.id, -1);
+    s().reorderExercises([second.id, first.id]);
     expect(s().draft!.exercises.map((e) => e.id)).toEqual([second.id, first.id]);
   });
 

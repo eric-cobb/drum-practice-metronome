@@ -59,12 +59,14 @@ interface EditorState {
   addSection: () => void;
   renameSection: (id: string, title: string) => void;
   deleteSection: (id: string) => void;
-  moveSection: (id: string, dir: -1 | 1) => void;
+  /** Reorder sections to match the given id order (from a drag); renumbers `order`. */
+  reorderSections: (orderedIds: string[]) => void;
 
   // Exercises.
   addExercise: (sectionId?: string) => void;
   deleteExercise: (id: string) => void;
-  moveExercise: (id: string, dir: -1 | 1) => void;
+  /** Reorder exercises to match the given id order (from a drag). */
+  reorderExercises: (orderedIds: string[]) => void;
   updateExerciseMeta: (partial: Partial<Exercise>) => void;
   setTimeSignature: (ts: TimeSignature) => void;
   setSubdivision: (subdivision: Subdivision) => void;
@@ -111,17 +113,6 @@ function editCell(
       bi === bar ? b.map((ev, pi) => (pi === pos ? op(ev) : ev)) : b,
     ),
   };
-}
-
-/** Swap the item with id `id` and its neighbor in direction `dir` (-1 up, 1
- *  down). Returns the array unchanged if the move would fall off either end. */
-function moveById<T extends { id: string }>(items: T[], id: string, dir: -1 | 1): T[] {
-  const i = items.findIndex((x) => x.id === id);
-  const j = i + dir;
-  if (i < 0 || j < 0 || j >= items.length) return items;
-  const next = items.slice();
-  [next[i], next[j]] = [next[j], next[i]];
-  return next;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
@@ -186,14 +177,20 @@ export const useEditorStore = create<EditorState>((set) => ({
       }),
     ),
 
-  moveSection: (id, dir) =>
+  reorderSections: (orderedIds) =>
     set((s) =>
-      patchDraft(s, (d) => ({
-        ...d,
+      patchDraft(s, (d) => {
+        const byId = new Map(d.sections.map((sec) => [sec.id, sec]));
         // Renumber `order` to match the new array order (the Library/selector
         // sort sections by `order`).
-        sections: moveById(d.sections, id, dir).map((sec, i) => ({ ...sec, order: i + 1 })),
-      })),
+        const sections = orderedIds
+          .map((id, i) => {
+            const sec = byId.get(id);
+            return sec ? { ...sec, order: i + 1 } : null;
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null);
+        return sections.length === d.sections.length ? { ...d, sections } : d;
+      }),
     ),
 
   // --- Exercises ------------------------------------------------------------
@@ -222,8 +219,16 @@ export const useEditorStore = create<EditorState>((set) => ({
       return { draft: { ...s.draft, exercises }, activeExerciseId, dirty: true };
     }),
 
-  moveExercise: (id, dir) =>
-    set((s) => patchDraft(s, (d) => ({ ...d, exercises: moveById(d.exercises, id, dir) }))),
+  reorderExercises: (orderedIds) =>
+    set((s) =>
+      patchDraft(s, (d) => {
+        const byId = new Map(d.exercises.map((e) => [e.id, e]));
+        const exercises = orderedIds
+          .map((id) => byId.get(id))
+          .filter((x): x is NonNullable<typeof x> => x !== undefined);
+        return exercises.length === d.exercises.length ? { ...d, exercises } : d;
+      }),
+    ),
 
   updateExerciseMeta: (partial) =>
     set((s) => withActiveExercise(s, (ex) => ({ ...ex, ...partial }))),

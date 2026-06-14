@@ -1,25 +1,56 @@
-import { ChevronUp, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { GripVertical, Plus, Trash2 } from 'lucide-react';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useEditorStore } from '../../state/editor';
+import type { Section } from '../../types';
 import { cn } from '../ui';
 
 const iconBtn =
   'rounded-md p-1 text-fg-tertiary hover:bg-fg/5 hover:text-fg disabled:opacity-30 ' +
   'disabled:hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
-/** Manage the set's sections: rename, reorder, add, delete. A section can't be
- *  deleted while it holds exercises or if it's the only one (the delete button
- *  is disabled with a reason). */
+const dragHandle =
+  'cursor-grab touch-none rounded-md p-1 text-fg-tertiary hover:bg-fg/5 hover:text-fg ' +
+  'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent active:cursor-grabbing';
+
+/** Manage the set's sections: drag to reorder (keyboard-accessible via the
+ *  handle), rename, add, delete. A section can't be deleted while it holds
+ *  exercises or if it's the only one. */
 export function SectionsPanel() {
   const draft = useEditorStore((s) => s.draft);
-  const renameSection = useEditorStore((s) => s.renameSection);
-  const deleteSection = useEditorStore((s) => s.deleteSection);
-  const moveSection = useEditorStore((s) => s.moveSection);
+  const reorderSections = useEditorStore((s) => s.reorderSections);
   const addSection = useEditorStore((s) => s.addSection);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   if (!draft) return null;
 
-  const countFor = (sectionId: string) =>
-    draft.exercises.filter((e) => e.sectionId === sectionId).length;
+  const ids = draft.sections.map((s) => s.id);
+  const onDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    reorderSections(
+      arrayMove(ids, ids.indexOf(String(active.id)), ids.indexOf(String(over.id))),
+    );
+  };
 
   return (
     <div className="surface-card rounded-[12px] p-4">
@@ -34,60 +65,88 @@ export function SectionsPanel() {
         </button>
       </div>
 
-      <ul className="mt-3 flex flex-col gap-2">
-        {draft.sections.map((section, i) => {
-          const used = countFor(section.id);
-          const last = draft.sections.length <= 1;
-          const canDelete = !last && used === 0;
-          return (
-            <li key={section.id} className="flex items-center gap-1.5">
-              <input
-                value={section.title}
-                onChange={(e) => renameSection(section.id, e.target.value)}
-                aria-label={`Section ${i + 1} name`}
-                className="h-9 flex-1 rounded-[8px] surface-deep px-2.5 text-sm text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+          <ul className="mt-3 flex flex-col gap-2">
+            {draft.sections.map((section, i) => (
+              <SortableSectionRow
+                key={section.id}
+                section={section}
+                index={i}
+                used={draft.exercises.filter((e) => e.sectionId === section.id).length}
+                isOnly={draft.sections.length <= 1}
               />
-              <span className="w-12 text-right text-xs tabular-nums text-fg-tertiary">
-                {used} ex.
-              </span>
-              <button
-                type="button"
-                className={iconBtn}
-                disabled={i === 0}
-                onClick={() => moveSection(section.id, -1)}
-                aria-label={`Move ${section.title} up`}
-              >
-                <ChevronUp size={16} strokeWidth={1.5} aria-hidden />
-              </button>
-              <button
-                type="button"
-                className={iconBtn}
-                disabled={i === draft.sections.length - 1}
-                onClick={() => moveSection(section.id, 1)}
-                aria-label={`Move ${section.title} down`}
-              >
-                <ChevronDown size={16} strokeWidth={1.5} aria-hidden />
-              </button>
-              <button
-                type="button"
-                className={cn(iconBtn, 'hover:bg-danger/10 hover:text-danger-text')}
-                disabled={!canDelete}
-                onClick={() => deleteSection(section.id)}
-                aria-label={`Delete ${section.title}`}
-                title={
-                  last
-                    ? 'A set needs at least one section'
-                    : used > 0
-                      ? 'Move or delete its exercises first'
-                      : 'Delete section'
-                }
-              >
-                <Trash2 size={16} strokeWidth={1.5} aria-hidden />
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+            ))}
+          </ul>
+        </SortableContext>
+      </DndContext>
     </div>
+  );
+}
+
+function SortableSectionRow({
+  section,
+  index,
+  used,
+  isOnly,
+}: {
+  section: Section;
+  index: number;
+  used: number;
+  isOnly: boolean;
+}) {
+  const renameSection = useEditorStore((s) => s.renameSection);
+  const deleteSection = useEditorStore((s) => s.deleteSection);
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: section.id });
+
+  const canDelete = !isOnly && used === 0;
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : undefined,
+      }}
+      className={cn(
+        'flex items-center gap-1.5 rounded-[8px]',
+        isDragging && 'opacity-80 shadow-[0_4px_12px_rgba(0,0,0,0.35)]',
+      )}
+    >
+      <button
+        type="button"
+        className={dragHandle}
+        aria-label={`Reorder ${section.title}`}
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical size={16} strokeWidth={1.5} aria-hidden />
+      </button>
+      <input
+        value={section.title}
+        onChange={(e) => renameSection(section.id, e.target.value)}
+        aria-label={`Section ${index + 1} name`}
+        className="h-9 flex-1 rounded-[8px] surface-deep px-2.5 text-sm text-fg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      />
+      <span className="w-12 text-right text-xs tabular-nums text-fg-tertiary">{used} ex.</span>
+      <button
+        type="button"
+        className={cn(iconBtn, 'hover:bg-danger/10 hover:text-danger-text')}
+        disabled={!canDelete}
+        onClick={() => deleteSection(section.id)}
+        aria-label={`Delete ${section.title}`}
+        title={
+          isOnly
+            ? 'A set needs at least one section'
+            : used > 0
+              ? 'Move or delete its exercises first'
+              : 'Delete section'
+        }
+      >
+        <Trash2 size={16} strokeWidth={1.5} aria-hidden />
+      </button>
+    </li>
   );
 }
