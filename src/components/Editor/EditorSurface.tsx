@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, X } from 'lucide-react';
 import { useEditorStore } from '../../state/editor';
 import { useExerciseStore } from '../../state/exercises';
+import { switchSet } from '../../audio/transport';
 import { Button } from '../ui';
 import { validateDraft } from './editorModel';
 import { SetMetaForm } from './SetMetaForm';
@@ -28,6 +29,18 @@ export function EditorSurface() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // The draft lives only in memory, so warn before a reload / tab close would
+  // discard unsaved edits. (In-app navigation keeps the draft in the store.)
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [dirty]);
+
   const active = draft?.exercises.find((e) => e.id === activeExerciseId) ?? null;
   if (!draft) return null;
 
@@ -47,7 +60,11 @@ export function EditorSurface() {
     const result = await replaceSet(draft);
     setSaving(false);
     if (result.ok) {
+      // Surface the saved set in the Library: switch to it unless it's already
+      // the active set (re-switching would reset the active set's position).
+      const wasActive = useExerciseStore.getState().activeSetId === draft.id;
       markClean();
+      if (!wasActive) switchSet(draft.id);
       close();
     } else {
       setError(result.error);
@@ -55,7 +72,7 @@ export function EditorSurface() {
   };
 
   return (
-    <div className="mx-auto max-w-[1100px] px-8 py-7">
+    <div className="mx-auto max-w-[1100px] px-4 py-7 sm:px-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-xl font-medium text-fg">Edit set</h1>
@@ -64,7 +81,12 @@ export function EditorSurface() {
             R → L and toggle accents, ghosts, and ornaments.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {dirty && (
+            <span className="text-xs text-fg-tertiary" aria-live="polite">
+              Unsaved changes
+            </span>
+          )}
           <Button variant="ghost" icon={<X size={16} strokeWidth={1.5} />} onClick={onCancel}>
             Cancel
           </Button>

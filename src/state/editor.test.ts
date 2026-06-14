@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { useEditorStore } from './editor';
+import { validateDraft } from '../components/Editor/editorModel';
 import type { Hit } from '../types';
 
 const reset = () => useEditorStore.getState().close();
@@ -134,6 +135,22 @@ describe('editor store', () => {
     expect(s().draft!.defaultBpm).toBe(120);
     expect(s().draft!.defaultTargetReps).toBe(30);
     expect(s().dirty).toBe(true);
+  });
+
+  it('a set built through the store passes validation', () => {
+    const s = () => useEditorStore.getState();
+    s().openNew('my-set');
+    s().setTitle('My Set');
+    s().addSection();
+    const rolls = s().draft!.sections[1];
+    s().renameSection(rolls.id, 'Rolls');
+    s().addExercise(rolls.id);
+    s().updateExerciseMeta({ name: 'Single strokes' });
+    s().cellStroke(0, 0);
+    s().cellStroke(0, 1);
+    expect(validateDraft(s().draft!)).toBeNull();
+    expect(s().draft!.exercises).toHaveLength(2);
+    expect(s().draft!.sections).toHaveLength(2);
   });
 
   it('close clears the draft', () => {
