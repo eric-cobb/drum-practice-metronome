@@ -316,7 +316,9 @@ function injectBandLayer(
     const height = yBottom - yTop;
     primary.forEach((note, noteIndex) => {
       if (!note) return;
-      const noteX = note.getAbsoluteX();
+      // Center the band on the notehead glyph, not the note's logical/left x
+      // (getAbsoluteX) — the latter sits ~half a notehead to the left.
+      const noteX = note.getCenterGlyphX();
       const band = document.createElementNS(ns, 'rect');
       band.setAttribute('id', `band-${barIndex}-${noteIndex}`);
       band.setAttribute('class', 'highlight-band');
