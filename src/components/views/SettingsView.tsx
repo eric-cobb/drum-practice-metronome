@@ -243,6 +243,9 @@ export function SettingsView() {
             <Button variant="ghost" size="sm" onClick={() => startTour('practice')}>
               Exercise mode
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => startTour('library')}>
+              Library
+            </Button>
           </div>
         </Row>
       </Section>

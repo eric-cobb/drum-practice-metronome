@@ -5,11 +5,13 @@
 import { create } from 'zustand';
 import { useModeStore } from './mode';
 import { useUiStore } from './ui';
+import { useEditorStore } from './editor';
 import { stopMetronome } from '../audio/scheduler';
 import freeStepsJson from '../data/tours/free.json';
 import practiceStepsJson from '../data/tours/practice.json';
+import libraryStepsJson from '../data/tours/library.json';
 
-export type TourId = 'free' | 'practice';
+export type TourId = 'free' | 'practice' | 'library';
 
 export interface TourStep {
   /** CSS selector for the highlighted element (a data-tour attribute). */
@@ -21,6 +23,7 @@ export interface TourStep {
 export const TOUR_STEPS: Record<TourId, TourStep[]> = {
   free: freeStepsJson as TourStep[],
   practice: practiceStepsJson as TourStep[],
+  library: libraryStepsJson as TourStep[],
 };
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -29,6 +32,9 @@ const STORAGE_KEY = 'metronome-tour-state';
 interface TourSeen {
   free: boolean;
   practice: boolean;
+  /** The Library tour is launched manually from Settings (no banner), so this is
+   *  only used to gate the Settings button's "seen" affordance if needed. */
+  library: boolean;
   /** When the user last chose "Skip — I'll explore on my own". Suppresses the
    *  welcome dialog permanently and the first-entry banners for 7 days. */
   skippedAt?: number;
@@ -37,15 +43,16 @@ interface TourSeen {
 function readSeen(): TourSeen {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { free: false, practice: false };
+    if (!raw) return { free: false, practice: false, library: false };
     const parsed = JSON.parse(raw) as Partial<TourSeen>;
     return {
       free: parsed.free ?? false,
       practice: parsed.practice ?? false,
+      library: parsed.library ?? false,
       skippedAt: parsed.skippedAt,
     };
   } catch {
-    return { free: false, practice: false };
+    return { free: false, practice: false, library: false };
   }
 }
 
@@ -107,8 +114,16 @@ export const useTourStore = create<TourStore>((set, get) => ({
 
   start: (tour) => {
     stopMetronome();
-    useModeStore.getState().setMode(modeForTour(tour));
-    useUiStore.getState().setView('practice');
+    if (tour === 'library') {
+      // The Library tour highlights the set-management controls, which only
+      // exist when the Library view is showing its normal content — so close
+      // any open editor draft (it replaces the Library content while open).
+      useEditorStore.getState().close();
+      useUiStore.getState().setView('library');
+    } else {
+      useModeStore.getState().setMode(modeForTour(tour));
+      useUiStore.getState().setView('practice');
+    }
     set({ active: { tour, step: 0 } });
   },
 

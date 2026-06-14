@@ -104,7 +104,7 @@ export function LibraryView() {
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="sm:w-[320px]">
+        <div className="sm:w-[320px]" data-tour="set-picker">
           <SetPicker
             activeSetId={activeSetId}
             setSummaries={availableSets}
@@ -113,7 +113,10 @@ export function LibraryView() {
             onOpenSettings={() => {}}
           />
         </div>
-        <label className="surface-deep flex h-11 flex-1 items-center gap-2 rounded-[10px] px-3">
+        <label
+          data-tour="search"
+          className="surface-deep flex h-11 flex-1 items-center gap-2 rounded-[10px] px-3"
+        >
           <Search size={16} strokeWidth={1.5} className="text-fg-tertiary" aria-hidden />
           <input
             type="search"

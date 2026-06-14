@@ -1,0 +1,22 @@
+[
+  {
+    "target": "[data-tour=\"set-picker\"]",
+    "title": "Choose a set",
+    "body": "Switch between exercise sets here — the bundled rudiments, anything you've imported, and sets you build yourself. It also shows how far you've gotten in each."
+  },
+  {
+    "target": "[data-tour=\"search\"]",
+    "title": "Find an exercise",
+    "body": "Filter the current set by exercise name or number. Tap any card below to jump straight into it in Practice."
+  },
+  {
+    "target": "[data-tour=\"library-actions\"]",
+    "title": "Create or import",
+    "body": "New set opens the editor with a blank set to build from scratch. Import loads a set from a JSON file. Schema reference explains the file format."
+  },
+  {
+    "target": "[data-tour=\"manage-sets\"]",
+    "title": "Edit & manage sets",
+    "body": "Expand this to manage every set. Duplicate a bundled set to make an editable copy, or edit / export / delete your own. The editor lets you add sections and exercises and build patterns on a click-to-edit sticking grid."
+  }
+]

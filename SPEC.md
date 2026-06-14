@@ -630,15 +630,17 @@ The app's UI is intentionally minimal — controls are hidden behind popovers an
 
 Use `react-joyride` for spotlight/coachmark-style tours. Each tour is a sequence of steps; each step highlights a specific UI element with a dim overlay and a small callout panel explaining what it does and how to use it. Users advance with a "Next" button or skip with "Skip tour" at any point.
 
-### Two tours
+### Tours
 
-The app provides two separate tours, since Free mode and Exercise mode have substantially different UIs:
+The app provides three separate tours, since the Free/Exercise Practice views and the Library have substantially different UIs:
 
 **Free mode tour** (~6-8 steps): the central play/stop button, BPM (clickable to open the BPM Popover), the rep counter (configurable when stopped), the control strip pills (time signature, subdivision, dropout, ramp), the mode toggle, and the top bar icons (history, settings).
 
 **Exercise mode tour** (~5-7 steps): the exercise context text in the top bar (clickable to open the Exercise Popover), the notation canvas (with active-note highlight explanation), the BPM and rep counter (configurable), the play button with count-in behavior, and the mode toggle. Includes a sub-tour that runs when the Exercise Popover opens for the first time, covering the set selector, search, recents, sectioned grid, and bottom controls (~4-5 more steps).
 
-Tour content is stored as JSON step configurations in `src/data/tours/free.json` and `src/data/tours/practice.json` so it can be edited without recompiling. Step content includes a `target` selector, a `title`, a `body` (markdown supported), and optional `placement` overrides.
+**Library tour** (~4 steps, Phase 11): runs on the Library view — the set picker (switch sets, per-set progress), exercise search/filter, the create/import actions (New set opens the editor, Import loads JSON), and Manage sets (duplicate a bundled set to edit, or edit/export/delete your own; introduces the editor's sections, exercises, and click-to-edit sticking grid). Launched on-demand from Settings only (no welcome dialog or first-entry banner). Starting it closes any open editor draft so the Library's normal content — and its tour anchors — is showing.
+
+Tour content is stored as JSON step configurations in `src/data/tours/free.json`, `practice.json`, and `library.json` so it can be edited without recompiling. Step content includes a `target` selector, a `title`, and a `body`.
 
 ### Trigger conditions
 
@@ -648,7 +650,7 @@ The tour can start in three ways:
 
 2. **First entry to a mode.** When the user switches to a mode they haven't seen the tour for, a small dismissable banner appears at the top: "First time here? Take a quick tour" with "Yes" and "No thanks" buttons. The banner appears only once per mode and is dismissed permanently on first interaction.
 
-3. **On-demand.** Settings → "Take the tour" with sub-options "Free mode tour" or "Exercise mode tour." Always available; ignores prior state.
+3. **On-demand.** Settings → "Take the tour" with sub-options "Free mode," "Exercise mode," and "Library." Always available; ignores prior state.
 
 ### State tracking
 

@@ -75,7 +75,7 @@ export function LibraryActions() {
   };
 
   return (
-    <div className="flex flex-col items-end gap-1.5">
+    <div className="flex flex-col items-end gap-1.5" data-tour="library-actions">
       <div className="flex items-center gap-2">
         {/* No `accept` filter: the application/json MIME makes some OS file
             dialogs grey out .json files (the system reports a different type),

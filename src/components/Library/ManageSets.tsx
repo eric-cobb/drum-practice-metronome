@@ -86,7 +86,7 @@ export function ManageSets() {
   const Chevron = open ? ChevronDown : ChevronRight;
 
   return (
-    <div className="surface-card rounded-[12px] px-4 py-3">
+    <div className="surface-card rounded-[12px] px-4 py-3" data-tour="manage-sets">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
