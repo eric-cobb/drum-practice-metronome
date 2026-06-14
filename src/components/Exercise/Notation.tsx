@@ -56,24 +56,29 @@ export function Notation() {
   // + glow + scale, via CSS), and the matching `<rect id="band-…">` flips
   // opacity (the peripheral band).
   useEffect(() => {
-    let active: { noteId: string; bandId: string } | null = null;
+    // Clear EVERY lit highlight by querying the DOM, not by remembering the last
+    // one set. On mobile the play-time `note` events (setTimeout-scheduled) can
+    // drop, reorder, or double under load, so a single tracked "active" ref
+    // misses clears and stale highlights pile up (the band appears stuck while
+    // the glow drifts ahead). Querying is cheap (a handful of elements) and
+    // guarantees exactly one highlight at a time.
     const clear = () => {
-      if (active) {
-        document.getElementById(active.noteId)?.classList.remove('note-active');
-        document.getElementById(active.bandId)?.setAttribute('opacity', '0');
-        active = null;
-      }
+      document
+        .querySelectorAll('.notation-svg .note-active')
+        .forEach((el) => el.classList.remove('note-active'));
+      document
+        .querySelectorAll('.notation-svg .highlight-band[opacity="1"]')
+        .forEach((el) => el.setAttribute('opacity', '0'));
     };
     const unsubscribe = onSchedulerEvent((event) => {
+      clear();
       if (event.type === 'note') {
-        clear();
-        const noteId = `note-${event.barIndex}-${event.noteIndexInBar}`;
-        const bandId = `band-${event.barIndex}-${event.noteIndexInBar}`;
-        document.getElementById(noteId)?.classList.add('note-active');
-        document.getElementById(bandId)?.setAttribute('opacity', '1');
-        active = { noteId, bandId };
-      } else {
-        clear();
+        document
+          .getElementById(`note-${event.barIndex}-${event.noteIndexInBar}`)
+          ?.classList.add('note-active');
+        document
+          .getElementById(`band-${event.barIndex}-${event.noteIndexInBar}`)
+          ?.setAttribute('opacity', '1');
       }
     });
     return () => {
