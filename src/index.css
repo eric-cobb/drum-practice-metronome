@@ -456,6 +456,24 @@ body,
   }
 }
 
+/* Mobile: make the per-beat highlight cheap. The drop-shadow filter and the
+   scale transform/transitions are GPU-expensive and, on phones, composite at a
+   slower (and different) rate than the band's plain opacity — so the glow and
+   band separate, and both fall progressively behind the click. Drop the filter,
+   transform, and all transitions so the color + band update together in one
+   frame and stay in sync with the audio. Desktop keeps the full treatment. */
+@media (max-width: 767px) {
+  .notation-svg .note-active .vf-notehead > text,
+  .notation-svg .note-active .vf-stem {
+    filter: none;
+    transform: none;
+    transition: none;
+  }
+  .notation-svg .band-layer .highlight-band {
+    transition: none;
+  }
+}
+
 /* Popover entrance: 150ms fade + 4px slide-up (DESIGN §Motion). */
 @keyframes popover-in {
   from {
