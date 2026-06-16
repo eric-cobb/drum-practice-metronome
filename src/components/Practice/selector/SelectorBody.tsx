@@ -12,6 +12,7 @@ import {
 import { useMetronomeStore } from '../../../state/metronome';
 import { useUiStore } from '../../../state/ui';
 import { getRecentExercisesForSet } from '../../../state/sessions';
+import { askConfirm } from '../../../state/confirm';
 import { goToNext, switchSet } from '../../../audio/transport';
 import { stopMetronome } from '../../../audio/scheduler';
 import type { Exercise } from '../../../types';
@@ -239,14 +240,17 @@ export function SelectorBody({ close }: { close: () => void }) {
             variant="destructive"
             size="sm"
             onClick={() => {
-              if (
-                window.confirm(
-                  'Reset all completion progress for this set? Session log is unaffected.',
-                )
-              ) {
-                void resetProgress(activeSetId);
-                close();
-              }
+              void askConfirm({
+                title: 'Reset completion progress?',
+                body: 'Clears completed/mastered marks for this set. Your session log is unaffected.',
+                confirmLabel: 'Reset',
+                destructive: true,
+              }).then((ok) => {
+                if (ok) {
+                  void resetProgress(activeSetId);
+                  close();
+                }
+              });
             }}
           >
             Reset progress

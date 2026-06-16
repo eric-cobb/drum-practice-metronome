@@ -18,6 +18,7 @@ import {
 } from '../../state/sessions';
 import { useThemeStore, type Theme } from '../../state/theme';
 import { useTourStore } from '../../state/tour';
+import { askConfirm } from '../../state/confirm';
 import {
   getPersistenceStatus,
   type PersistenceStatus,
@@ -102,7 +103,12 @@ export function SettingsView() {
       }
       if (
         replaceAll &&
-        !window.confirm('This will delete all current session history. Continue?')
+        !(await askConfirm({
+          title: 'Replace all session history?',
+          body: 'This deletes your current session history and replaces it with the imported file.',
+          confirmLabel: 'Replace all',
+          destructive: true,
+        }))
       ) {
         return;
       }

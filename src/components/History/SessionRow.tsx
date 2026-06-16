@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Diamond } from 'lucide-react';
 import { useSessionStore, sessionLabel } from '../../state/sessions';
+import { askConfirm } from '../../state/confirm';
 import { SUBDIVISION_LABELS, type Session } from '../../types';
 import { Button } from '../ui';
 import { formatDuration, formatExact, formatRelative } from './format';
@@ -36,9 +37,16 @@ export function SessionRow({ session, newBest, setTitle, now }: SessionRowProps)
   const remove = useSessionStore((s) => s.remove);
   const updateNotes = useSessionStore((s) => s.updateNotes);
 
-  const onDelete = () => {
+  const onDelete = async () => {
     if (session.id === undefined) return;
-    if (window.confirm('Delete this session? This cannot be undone.')) {
+    if (
+      await askConfirm({
+        title: 'Delete this session?',
+        body: 'This cannot be undone.',
+        confirmLabel: 'Delete',
+        destructive: true,
+      })
+    ) {
       void remove(session.id);
     }
   };
@@ -118,7 +126,7 @@ export function SessionRow({ session, newBest, setTitle, now }: SessionRowProps)
               className="surface-deep resize-y rounded-[10px] px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             />
           </label>
-          <Button variant="destructive" size="sm" className="self-start" onClick={onDelete}>
+          <Button variant="destructive" size="sm" className="self-start" onClick={() => void onDelete()}>
             Delete session
           </Button>
         </div>

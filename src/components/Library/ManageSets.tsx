@@ -10,6 +10,7 @@ import {
 import { useExerciseStore } from '../../state/exercises';
 import { useEditorStore } from '../../state/editor';
 import { generateUniqueId } from '../../data/loadExerciseSet';
+import { askConfirm } from '../../state/confirm';
 import { cloneSetForEdit } from '../Editor/editorModel';
 import type { ExerciseSetSummary } from '../../types';
 import { cn } from '../ui';
@@ -55,9 +56,12 @@ export function ManageSets() {
 
   const onDelete = async (summary: ExerciseSetSummary) => {
     if (
-      !window.confirm(
-        `Delete '${summary.title}'? Your session history and progress for this set are preserved.`,
-      )
+      !(await askConfirm({
+        title: `Delete '${summary.title}'?`,
+        body: 'Your session history and progress for this set are preserved.',
+        confirmLabel: 'Delete',
+        destructive: true,
+      }))
     ) {
       return;
     }

@@ -3,6 +3,7 @@ import { Check, X } from 'lucide-react';
 import { useEditorStore } from '../../state/editor';
 import { useExerciseStore } from '../../state/exercises';
 import { switchSet } from '../../audio/transport';
+import { askConfirm } from '../../state/confirm';
 import { Button } from '../ui';
 import { validateDraft } from './editorModel';
 import { SetMetaForm } from './SetMetaForm';
@@ -44,8 +45,18 @@ export function EditorSurface() {
   const active = draft?.exercises.find((e) => e.id === activeExerciseId) ?? null;
   if (!draft) return null;
 
-  const onCancel = () => {
-    if (dirty && !window.confirm('Discard unsaved changes?')) return;
+  const onCancel = async () => {
+    if (
+      dirty &&
+      !(await askConfirm({
+        title: 'Discard unsaved changes?',
+        body: 'Your edits to this set will be lost.',
+        confirmLabel: 'Discard',
+        destructive: true,
+      }))
+    ) {
+      return;
+    }
     close();
   };
 
@@ -87,7 +98,11 @@ export function EditorSurface() {
               Unsaved changes
             </span>
           )}
-          <Button variant="ghost" icon={<X size={16} strokeWidth={1.5} />} onClick={onCancel}>
+          <Button
+            variant="ghost"
+            icon={<X size={16} strokeWidth={1.5} />}
+            onClick={() => void onCancel()}
+          >
             Cancel
           </Button>
           <Button icon={<Check size={16} strokeWidth={1.5} />} onClick={onSave} disabled={saving}>

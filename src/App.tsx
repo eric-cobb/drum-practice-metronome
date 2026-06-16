@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { AppShell } from './components/AppShell/AppShell';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ConfirmHost } from './components/ConfirmHost';
 import { useExerciseStore } from './state/exercises';
 import { useSessionStore } from './state/sessions';
 import { useProgressStore } from './state/progress';
@@ -104,6 +105,7 @@ export default function App() {
       <ErrorBoundary>
         <AppShell />
       </ErrorBoundary>
+      <ConfirmHost />
 
       {/* Anonymous page-view analytics on production deploys only. Mounted at
        *  the root so it doesn't remount on view/sheet changes; renders nothing
