@@ -23,7 +23,9 @@ import {
   getPersistenceStatus,
   type PersistenceStatus,
 } from '../../db/persistence';
+import { MessageSquare } from 'lucide-react';
 import { Button, Toggle, Stepper, cn } from '../ui';
+import { FEEDBACK_URL } from '../../feedback';
 
 const THEMES: { value: Theme; label: string }[] = [
   { value: 'light', label: 'Light' },
@@ -253,6 +255,17 @@ export function SettingsView() {
               Library
             </Button>
           </div>
+        </Row>
+        <Row label="Send feedback">
+          <a
+            href={FEEDBACK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="surface-deep inline-flex h-8 items-center gap-2 rounded-[10px] px-3 text-xs font-medium text-fg transition duration-[120ms] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          >
+            <MessageSquare size={14} strokeWidth={1.5} aria-hidden />
+            Open form
+          </a>
         </Row>
       </Section>
     </div>

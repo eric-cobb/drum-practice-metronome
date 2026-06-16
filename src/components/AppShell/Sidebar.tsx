@@ -1,6 +1,8 @@
+import { MessageSquare } from 'lucide-react';
 import { useUiStore } from '../../state/ui';
 import { cn } from '../ui/cn';
 import { DESTINATIONS } from './destinations';
+import { FEEDBACK_URL } from '../../feedback';
 
 /** Desktop left sidebar (DESIGN-v2 §6 "Sidebar"): 64px wide, darkest surface,
  *  a 6px accent strip at the very top, a logo mark, then the four destinations.
@@ -66,6 +68,24 @@ export function Sidebar() {
           );
         })}
       </ul>
+
+      {/* Feedback — pinned to the bottom (mt-auto). An external link (opens the
+          Google Form in a new tab), so it's an anchor rather than a view button. */}
+      <a
+        href={FEEDBACK_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Send feedback"
+        className={cn(
+          'mt-auto flex h-16 w-16 flex-col items-center justify-center gap-1',
+          'text-fg-muted transition-[background-color] duration-[120ms]',
+          'hover:bg-fg/5 hover:text-fg-secondary',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset',
+        )}
+      >
+        <MessageSquare size={20} strokeWidth={1.5} aria-hidden />
+        <span className="text-[9px] font-medium tracking-[0.02em]">Feedback</span>
+      </a>
     </nav>
   );
 }
