@@ -64,8 +64,6 @@ export const useModeStore = create<ModeState>((set, get) => ({
     } else {
       const snapshot = get().freeSnapshot;
       if (snapshot) useMetronomeStore.getState().applyConfig(snapshot);
-      // Pattern accents are Exercise-mode only (SPEC §12).
-      useMetronomeStore.getState().setPatternAccents(null);
     }
     set({ mode });
   },

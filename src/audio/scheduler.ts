@@ -217,7 +217,7 @@ function publishPosition(time: number): void {
  *  subdivision). */
 function scheduleMainTick(time: number): void {
   const ctx = getAudioContext();
-  const { subdivision, timeSignature, accentPattern, barsPerRep, patternAccents } =
+  const { subdivision, timeSignature, accentPattern, barsPerRep } =
     useMetronomeStore.getState();
   const { isCompound } = getBeatGrouping(timeSignature);
   const subsPerPulse = subdivisionsPerPulse(
@@ -235,19 +235,19 @@ function scheduleMainTick(time: number): void {
   // visuals below — the indicator keeps pulsing through muted bars.
   refreshDropoutForBar(position.barCount);
 
-  // A note position accented by the exercise pattern plays the louder 'accent'
-  // click (SPEC §12). In Exercise mode the click subdivision always matches the
-  // pattern's, so the accent map lines up with note positions.
-  const patternAccented = patternAccents?.[barIdx]?.[noteIdx] ?? false;
-
+  // The click is a steady timekeeper: an accent on each bar's downbeat (and any
+  // Free-mode custom accent pattern), a normal click on the other beats, a quiet
+  // click on off-beat subdivisions. Exercise *pattern* accents do NOT boost the
+  // click — they're a visual cue in the notation; the drummer plays them against
+  // the steady reference (otherwise backbeat grooves stack accents into a noisy
+  // cluster).
   if (isMainBeat(position)) {
     const beatAccent =
       accentPattern[position.pulseInBar] ?? position.pulseInBar === 0;
-    const level = patternAccented || beatAccent ? 'accent' : 'beat';
-    if (!dropoutMuted) playClick(ctx, time, level);
+    if (!dropoutMuted) playClick(ctx, time, beatAccent ? 'accent' : 'beat');
     publishPosition(time);
   } else {
-    if (!dropoutMuted) playClick(ctx, time, patternAccented ? 'accent' : 'sub');
+    if (!dropoutMuted) playClick(ctx, time, 'sub');
   }
 
   // Current-note highlight: emit at play time so the notation cursor lands on

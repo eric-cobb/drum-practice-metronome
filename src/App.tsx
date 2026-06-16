@@ -34,13 +34,11 @@ export default function App() {
       .then(() => {
         const activeSetId = useExerciseStore.getState().activeSetId;
         if (activeSetId) void loadProgressForSet(activeSetId);
-        // initSets applies the active exercise's config (including its pattern
-        // accents) even when starting in Free mode; in Free mode, restore the
-        // persisted Free config over it and clear the exercise accents (SPEC §12).
+        // initSets applies the active exercise's config even when starting in
+        // Free mode; in Free mode, restore the persisted Free config over it.
         if (useModeStore.getState().mode !== 'exercise') {
           const free = loadFreeConfig();
           if (free) useMetronomeStore.getState().applyConfig(free);
-          useMetronomeStore.getState().setPatternAccents(null);
         }
       })
       .catch((err) => console.error('Set loading failed; using bundled only.', err));

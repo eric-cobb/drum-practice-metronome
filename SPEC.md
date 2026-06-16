@@ -603,14 +603,14 @@ Accents render as `>` above or below the notehead per standard convention. Ghost
 
 ### Audio behavior (v2)
 
-The metronome click does not play the pattern back audibly — the human plays the drums. However, the click responds to pattern accents:
+The metronome click does not play the pattern back audibly — the human plays the drums. The click is a steady timekeeping reference:
 
-- When the click subdivision matches the pattern subdivision (e.g., both are 16ths), each click that coincides with an accented pattern note plays at higher volume (~+6dB) than an unaccented one
-- When the click subdivision is coarser than the pattern (e.g., click on quarters, pattern in 16ths), accent volume modulation is skipped — the click stays uniform
-- Ghost notes do NOT affect click volume; they're a visual/instructional cue for the player
-- Ornaments do NOT affect click playback
+- Each bar's downbeat is accented (louder + higher), the other beats are normal, and off-beat subdivisions are quieter. In Free mode the per-beat accent pattern is user-configurable.
+- **Pattern accents do NOT affect the click.** They're a visual cue in the notation; the drummer plays the accents against the steady click. (Boosting the click on accented notes was tried, but on backbeat grooves it stacks the downbeat and snare-accent beats into a noisy accent cluster, which obscures the time reference.)
+- Ghost notes do NOT affect the click; they're a visual/instructional cue for the player.
+- Ornaments do NOT affect click playback.
 
-This keeps the click as a stable reference while still reinforcing the accent structure of the exercise.
+This keeps the click a clean, stable reference regardless of the exercise's dynamics.
 
 ### Session log (v2)
 
