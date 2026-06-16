@@ -40,6 +40,7 @@ The app has two modes (Free and Exercise) sharing a common metronome engine, ses
 - Single button toggles play state
 - Space bar keyboard shortcut
 - Stopping saves the in-progress session to the log (if any reps were completed)
+- While playing, the Free-mode session config (time signature, subdivision, dropout, ramp) is locked — these define the session, so they're non-interactive (not just dimmed) until you stop. Tempo and the rep count stay adjustable mid-session.
 
 ## 2. Rep Counter (shared)
 

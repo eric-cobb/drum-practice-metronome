@@ -6,7 +6,10 @@ import { DropoutPill } from './DropoutPill';
 import { RampPill } from './RampPill';
 
 /** Free-mode config-pill row (DESIGN-v2 §6): an 84px card holding four pills —
- *  time signature, subdivision, dropout, and tempo ramp. */
+ *  time signature, subdivision, dropout, and tempo ramp. These define the
+ *  session, so they're locked while the click is playing (`inert` — truly
+ *  non-interactive, not just dimmed); stop to reconfigure. Tempo and reps stay
+ *  live elsewhere. */
 export function ConfigPills() {
   const isPlaying = useMetronomeStore((s) => s.isPlaying);
 
@@ -14,6 +17,7 @@ export function ConfigPills() {
     <Card
       surface="card"
       data-tour="config-pills"
+      inert={isPlaying}
       className={cn(
         'flex min-h-[84px] flex-wrap items-center justify-center gap-3 px-4 py-3 transition-opacity duration-200',
         isPlaying ? 'opacity-40' : 'opacity-100',
