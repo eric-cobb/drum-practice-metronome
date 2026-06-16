@@ -7,6 +7,7 @@ import { useSessionStore } from './state/sessions';
 import { useProgressStore } from './state/progress';
 import { useMetronomeStore } from './state/metronome';
 import { useModeStore } from './state/mode';
+import { loadFreeConfig, saveFreeConfig } from './state/freeConfig';
 import { initTransport } from './audio/transport';
 import { initSessionRecorder } from './audio/sessionRecorder';
 import { requestPersistentStorage } from './db/persistence';
@@ -33,9 +34,11 @@ export default function App() {
         const activeSetId = useExerciseStore.getState().activeSetId;
         if (activeSetId) void loadProgressForSet(activeSetId);
         // initSets applies the active exercise's config (including its pattern
-        // accents) even when starting in Free mode; clear them so Free mode never
-        // inherits exercise accents (SPEC §12).
+        // accents) even when starting in Free mode; in Free mode, restore the
+        // persisted Free config over it and clear the exercise accents (SPEC §12).
         if (useModeStore.getState().mode !== 'exercise') {
+          const free = loadFreeConfig();
+          if (free) useMetronomeStore.getState().applyConfig(free);
           useMetronomeStore.getState().setPatternAccents(null);
         }
       })
@@ -58,9 +61,41 @@ export default function App() {
         useExerciseStore.getState().syncActiveBpm(state.bpm);
       }, 200);
     });
+
+    // Persist Free-mode config (tempo/meter/subdivision/reps/accents) so a reload
+    // keeps it. Exercise mode persists per-set above, so skip it here.
+    let freeDebounce: number | null = null;
+    const unsubscribeFree = useMetronomeStore.subscribe((state, prev) => {
+      if (useModeStore.getState().mode === 'exercise') return;
+      if (
+        state.bpm === prev.bpm &&
+        state.timeSignature === prev.timeSignature &&
+        state.subdivision === prev.subdivision &&
+        state.barsPerRep === prev.barsPerRep &&
+        state.targetReps === prev.targetReps &&
+        state.accentPattern === prev.accentPattern
+      ) {
+        return;
+      }
+      if (freeDebounce !== null) window.clearTimeout(freeDebounce);
+      freeDebounce = window.setTimeout(() => {
+        const s = useMetronomeStore.getState();
+        saveFreeConfig({
+          bpm: s.bpm,
+          timeSignature: s.timeSignature,
+          subdivision: s.subdivision,
+          barsPerRep: s.barsPerRep,
+          targetReps: s.targetReps,
+          accentPattern: s.accentPattern,
+        });
+      }, 200);
+    });
+
     return () => {
       if (debounce !== null) window.clearTimeout(debounce);
+      if (freeDebounce !== null) window.clearTimeout(freeDebounce);
       unsubscribe();
+      unsubscribeFree();
     };
   }, [initSets, loadSessions, loadProgressForSet]);
 
