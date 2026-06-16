@@ -16,9 +16,10 @@ import { askConfirm } from '../../../state/confirm';
 import { goToNext, switchSet } from '../../../audio/transport';
 import { stopMetronome } from '../../../audio/scheduler';
 import type { Exercise } from '../../../types';
-import { Button, Tile, Toggle } from '../../ui';
+import { Button, Toggle } from '../../ui';
 import { SetPicker } from './SetPicker';
 import { SectionGroup } from './SectionGroup';
+import { ExerciseRow } from './ExerciseRow';
 import { tileStateFor } from './tileState';
 
 const RECENTS_LIMIT = 5;
@@ -58,6 +59,7 @@ export function SelectorBody({ close }: { close: () => void }) {
   const currentRep = useMetronomeStore((s) => s.currentRep);
   const targetReps = useMetronomeStore((s) => s.targetReps);
   const currentProgress = Math.min(1, Math.max(0, currentRep / targetReps));
+  const currentRepLabel = `${Math.min(currentRep, targetReps)} / ${targetReps} reps`;
 
   // Build (section, exercises[]) groups locally — a Zustand selector returning a
   // fresh array each call would loop (Object.is compare).
@@ -170,17 +172,17 @@ export function SelectorBody({ close }: { close: () => void }) {
           <div className="text-[10px] font-medium uppercase tracking-[0.1em] text-fg-tertiary">
             Recent
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-0.5">
             {recentExercises.map((ex) => {
               const isCurrent = ex.id === currentExerciseId;
               return (
-                <Tile
+                <ExerciseRow
                   key={ex.id}
                   number={ex.number}
                   name={ex.name}
                   state={tileStateFor(progressForActiveSet[ex.id], loadedSet.defaultBpm, isCurrent)}
                   progress={isCurrent ? currentProgress : undefined}
-                  size={56}
+                  repLabel={isCurrent ? currentRepLabel : undefined}
                   onClick={() => pickExercise(ex.id)}
                 />
               );
@@ -211,6 +213,7 @@ export function SelectorBody({ close }: { close: () => void }) {
             defaultBpm={loadedSet.defaultBpm}
             currentExerciseId={currentExerciseId}
             currentProgress={currentProgress}
+            currentRepLabel={currentRepLabel}
             onPickExercise={pickExercise}
             searchActive={searchActive}
           />

@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { Exercise, ExerciseProgress, Section } from '../../../types';
-import { Tile } from '../../ui';
+import { ExerciseRow } from './ExerciseRow';
 import { tileStateFor } from './tileState';
 
 interface SectionGroupProps {
@@ -13,14 +13,16 @@ interface SectionGroupProps {
   progressById: Record<string, ExerciseProgress>;
   defaultBpm: number;
   currentExerciseId: string;
-  /** Live rep position of the current exercise (0–1) for its tile progress bar. */
+  /** Live rep position of the current exercise (0–1) for its row progress bar. */
   currentProgress: number;
+  /** Rep-count label for the current exercise's row (e.g. "8 / 20 reps"). */
+  currentRepLabel: string;
   onPickExercise: (id: string) => void;
   searchActive: boolean;
 }
 
-/** A collapsible section in the selector grid (SPEC §7): header with title and a
- *  "done of total" counter, then a 6-column grid of completion-aware tiles. */
+/** A collapsible section in the selector (SPEC §7): header with title and a
+ *  "done of total" counter, then a list of name-first exercise rows. */
 export function SectionGroup({
   section,
   exercises,
@@ -31,6 +33,7 @@ export function SectionGroup({
   defaultBpm,
   currentExerciseId,
   currentProgress,
+  currentRepLabel,
   onPickExercise,
   searchActive,
 }: SectionGroupProps) {
@@ -58,17 +61,17 @@ export function SectionGroup({
         </span>
       </button>
       {open && exercises.length > 0 && (
-        <div className="grid grid-cols-5 gap-2 sm:grid-cols-6">
+        <div className="flex flex-col gap-0.5">
           {exercises.map((ex) => {
             const isCurrent = ex.id === currentExerciseId;
             return (
-              <Tile
+              <ExerciseRow
                 key={ex.id}
                 number={ex.number}
                 name={ex.name}
                 state={tileStateFor(progressById[ex.id], defaultBpm, isCurrent)}
                 progress={isCurrent ? currentProgress : undefined}
-                size={56}
+                repLabel={isCurrent ? currentRepLabel : undefined}
                 onClick={() => onPickExercise(ex.id)}
               />
             );
