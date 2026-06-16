@@ -8,6 +8,7 @@
 // in CLAUDE.md: localStorage holds last-used UI state).
 
 import { create } from 'zustand';
+import { readLocal, writeLocal } from '../storage';
 
 export type ViewId = 'practice' | 'library' | 'history' | 'settings';
 
@@ -15,7 +16,7 @@ const STORAGE_KEY = 'metronome-active-view';
 const VIEWS: readonly ViewId[] = ['practice', 'library', 'history', 'settings'];
 
 function loadView(): ViewId {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = readLocal(STORAGE_KEY);
   return VIEWS.includes(stored as ViewId) ? (stored as ViewId) : 'practice';
 }
 
@@ -27,7 +28,7 @@ interface UIState {
 export const useUiStore = create<UIState>((set) => ({
   activeView: loadView(),
   setView: (view) => {
-    localStorage.setItem(STORAGE_KEY, view);
+    writeLocal(STORAGE_KEY, view);
     set({ activeView: view });
   },
 }));

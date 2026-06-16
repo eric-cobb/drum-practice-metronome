@@ -103,7 +103,12 @@ function end(completed: boolean): void {
     completed,
     notes: '',
   };
-  void useSessionStore.getState().saveSession(session);
+  // Fire-and-forget, but surface a failed save (blocked/full IndexedDB) instead
+  // of swallowing it as an unhandled rejection that silently loses the session.
+  void useSessionStore
+    .getState()
+    .saveSession(session)
+    .catch((err) => console.error('Could not save session.', err));
 
   // Update the progress table for exercise sessions (SPEC §7). The set's
   // defaultBpm is the completion threshold; if the set was unloaded between
@@ -111,7 +116,10 @@ function end(completed: boolean): void {
   if (session.mode === 'exercise' && session.exerciseSetId) {
     const loadedSet = useExerciseStore.getState().loadedSet;
     if (loadedSet && loadedSet.id === session.exerciseSetId) {
-      void useProgressStore.getState().record(session, loadedSet.defaultBpm);
+      void useProgressStore
+        .getState()
+        .record(session, loadedSet.defaultBpm)
+        .catch((err) => console.error('Could not record progress.', err));
     }
   }
 }

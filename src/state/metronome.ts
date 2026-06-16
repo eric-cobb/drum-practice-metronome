@@ -59,7 +59,9 @@ export const DEFAULT_RANDOM_DROPOUT: DropoutConfig = {
 };
 
 const clamp = (value: number, min: number, max: number): number =>
-  Math.min(max, Math.max(min, value));
+  // Guard against NaN/Infinity (e.g. a corrupt persisted BPM) — those would
+  // sail through Math.min/max and become a NaN tempo → Infinity click interval.
+  Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min;
 
 /** Accent pattern sized to the meter's felt pulses, preserving existing
  *  toggles and defaulting to an accent on pulse 1 (SPEC §1). Pulses beyond the

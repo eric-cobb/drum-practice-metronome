@@ -39,6 +39,7 @@ import {
 } from '../data/loadExerciseSet';
 import { useMetronomeStore } from './metronome';
 import { useProgressStore } from './progress';
+import { readLocal, writeLocal } from '../storage';
 
 export const COUNT_IN_BARS_MIN = 1;
 export const COUNT_IN_BARS_MAX = 4;
@@ -52,36 +53,46 @@ const ACTIVE_SET_KEY = 'metronome-active-set-id';
 const SET_STATES_KEY = 'metronome-set-states';
 
 function readActiveSetId(): string | null {
-  try {
-    return localStorage.getItem(ACTIVE_SET_KEY);
-  } catch {
-    return null;
-  }
+  return readLocal(ACTIVE_SET_KEY);
 }
 function writeActiveSetId(id: string): void {
-  try {
-    localStorage.setItem(ACTIVE_SET_KEY, id);
-  } catch {
-    /* quota or disabled */
-  }
+  writeLocal(ACTIVE_SET_KEY, id);
+}
+/** Coerce one persisted SetState, dropping anything malformed so corrupt
+ *  localStorage can't feed a NaN BPM or missing exercise id into the store. */
+function sanitizeSetState(setId: string, value: unknown): SetState | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const v = value as Record<string, unknown>;
+  if (typeof v.currentExerciseId !== 'string') return null;
+  const bpm = Number(v.currentBpm);
+  return {
+    setId,
+    currentExerciseId: v.currentExerciseId,
+    currentBpm: Number.isFinite(bpm) ? bpm : 0,
+    sectionsCollapsed:
+      typeof v.sectionsCollapsed === 'object' && v.sectionsCollapsed !== null
+        ? (v.sectionsCollapsed as Record<string, boolean>)
+        : {},
+  };
 }
 function readSetStates(): Record<string, SetState> {
+  const raw = readLocal(SET_STATES_KEY);
+  if (!raw) return {};
   try {
-    const raw = localStorage.getItem(SET_STATES_KEY);
-    if (!raw) return {};
     const parsed = JSON.parse(raw) as unknown;
     if (typeof parsed !== 'object' || parsed === null) return {};
-    return parsed as Record<string, SetState>;
+    const out: Record<string, SetState> = {};
+    for (const [setId, value] of Object.entries(parsed)) {
+      const state = sanitizeSetState(setId, value);
+      if (state) out[setId] = state;
+    }
+    return out;
   } catch {
     return {};
   }
 }
 function writeSetStates(states: Record<string, SetState>): void {
-  try {
-    localStorage.setItem(SET_STATES_KEY, JSON.stringify(states));
-  } catch {
-    /* quota or disabled */
-  }
+  writeLocal(SET_STATES_KEY, JSON.stringify(states));
 }
 
 /** Build the default SetState for a freshly-loaded set: position on the first

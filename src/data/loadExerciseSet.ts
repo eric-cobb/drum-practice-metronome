@@ -445,11 +445,39 @@ export function migrateStoredSet(data: ExerciseSet): {
   return { set: { ...data, schemaVersion: 2, exercises }, changed: true };
 }
 
+/** A stored row is usable only if it has the minimum shape the app assumes
+ *  everywhere (non-empty sections + exercises arrays, each exercise with an id
+ *  and a section, a pattern array). loadUserSets trusts stored data without
+ *  re-running the full validator, so this guards against a corrupted/partially-
+ *  written row feeding `exercises[0]` accesses downstream. */
+function isUsableStoredSet(set: ExerciseSet): boolean {
+  if (!Array.isArray(set.sections) || set.sections.length === 0) return false;
+  if (!Array.isArray(set.exercises) || set.exercises.length === 0) return false;
+  return set.exercises.every(
+    (e) =>
+      e &&
+      typeof e.id === 'string' &&
+      typeof e.sectionId === 'string' &&
+      Array.isArray(e.pattern),
+  );
+}
+
 export async function loadUserSets(): Promise<LoadedSet[]> {
   const records = await db.userSets.toArray();
   const sets: LoadedSet[] = [];
   for (const r of records) {
-    const { set, changed } = migrateStoredSet(r.data);
+    let migrated;
+    try {
+      migrated = migrateStoredSet(r.data);
+    } catch (err) {
+      console.error(`Skipping unreadable user set "${r.id}".`, err);
+      continue;
+    }
+    const { set, changed } = migrated;
+    if (!isUsableStoredSet(set)) {
+      console.error(`Skipping malformed user set "${r.id}" (bad structure).`);
+      continue;
+    }
     // Persist the upgrade once so the repair is permanent (and the editor /
     // export see v2). importedAt is preserved so the Manage-sets order is stable.
     if (changed) {

@@ -16,11 +16,12 @@ import { create } from 'zustand';
 import type { MetronomeConfig, Mode } from '../types';
 import { useMetronomeStore } from './metronome';
 import { useExerciseStore } from './exercises';
+import { readLocal, writeLocal } from '../storage';
 
 const STORAGE_KEY = 'metronome-mode';
 
 function loadMode(): Mode {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = readLocal(STORAGE_KEY);
   return stored === 'exercise' || stored === 'free' ? stored : 'free';
 }
 
@@ -52,7 +53,7 @@ export const useModeStore = create<ModeState>((set, get) => ({
 
   setMode: (mode) => {
     if (mode === get().mode) return;
-    localStorage.setItem(STORAGE_KEY, mode);
+    writeLocal(STORAGE_KEY, mode);
     if (mode === 'exercise') {
       set({ freeSnapshot: captureMetronomeConfig() });
       useExerciseStore.getState().applyCurrentToMetronome();

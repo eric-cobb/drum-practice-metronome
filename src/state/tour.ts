@@ -7,6 +7,7 @@ import { useModeStore } from './mode';
 import { useUiStore } from './ui';
 import { useEditorStore } from './editor';
 import { stopMetronome } from '../audio/scheduler';
+import { readLocal, writeLocal } from '../storage';
 import freeStepsJson from '../data/tours/free.json';
 import practiceStepsJson from '../data/tours/practice.json';
 import libraryStepsJson from '../data/tours/library.json';
@@ -41,9 +42,9 @@ interface TourSeen {
 }
 
 function readSeen(): TourSeen {
+  const raw = readLocal(STORAGE_KEY);
+  if (!raw) return { free: false, practice: false, library: false };
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { free: false, practice: false, library: false };
     const parsed = JSON.parse(raw) as Partial<TourSeen>;
     return {
       free: parsed.free ?? false,
@@ -57,11 +58,7 @@ function readSeen(): TourSeen {
 }
 
 function writeSeen(seen: TourSeen): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(seen));
-  } catch {
-    /* quota or disabled */
-  }
+  writeLocal(STORAGE_KEY, JSON.stringify(seen));
 }
 
 /** The mode a tour runs in ('practice' tour = Exercise mode). */

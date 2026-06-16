@@ -3,6 +3,7 @@
 // (configured in index.css) flips every token at once.
 
 import { create } from 'zustand';
+import { readLocal, writeLocal } from '../storage';
 
 export type Theme = 'light' | 'dark' | 'auto';
 
@@ -22,7 +23,7 @@ function applyTheme(theme: Theme): void {
 }
 
 function loadTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = readLocal(STORAGE_KEY);
   return stored === 'light' || stored === 'dark' || stored === 'auto'
     ? stored
     : 'auto';
@@ -36,7 +37,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>((set) => ({
   theme: loadTheme(),
   setTheme: (theme) => {
-    localStorage.setItem(STORAGE_KEY, theme);
+    writeLocal(STORAGE_KEY, theme);
     applyTheme(theme);
     set({ theme });
   },

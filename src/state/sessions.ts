@@ -4,6 +4,7 @@
 
 import { create } from 'zustand';
 import { db } from '../db/schema';
+import { readLocal, writeLocal } from '../storage';
 import type { ExerciseSet, Mode, Session, SessionExport } from '../types';
 
 export const SESSION_EXPORT_SCHEMA_VERSION = 1;
@@ -225,7 +226,7 @@ const LAST_EXPORT_KEY = 'metronome-last-export-at';
 const BACKUP_DISMISSED_KEY = 'metronome-backup-dismissed-at';
 
 function readTimestamp(key: string): number | null {
-  const raw = localStorage.getItem(key);
+  const raw = readLocal(key);
   if (raw === null) return null;
   const n = Number(raw);
   return Number.isFinite(n) ? n : null;
@@ -234,11 +235,11 @@ function readTimestamp(key: string): number | null {
 export const getLastExportAt = (): number | null =>
   readTimestamp(LAST_EXPORT_KEY);
 export const setLastExportAt = (ms: number): void =>
-  localStorage.setItem(LAST_EXPORT_KEY, String(ms));
+  writeLocal(LAST_EXPORT_KEY, String(ms));
 export const getBackupDismissedAt = (): number | null =>
   readTimestamp(BACKUP_DISMISSED_KEY);
 export const setBackupDismissedAt = (ms: number): void =>
-  localStorage.setItem(BACKUP_DISMISSED_KEY, String(ms));
+  writeLocal(BACKUP_DISMISSED_KEY, String(ms));
 
 /** Sessions not covered by the last export (created after it, or all if never
  *  exported). */

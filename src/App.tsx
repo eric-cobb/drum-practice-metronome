@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { AppShell } from './components/AppShell/AppShell';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useExerciseStore } from './state/exercises';
 import { useSessionStore } from './state/sessions';
 import { useProgressStore } from './state/progress';
@@ -25,19 +26,25 @@ export default function App() {
   // persistent storage (SPEC §4, §7). `initSets` is async because user-imported
   // sets come from Dexie; the progress prime happens after it resolves.
   useEffect(() => {
-    void initSets().then(() => {
-      const activeSetId = useExerciseStore.getState().activeSetId;
-      if (activeSetId) void loadProgressForSet(activeSetId);
-      // initSets applies the active exercise's config (including its pattern
-      // accents) even when starting in Free mode; clear them so Free mode never
-      // inherits exercise accents (SPEC §12).
-      if (useModeStore.getState().mode !== 'exercise') {
-        useMetronomeStore.getState().setPatternAccents(null);
-      }
-    });
+    // IndexedDB can be blocked (Firefox private windows, strict modes) or full;
+    // degrade to the bundled sets rather than letting a rejection break startup.
+    initSets()
+      .then(() => {
+        const activeSetId = useExerciseStore.getState().activeSetId;
+        if (activeSetId) void loadProgressForSet(activeSetId);
+        // initSets applies the active exercise's config (including its pattern
+        // accents) even when starting in Free mode; clear them so Free mode never
+        // inherits exercise accents (SPEC §12).
+        if (useModeStore.getState().mode !== 'exercise') {
+          useMetronomeStore.getState().setPatternAccents(null);
+        }
+      })
+      .catch((err) => console.error('Set loading failed; using bundled only.', err));
     initTransport();
     initSessionRecorder();
-    void loadSessions();
+    void loadSessions().catch((err) =>
+      console.error('Session history unavailable (IndexedDB blocked?).', err),
+    );
     void requestPersistentStorage();
 
     // Persist the live BPM into the active set's SetState as the user adjusts
@@ -59,7 +66,9 @@ export default function App() {
 
   return (
     <div className="h-full text-fg">
-      <AppShell />
+      <ErrorBoundary>
+        <AppShell />
+      </ErrorBoundary>
 
       {/* Anonymous page-view analytics on production deploys only. Mounted at
        *  the root so it doesn't remount on view/sheet changes; renders nothing
