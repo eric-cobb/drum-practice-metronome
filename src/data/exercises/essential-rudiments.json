@@ -1,0 +1,328 @@
+{
+  "id": "essential-rudiments",
+  "title": "Essential Rudiments",
+  "source": "The 13 most-practiced rudiments from the standard rudimental vocabulary. Original transcriptions using standard sticking conventions.",
+  "defaultBpm": 80,
+  "defaultTargetReps": 16,
+  "schemaVersion": 2,
+  "sections": [
+    { "id": "rolls", "title": "Roll Rudiments", "order": 1 },
+    { "id": "diddles", "title": "Diddle Rudiments", "order": 2 },
+    { "id": "flams-drags", "title": "Flam & Drag Rudiments", "order": 3 }
+  ],
+  "exercises": [
+    {
+      "id": "single-stroke-roll",
+      "number": 1,
+      "name": "Single Stroke Roll",
+      "sectionId": "rolls",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "Alternating single strokes — the foundational rudiment. Focus on evenness of stroke height and rhythm between hands.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "double-stroke-roll",
+      "number": 2,
+      "name": "Double Stroke Roll",
+      "sectionId": "rolls",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "Two strokes per hand, alternating — the basis for all open-roll work. Focus on getting both strokes of each pair to sound identical in volume and timing.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "five-stroke-roll",
+      "number": 3,
+      "name": "5-Stroke Roll",
+      "sectionId": "rolls",
+      "timeSignature": { "numerator": 2, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "Two doubles followed by an accented tap, lead hand alternating each repetition (RRLLR then LLRRL). Pattern shown as straight 16ths; in performance the doubles often buzz into a sustained roll.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" }
+        ],
+        [
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "seven-stroke-roll",
+      "number": 4,
+      "name": "7-Stroke Roll",
+      "sectionId": "rolls",
+      "timeSignature": { "numerator": 6, "denominator": 8 },
+      "subdivision": "16th",
+      "notes": "Three doubles followed by an accented tap, traditionally written in 6/8. The added pair of strokes compared to the 5-stroke roll gives a longer sustained feel before the resolution.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "single-paradiddle",
+      "number": 5,
+      "name": "Single Paradiddle",
+      "sectionId": "diddles",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "Two singles followed by a double, lead hand alternating each grouping (RLRR LRLL). The most-played rudiment on the kit — appears in countless grooves and fills.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "double-paradiddle",
+      "number": 6,
+      "name": "Double Paradiddle",
+      "sectionId": "diddles",
+      "timeSignature": { "numerator": 6, "denominator": 8 },
+      "subdivision": "16th",
+      "notes": "Four singles followed by a double (RLRLRR LRLRLL). The triplet feel comes from grouping six 16ths per beat in 6/8 — common in jazz waltz and Latin contexts.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "paradiddle-diddle",
+      "number": 7,
+      "name": "Paradiddle-Diddle",
+      "sectionId": "diddles",
+      "timeSignature": { "numerator": 6, "denominator": 8 },
+      "subdivision": "16th",
+      "notes": "Two singles followed by two doubles (RLRRLL repeating), all played with the same lead hand. Unlike other paradiddle variations, this one doesn't alternate the lead — useful for ostinato patterns over odd phrases.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "flam",
+      "number": 8,
+      "name": "Flam",
+      "sectionId": "flams-drags",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "An accented main stroke preceded by a soft grace note from the opposite hand. The grace note and main note should sound nearly simultaneous — a 'fla-tap' rather than two distinct strokes.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "flam" }
+        ]
+      ]
+    },
+    {
+      "id": "flam-tap",
+      "number": 9,
+      "name": "Flam Tap",
+      "sectionId": "flams-drags",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "A flam followed by a tap on the same hand, alternating leads (flam R + tap R, then flam L + tap L). Builds the same-hand-twice motion essential for more advanced flam rudiments.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "flam-accent",
+      "number": 10,
+      "name": "Flam Accent",
+      "sectionId": "flams-drags",
+      "timeSignature": { "numerator": 6, "denominator": 8 },
+      "subdivision": "8th",
+      "notes": "A flam followed by two singles (alternating), grouped as triplets. Traditionally written in 6/8 — the triplet feel is fundamental to swing and rudimental contexts.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "flam" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" }
+        ]
+      ]
+    },
+    {
+      "id": "drag",
+      "number": 11,
+      "name": "Drag",
+      "sectionId": "flams-drags",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "An accented main stroke preceded by two soft grace notes (a 'double stroke' grace) from the opposite hand. Together they sound like a quick three-note ornament — drr-tap.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "drag" }
+        ]
+      ]
+    },
+    {
+      "id": "single-drag-tap",
+      "number": 12,
+      "name": "Single Drag Tap",
+      "sectionId": "flams-drags",
+      "timeSignature": { "numerator": 2, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "A drag followed by a single tap on the opposite hand. The drag-tap motion is foundational for the more elaborate drag rudiments that follow.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "L", "accent": true },
+          { "voices": ["snare"], "sticking": "L", "accent": true, "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "R", "accent": true }
+        ]
+      ]
+    },
+    {
+      "id": "single-ratamacue",
+      "number": 13,
+      "name": "Single Ratamacue",
+      "sectionId": "flams-drags",
+      "timeSignature": { "numerator": 2, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "A drag followed by three sixteenth notes per beat (drr-RA-ta-MA-cue), the last accented, alternating lead hands. The drag opens each group; the three singles resolve to the accent.",
+      "pattern": [
+        [
+          { "voices": ["snare"], "sticking": "R", "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L", "accent": true },
+          { "voices": ["snare"], "sticking": "L", "ornament": "drag" },
+          { "voices": ["snare"], "sticking": "R" },
+          { "voices": ["snare"], "sticking": "L" },
+          { "voices": ["snare"], "sticking": "R", "accent": true }
+        ]
+      ]
+    }
+  ]
+}

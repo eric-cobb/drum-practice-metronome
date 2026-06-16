@@ -81,9 +81,8 @@ describe('applying exercise config to the metronome', () => {
     expect(m.bpm).toBe(ex.recommendedBpm ?? set.defaultBpm);
     expect(m.subdivision).toBe('eighth');
     expect(m.timeSignature).toEqual({
-      numerator: 2,
-      denominator: 2,
-      displayAs: 'cut',
+      numerator: 4,
+      denominator: 4,
     });
     expect(m.barsPerRep).toBe(2);
     expect(m.targetReps).toBe(ex.targetReps ?? set.defaultTargetReps);
@@ -194,7 +193,7 @@ describe('mode switch snapshot / restore', () => {
     });
 
     useModeStore.getState().setMode('exercise');
-    // Reflects exercise #1 of Stick Control (cut time, 8th notes).
+    // Reflects exercise #1 of the default set (4/4, 8th notes).
     expect(useMetronomeStore.getState().bpm).toBe(60);
     expect(useMetronomeStore.getState().subdivision).toBe('eighth');
 

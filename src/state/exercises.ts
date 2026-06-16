@@ -234,11 +234,16 @@ function mergeRegistry(userSets: LoadedSet[]): Record<string, LoadedSet> {
 // is derived from this.
 let REGISTRY: Record<string, LoadedSet> = mergeRegistry([]);
 
-/** Pick a sensible active set: persisted value if still valid, else the
- *  alphabetically-first bundled set. */
+/** The set a brand-new user lands on, pinned explicitly so adding bundled
+ *  content can't change the default by reshuffling alphabetical order. */
+const DEFAULT_BUNDLED_SET_ID = 'foundational-rudiments';
+
+/** Pick a sensible active set: persisted value if still valid, else the pinned
+ *  default set, else the alphabetically-first bundled set (then any set). */
 function pickActiveSetId(): string {
   const persisted = readActiveSetId();
   if (persisted && REGISTRY[persisted]) return persisted;
+  if (REGISTRY[DEFAULT_BUNDLED_SET_ID]) return DEFAULT_BUNDLED_SET_ID;
   const ids = Object.values(REGISTRY)
     .filter((s) => s.origin === 'bundled')
     .map((s) => s.id)

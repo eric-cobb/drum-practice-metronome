@@ -1,0 +1,181 @@
+{
+  "id": "essential-grooves",
+  "title": "Essential Grooves",
+  "source": "Seven foundational drum-set grooves covering rock, dance, shuffle, and funk feels. Generic genre defaults, not transcribed from specific recordings.",
+  "defaultBpm": 80,
+  "defaultTargetReps": 16,
+  "schemaVersion": 2,
+  "sections": [
+    { "id": "rock-pop", "title": "Rock & Pop", "order": 1 },
+    { "id": "other-styles", "title": "Other Styles", "order": 2 }
+  ],
+  "exercises": [
+    {
+      "id": "basic-rock-4-4",
+      "number": 1,
+      "name": "Basic Rock 4/4",
+      "sectionId": "rock-pop",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "The universal rock groove. Hi-hat on every eighth, kick on beats 1 and 3, snare backbeat on 2 and 4. Foundation for nearly every rock, pop, and country song ever written.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] }
+        ]
+      ]
+    },
+    {
+      "id": "driving-eighths",
+      "number": 2,
+      "name": "Driving Eighths",
+      "sectionId": "rock-pop",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "Basic rock with an added kick on the 'and of 2' for forward momentum. Common in pop-punk, driving rock, and any context that wants the groove to push rather than sit.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] }
+        ]
+      ]
+    },
+    {
+      "id": "half-time-rock",
+      "number": 3,
+      "name": "Half-Time Rock",
+      "sectionId": "rock-pop",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "The snare moves from beats 2 and 4 to beat 3 only, halving the perceived backbeat speed. Used in heavier rock, ballads, and any context that wants a slower, more spacious feel even at a brisk tempo.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] }
+        ]
+      ]
+    },
+    {
+      "id": "sixteenth-rock",
+      "number": 4,
+      "name": "Sixteenth-Note Rock",
+      "sectionId": "rock-pop",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "Hi-hat plays continuous sixteenths, kick on 1 and 3, snare on 2 and 4. The dense hi-hat creates an active feel — common in slower rock, R&B, and ballads.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] }
+        ]
+      ]
+    },
+    {
+      "id": "four-on-the-floor",
+      "number": 5,
+      "name": "Four-on-the-Floor",
+      "sectionId": "other-styles",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "8th",
+      "notes": "Kick on every beat, snare on 2 and 4, hi-hat on every eighth. The defining groove of disco, house, EDM, and many dance contexts. The constant kick creates relentless forward motion.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare", "kick"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare", "kick"], "accent": true },
+          { "voices": ["hihat-closed"] }
+        ]
+      ]
+    },
+    {
+      "id": "basic-shuffle",
+      "number": 6,
+      "name": "Basic Shuffle",
+      "sectionId": "other-styles",
+      "timeSignature": { "numerator": 12, "denominator": 8 },
+      "subdivision": "8th",
+      "notes": "Triplet-feel groove in 12/8. The hi-hat plays a shuffle pattern (first and third note of each triplet), kick on beats 1 and 3, snare backbeat on 2 and 4. Used in blues, swing, country, and shuffle-feel rock.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"] },
+          "rest",
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          "rest",
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          "rest",
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          "rest",
+          { "voices": ["hihat-closed"] }
+        ]
+      ]
+    },
+    {
+      "id": "funk-sixteenths",
+      "number": 7,
+      "name": "Funk Sixteenths",
+      "sectionId": "other-styles",
+      "timeSignature": { "numerator": 4, "denominator": 4 },
+      "subdivision": "16th",
+      "notes": "Sixteenth-note hi-hat with a syncopated kick pattern — kicks on 1, the 'ah' of 1, and the 'and' of 3. The off-beat kicks against the steady hi-hat are what give funk its characteristic feel.",
+      "pattern": [
+        [
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "kick"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed", "snare"], "accent": true },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] },
+          { "voices": ["hihat-closed"] }
+        ]
+      ]
+    }
+  ]
+}

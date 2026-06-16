@@ -41,7 +41,7 @@
           { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
         ]
       ],
-      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
       "notes": "Alternating single strokes, starting on the right hand. Foundation for everything."
     },
@@ -60,7 +60,7 @@
           { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
         ]
       ],
-      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
       "notes": "Alternating single strokes, starting on the left hand. Develops weak-hand lead."
     },
@@ -79,7 +79,7 @@
           { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
         ]
       ],
-      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
       "notes": "Double strokes alternating, starting on the right. Focus on even rebound between the two strokes of each pair."
     },
@@ -98,7 +98,7 @@
           { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
         ]
       ],
-      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
       "notes": "Double strokes starting on the left. Concentrate on matching the rebound of the right hand."
     },
@@ -117,7 +117,7 @@
           { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
         ]
       ],
-      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
       "notes": "Standard single paradiddle, right-leading. Two singles followed by a double, alternating hands each grouping."
     },
@@ -136,7 +136,7 @@
           { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
         ]
       ],
-      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
       "notes": "Single paradiddle starting on the left hand."
     },
@@ -155,7 +155,7 @@
           { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
         ]
       ],
-      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
       "notes": "Reverse (or inward) paradiddle. The double sits in the middle of each half-bar instead of at the end."
     },
@@ -174,7 +174,7 @@
           { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
         ]
       ],
-      "timeSignature": { "numerator": 2, "denominator": 2, "displayAs": "cut" },
+      "timeSignature": { "numerator": 4, "denominator": 4 },
       "subdivision": "8th",
       "notes": "Inverted paradiddle. The double leads each half-bar (RR... LL...), shifting the rhythmic emphasis to the start."
     }
