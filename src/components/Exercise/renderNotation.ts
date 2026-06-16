@@ -138,6 +138,16 @@ function staveNote(keys: string[], duration: string, stemUp: boolean): StaveNote
   });
 }
 
+/** Beam a run of notes with a flat (horizontal) beam. Drum notation keeps beams
+ *  level even when a group mixes staff positions (e.g. a crash sitting above a
+ *  steady hi-hat line) — VexFlow's default auto-slope would tilt the beam toward
+ *  the higher notehead, which reads wrong on a kit staff. */
+function flatBeam(notes: StaveNote[]): Beam {
+  const beam = new Beam(notes);
+  beam.renderOptions.flatBeams = true;
+  return beam;
+}
+
 /** Grace-note config per non-buzz ornament (SPEC §12): flam = one slashed
  *  eighth grace; drag = two and ruff = three sixteenth graces (two beams),
  *  distinguished by count per rudimental convention. Buzz is NOT a grace — it's
@@ -523,14 +533,14 @@ export function renderExerciseNotation(
           n.setStemDirection(n.getStemDirection());
         }
       }
-      const upBeams = upRuns.map(
-        (run) => new Beam(run.map((i) => up[i] as StaveNote)),
+      const upBeams = upRuns.map((run) =>
+        flatBeam(run.map((i) => up[i] as StaveNote)),
       );
       const downBeams =
         down === null
           ? []
-          : beamRuns(beamMask(specs, 'down'), beamGroup).map(
-              (run) => new Beam(run.map((i) => down[i] as StaveNote)),
+          : beamRuns(beamMask(specs, 'down'), beamGroup).map((run) =>
+              flatBeam(run.map((i) => down[i] as StaveNote)),
             );
       const tuplets =
         down === null
