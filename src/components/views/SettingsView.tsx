@@ -243,17 +243,22 @@ export function SettingsView() {
       <Hairline />
 
       <Section title="Help">
-        <Row label="Take the tour">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => startTour('free')}>
-              Free mode
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => startTour('practice')}>
-              Exercise mode
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => startTour('library')}>
-              Library
-            </Button>
+        {/* Stacked (label above the buttons): three tour buttons won't fit beside
+            an inline label on a narrow panel, where the label would wrap. */}
+        <Row>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm text-fg">Take the tour</span>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="ghost" size="sm" onClick={() => startTour('free')}>
+                Free mode
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => startTour('practice')}>
+                Exercise mode
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => startTour('library')}>
+                Library
+              </Button>
+            </div>
           </div>
         </Row>
         <Row label="Send feedback">
