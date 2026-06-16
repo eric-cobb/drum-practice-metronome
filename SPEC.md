@@ -190,7 +190,7 @@ This split is intentional for a publicly shared app: it lets users practice with
 
 Users add a method book to the app by:
 
-1. Opening Settings → Exercise sets → "Import a set..."
+1. Opening the Library view → "Import set" (alongside the "Schema reference" and "New set" actions in the Library header)
 2. Selecting a `.json` file matching the documented schema
 3. The app validates the file (schema check, referential integrity for sectionId, duplicate set id check)
 4. On success: the set is stored in IndexedDB, appears in the selector immediately, and is available for practice
@@ -198,7 +198,7 @@ Users add a method book to the app by:
 
 **Duplicate set ids:** If the imported set's `id` matches an existing set (bundled or user-imported), the user is prompted: "A set named X already exists. Replace it, keep both (rename imported), or cancel?" Renaming generates a unique id like `stick-control-2`.
 
-**Editing imported sets:** Out of scope for v1 (the in-app editor is Phase 11). For now, users edit the JSON externally and re-import (replacing the existing version).
+**Editing imported sets:** Supported in-app via the pattern editor (Phase 11) — see the Library's "Manage sets" actions (edit your own sets, or duplicate a bundled set to edit). Users can still edit the JSON externally and re-import (replacing the existing version) if they prefer.
 
 **Exporting:** Each imported set has an "Export" button in its settings entry that downloads the JSON file. Useful for backing up transcribed content or sharing with another user who also owns the same book.
 
@@ -280,7 +280,10 @@ type Exercise = {
 // The object-wrapped form is intentional — it allows additive expansion in Phase 10
 // to multi-voice, accents, and ornaments without restructuring existing JSON.
 type PatternEvent = { sticking: "R" | "L" } | "rest";
-type Subdivision = "quarter" | "8th" | "16th" | "8th-triplet" | "16th-triplet";
+// On-disk JSON tokens (note the spaces). The loader (`SUBDIVISION_TOKENS` in
+// src/data/loadExerciseSet.ts) maps these to the internal union
+// 'quarter' | 'eighth' | 'sixteenth' | 'eighthTriplet' | 'sixteenthTriplet'.
+type Subdivision = "quarter" | "8th" | "16th" | "8th triplet" | "16th triplet";
 ```
 
 **Section structure:** Sections are first-class objects rather than a free-text field on each exercise. This means renaming a section ("Single Beat Combinations" → "Single Stroke Combinations") is a one-line change in the `sections` array, and reordering sections is just adjusting `order` values. Each `Exercise.sectionId` references a `Section.id` within the same set. Validation should reject any exercise whose `sectionId` doesn't match an existing section.
@@ -431,7 +434,7 @@ Method-book content (Stick Control, Syncopation, Master Studies, Future Sounds, 
 
 **For users who own method books:**
 
-Transcribe your own copy into a JSON file using the documented schema, then import it via Settings → Exercise sets → Import. The transcription stays in your browser and is never sent anywhere. You can export it to share with friends who also own the same book; you should not redistribute it publicly.
+Transcribe your own copy into a JSON file using the documented schema (or build it with the in-app editor), then import it via the Library view → "Import set." The transcription stays in your browser and is never sent anywhere. You can export it to share with friends who also own the same book; you should not redistribute it publicly.
 
 **Schema documentation:**
 
@@ -614,8 +617,6 @@ Sessions log `exerciseSchemaVersion` so future analysis tools know how to interp
 
 ### Out of scope for Phase 10
 
-- In-app pattern editor (deferred to Phase 11)
-- Multi-bar patterns (single bar repeated remains the model; multi-bar can be added by extending `pattern` to a 2D array later if needed)
 - Polyrhythmic patterns where voices have different subdivisions (e.g., snare in triplets while hi-hat in 16ths)
 - Tied notes, swing/shuffle feel notation
 - Audible pattern playback (drum sound synthesis)
@@ -628,7 +629,7 @@ The app's UI is intentionally minimal — controls are hidden behind popovers an
 
 ### Mechanism
 
-Use `react-joyride` for spotlight/coachmark-style tours. Each tour is a sequence of steps; each step highlights a specific UI element with a dim overlay and a small callout panel explaining what it does and how to use it. Users advance with a "Next" button or skip with "Skip tour" at any point.
+The tour is hand-rolled — no external library. The state machine lives in `state/tour.ts` (`useTourStore`), and the UI is rendered by `components/Tour/*`: a portal overlay that spotlights the active step's element (anchored via `data-tour` attributes on the target components) with a dim backdrop, plus a callout panel explaining what the element does and how to use it. Each tour is a sequence of steps. Users advance with a "Next" button or skip with "Skip tour" at any point.
 
 ### Tours
 

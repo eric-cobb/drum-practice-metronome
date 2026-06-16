@@ -15,7 +15,7 @@ A naive metronome using `setInterval` will drift, hiccup under load, and stall w
 │      advance nextNoteTime by (60 / bpm / subdivision)       │
 │      advance beat/bar/note counters                         │
 │      check for: dropout state, ramp step, rep completion    │
-│      emit "beatScheduled" event for visual layer            │
+│      schedule a play-time 'note' event for the visual layer │
 └─────────────────────────────────────────────────────────────┘
                           │
                           ▼ schedules audio events
@@ -36,37 +36,38 @@ const SCHEDULE_AHEAD_SEC = 0.1; // schedule up to 100ms in the future
 
 Synthesize clicks rather than load samples. Three distinct sounds:
 
+The synthesis lives in `src/audio/sounds.ts`, which exposes `playClick(ctx, time, type)`. There are three click types (not four):
+
 ```typescript
-function scheduleClick(time: number, level: ClickLevel) {
-  const osc = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-  osc.connect(gain).connect(audioContext.destination);
-  
-  const profile = CLICK_PROFILES[level];
-  osc.frequency.value = profile.freq;
-  gain.gain.setValueAtTime(profile.gain, time);
-  gain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+export type ClickType = 'accent' | 'beat' | 'sub';
+
+const CLICKS: Record<ClickType, { freq: number; gain: number }> = {
+  accent: { freq: 1500, gain: 0.40 },  // beat 1 / accented beats: louder + higher
+  beat:   { freq: 1000, gain: 0.25 },  // normal main beat
+  sub:    { freq:  800, gain: 0.15 },  // off-beat subdivision: lower + quieter
+};
+
+export function playClick(ctx: AudioContext, time: number, type: ClickType) {
+  const { freq, gain } = CLICKS[type];
+  const osc = ctx.createOscillator();
+  const gainNode = ctx.createGain();
+  osc.connect(gainNode).connect(ctx.destination);
+  osc.type = 'square';
+  osc.frequency.value = freq;
+  gainNode.gain.setValueAtTime(gain, time);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
   osc.start(time);
   osc.stop(time + 0.05);
 }
-
-type ClickLevel = "downbeat" | "beat" | "subdivision" | "accent";
-
-const CLICK_PROFILES: Record<ClickLevel, { freq: number; gain: number }> = {
-  downbeat:    { freq: 1500, gain: 0.40 },  // beat 1 of each bar
-  beat:        { freq: 1000, gain: 0.25 },  // other beats
-  subdivision: { freq:  800, gain: 0.15 },  // off-beat subdivisions
-  accent:      { freq: 1500, gain: 0.55 },  // pattern accent (v2 only)
-};
 ```
 
-The `accent` level is used in Exercise mode (Phase 10) when a pattern note has `accent: true` AND the click subdivision matches the pattern subdivision. In all other cases, the standard `downbeat`/`beat`/`subdivision` levels apply.
+The `accent` type covers both beat 1 of each bar and any accented pattern note. In Exercise mode (Phase 10) a pattern note with `accent: true` plays `accent` when the click subdivision matches the pattern subdivision; otherwise the standard `accent`/`beat`/`sub` levels apply by beat position.
 
 Ghost notes do not affect click playback — the click stays uniform whether a pattern note is ghosted or not. Ghost notation is a visual cue for the player.
 
 ### Mute behavior
 
-The scheduler always advances counters and emits the `beatScheduled` event. During a muted bar, it skips `scheduleClick` but the event still fires (so the visual indicator and notation cursor still update).
+The scheduler always advances counters and emits the play-time `note` event. During a muted bar, it skips the click but the event still fires (so the visual indicator and notation cursor still update).
 
 ### Stopping cleanly
 
@@ -84,7 +85,7 @@ When the ramp adjusts BPM, the next scheduled click recalculates its interval fr
 
 ### Library
 
-VexFlow 4.x via `npm install vexflow`. Use the SVG renderer, not Canvas (better for highlighting individual notes via CSS class toggling).
+VexFlow 5.x via `npm install vexflow`. Use the SVG renderer, not Canvas (better for highlighting individual notes via CSS class toggling).
 
 ### Render once per exercise
 
@@ -290,7 +291,7 @@ Each note's `<g>` element gets a stable `id` of `note-{barIndex}-{noteIndex}`. E
 
 **Highlight on/off:**
 
-When the scheduler emits `beatScheduled`, the notation component updates two elements: the band (opacity), and the note group (CSS class for color + glow + scale).
+When the scheduler emits a `note` event (at play time), the notation component updates two elements: the band (opacity), and the note group (CSS class for color + glow + scale).
 
 ```typescript
 function setActiveNote(barIndex: number, noteIndex: number, prev?: { barIndex: number; noteIndex: number }) {
@@ -311,27 +312,21 @@ function setActiveNote(barIndex: number, noteIndex: number, prev?: { barIndex: n
 
 **CSS:**
 
+The active color is the purple `--notation-active` token (`#8b5cf6`, with `--notation-active-soft` `#a78bfa` for the outer glow), defined in `src/index.css`:
+
 ```css
 .highlight-band {
-  fill: theme('colors.sky.500');           /* light mode */
+  fill: var(--notation-active);
   fill-opacity: 0.25;
   transition: opacity 60ms ease-out;
-}
-.dark .highlight-band {
-  fill: theme('colors.sky.400');           /* dark mode */
 }
 
 /* Color: tint the whole note group (notehead glyph, stem, and the sticking
    text inside .vf-annotation) to the accent. Cheap; no filter cost. */
 .note-active,
 .note-active :is(path, text) {
-  fill: theme('colors.sky.500');
-  stroke: theme('colors.sky.500');
-}
-.dark .note-active,
-.dark .note-active :is(path, text) {
-  fill: theme('colors.sky.400');
-  stroke: theme('colors.sky.400');
+  fill: var(--notation-active);
+  stroke: var(--notation-active);
 }
 
 /* Layer 2 (glow) + Layer 3 (scale) — applied to the notehead glyph + stem
@@ -344,8 +339,8 @@ function setActiveNote(barIndex: number, noteIndex: number, prev?: { barIndex: n
    every beat. Both are visible defects; the scoped selector avoids them. */
 .note-active .vf-notehead > text,
 .note-active .vf-stem {
-  filter: drop-shadow(0 0 4px theme('colors.sky.500'))
-          drop-shadow(0 0 8px theme('colors.sky.400'));
+  filter: drop-shadow(0 0 4px var(--notation-active))
+          drop-shadow(0 0 8px var(--notation-active-soft));
   transform: scale(1.2);
   transform-box: fill-box;
   transform-origin: center;
@@ -521,73 +516,85 @@ Wrapper around Dexie. Exposes:
 
 When a session is saved, `sessions.ts` calls `progress.recordSession(session, setDefaults)` to update the progress table.
 
-### `settings.ts`
-Last-used settings persisted to localStorage. Hydrates on app mount. Writes debounced (300ms) on change. Includes:
-- `lastMode: "free" | "exercise"`
-- `lastActiveSetId: string` (replaces the old positionBySet)
-- `setStates: Record<string, SetState>` (per-set state objects)
-- All other Free mode settings (BPM, time sig, subdivision, accent pattern, dropout, ramp)
-- All toggle settings (pre-roll, auto-stop, count-in enabled, count-in bars, theme)
+### Persisted store state
+
+There is no single `settings.ts` store or single localStorage blob. Persistence is **split across the individual stores**, each owning its own key(s). All reads/writes go through the safe wrapper in `src/storage.ts` (`readLocal`/`writeLocal`, which swallow quota/availability errors). The keys:
+
+- `theme.ts` → `metronome-theme`
+- `ui.ts` → `metronome-active-view`
+- `mode.ts` → `metronome-mode`
+- `exercises.ts` → `metronome-active-set-id`, `metronome-set-states` (per-set state objects)
+- `sessions.ts` → `metronome-last-export-at`, `metronome-backup-dismissed-at`
+- `tour.ts` → `metronome-tour-state`
+- `freeConfig.ts` → `metronome-free-config` (Free-mode BPM, time sig, subdivision, accent, dropout, ramp, toggles)
+- `db/persistence.ts` → `metronome-persist-requested`
+
+Each store hydrates from its key on creation and writes back on the relevant changes.
 
 ## Visual Beat Indicator + Notation Cursor
 
-The audio scheduler emits a `beatScheduled` event for each scheduled note (every subdivision, not just every beat) with:
+The audio scheduler exposes `onSchedulerEvent(listener)` (subscribe; returns an unsubscribe fn). Events are emitted **at play time** — the scheduler queues each emission with an internal `atPlayTime(time, fn)` helper that `setTimeout`s the callback to fire ~when the click is actually heard, guarded by a `playGeneration` counter so callbacks queued before a stop/skip no-op. Event types:
 
 ```typescript
-{
-  scheduledTime: number;     // audioContext time
-  beatNumber: number;        // beat within bar
-  noteIndexInBar: number;    // subdivision index within bar
-  isDownbeat: boolean;
-  isMuted: boolean;
-}
+type SchedulerEvent =
+  | { type: 'start' }
+  | { type: 'note'; barIndex: number; noteIndexInBar: number }
+  | { type: 'complete' }
+  | { type: 'stop'; discard?: boolean };
 ```
 
-Subscribers compute their own delay from `audioContext.currentTime` and schedule a DOM update at the right moment:
+Subscribers react to `note` events to move the visual beat indicator and notation cursor; `start`/`complete`/`stop` drive session capture and auto-advance. Because emission is already aligned to play time, subscribers do **not** compute their own delays — they just update on receipt:
 
 ```typescript
-scheduler.on('beatScheduled', (evt) => {
-  const delayMs = (evt.scheduledTime - audioContext.currentTime) * 1000;
-  setTimeout(() => {
-    setActiveBeat(evt.beatNumber);
-    // also update notation cursor here
-  }, delayMs);
+const unsubscribe = onSchedulerEvent((evt) => {
+  if (evt.type === 'note') {
+    setActiveNote(evt.barIndex, evt.noteIndexInBar);
+  }
 });
 ```
 
-This decouples audio timing from React rendering. The scheduler runs at 25ms intervals; React only re-renders on the actual beat boundary.
+This decouples audio timing from React rendering. The lookahead loop runs at 25ms; React only re-renders on the actual play-time boundary.
 
 ## Persistence
 
-### localStorage (settings + exercise position)
-```
-key: "metronome-settings-v1"
-value: JSON.stringify(settings)
-```
-Single key, single blob, versioned in the key name for migrations.
+### localStorage (settings, view, mode, per-set state, tour)
+There is no single settings blob. State is split across one key per concern (theme, active view, mode, active set id, per-set states, export/backup timestamps, tour state, Free-mode config, persist-requested flag) — see "Persisted store state" above for the full key list. All access goes through the `readLocal`/`writeLocal` wrapper in `src/storage.ts`.
 
 ### IndexedDB via Dexie (sessions + progress + user sets)
+The schema is built up across three progressive versions (Dexie applies upgrades in order). `src/db/schema.ts`:
+
 ```typescript
 class MetronomeDB extends Dexie {
   sessions!: Table<Session, number>;
   exerciseProgress!: Table<ExerciseProgress, string>;
   userSets!: Table<UserSet, string>;
-  
+
   constructor() {
     super('MetronomeDB');
+    // v1: sessions only.
     this.version(1).stores({
-      sessions: '++id, startTime, mode, exerciseSetId, exerciseId, exerciseName',
+      sessions: '++id, startTime, mode, exerciseId',
+    });
+    // v2: add the exerciseProgress table + an exerciseSetId index on sessions.
+    this.version(2).stores({
+      sessions: '++id, startTime, mode, exerciseSetId, exerciseId',
       exerciseProgress: 'id, setId, completed, lastPracticedAt',
-      userSets: 'id, importedAt'
+    });
+    // v3: add user-imported sets.
+    this.version(3).stores({
+      sessions: '++id, startTime, mode, exerciseSetId, exerciseId',
+      exerciseProgress: 'id, setId, completed, lastPracticedAt',
+      userSets: 'id, importedAt',
     });
   }
 }
 
-type UserSet = {
-  id: string;                   // matches ExerciseSet.id
-  importedAt: number;           // unix ms
-  data: ExerciseSet;            // the full set object as imported
-};
+// types/index.ts
+interface UserSet {
+  id: string;          // matches data.id
+  importedAt: number;  // unix ms
+  data: ExerciseSet;   // the full set object as imported
+}
 ```
 
 Indexes:
@@ -595,7 +602,7 @@ Indexes:
 - `exerciseProgress.setId`: fetch all progress rows for the active set in one query (used by the selector)
 - `exerciseProgress.completed`: count completed exercises per set efficiently
 - `exerciseProgress.lastPracticedAt`: find recent exercises for the "Recents" row in the selector
-- `userSets.importedAt`: list imported sets in import-order for the Settings UI
+- `userSets.importedAt`: list imported sets in import-order in the Library UI
 
 ## Exercise Data Loading
 

@@ -364,9 +364,9 @@ body,
 
 /* Notation ink follows the theme via CSS variables, so the VexFlow SVG recolors
    instantly on theme change without a re-render (DESIGN §Notation canvas).
-   Light: neutral-800 ink / sky-500 active. Dark: neutral-200 / sky-400. The
-   `--notation-active-soft` is the lighter sky used as the second drop-shadow
-   layer for the active-note bloom. */
+   Light: neutral-800 ink / purple (#8b5cf6) active. Dark: neutral-200 / same
+   purple. The `--notation-active-soft` is the lighter purple (#a78bfa) used as
+   the second drop-shadow layer for the active-note bloom. */
 :root {
   --notation-ink: #374151;
   --notation-active: #8b5cf6;

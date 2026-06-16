@@ -33,6 +33,7 @@ Both modes share the same underlying metronome engine, session log, and settings
 - **Zustand** — state management; no Redux, no Context API for shared state
 - **Dexie** — IndexedDB wrapper for session log
 - **VexFlow** — music notation rendering for Exercise mode
+- **@dnd-kit** — drag-to-reorder in the in-app editor (sections and exercises)
 - **Web Audio API** — native, no library; scheduler pattern is critical (see ARCHITECTURE.md)
 
 When the user says "the app" they mean this React app. They will record audio separately in Logic Pro; do NOT add in-browser audio recording in v1.
@@ -65,6 +66,8 @@ src/
     sounds.ts           # synthesized click sounds
     sessionRecorder.ts  # capture sessions on start/stop
     position.ts         # rep/bar/note position math
+    dropout.ts          # click-dropout mute-bar logic (Free mode)
+    ramp.ts             # tempo-ramp step logic (both modes)
   state/                # Zustand stores (unchanged by v2)
     metronome.ts        # BPM, time sig, subdivision, play state
     mode.ts             # Free / Exercise mode + config snapshot
@@ -73,30 +76,56 @@ src/
     sessions.ts         # session log (Dexie wrapper)
     theme.ts            # light/dark/auto
     ui.ts               # activeView — the four-view router (DESIGN-v2 §5)
+    freeConfig.ts       # persisted Free-mode config (dropout, ramp, etc.)
+    editor.ts           # in-app pattern editor draft state (Phase 11)
+    tour.ts             # guided-tour state machine (SPEC §13)
+    confirm.ts          # imperative confirm-dialog queue
   components/
     ui/                 # v2 design primitives: Card, Tile, Button, PlayButton,
                         #   Input, Toggle, Stepper, Stat, Popover, Modal, cn
     AppShell/           # Sidebar, BottomNav, AppShell (view router + crossfade)
-    views/              # PracticeView, LibraryView, HistoryView, SettingsView, ViewHeader
+    views/              # PracticeView, LibraryView, HistoryView, SettingsView
     Practice/           # play composition, config pills, info strip, etc.
       selector/         # the exercise selector popover/sheet
     Library/            # detailed cards + notation previews, import, manage sets
     History/            # stat cards, session rows, stats helpers
+    Editor/             # in-app pattern editor (Phase 11)
+      EditorSurface.tsx       # editor layout shell
+      PatternGrid.tsx         # click-to-edit sticking/voice grid
+      SectionsPanel.tsx       # section list + dnd-kit reorder
+      ExerciseList.tsx        # exercise list + dnd-kit reorder
+      ExerciseMetaForm.tsx    # per-exercise metadata form
+      SetMetaForm.tsx         # set-level metadata form
+      NotationLivePreview.tsx # live VexFlow preview of the draft
+      editorModel.ts          # editor draft ↔ ExerciseSet model
+    Tour/               # hand-rolled guided tour (spotlight, banner, dialog)
     Exercise/
       Notation.tsx      # VexFlow renderer (interactive highlight; preview mode)
       renderNotation.ts # VexFlow drawing
       notationModel.ts  # bar → note-spec / beam / tuplet model
+    ErrorBoundary.tsx   # top-level React error boundary
+    ConfirmHost.tsx     # renders queued confirm dialogs
   data/
     exercises/
-      foundational-rudiments.json   # the bundled set (public-domain rudiments)
+      foundational-rudiments.json   # bundled set (public-domain rudiments)
+      grooves.json                  # bundled multi-voice demo set (Phase 10)
+    tours/
+      free.json         # Free-mode tour steps
+      practice.json     # Exercise-mode tour steps
+      library.json      # Library tour steps
     loadExerciseSet.ts  # validate + load bundled & user-imported sets
   db/
     schema.ts           # Dexie schema (sessions, exerciseProgress, userSets)
     persistence.ts      # navigator.storage.persist() request + status
   hooks/
     useMediaQuery.ts    # desktop/mobile branch for the selector
+    useKeyboardShortcuts.ts # global keyboard shortcuts
+    useFocusTrap.ts     # focus trapping for modals/dialogs
   types/
     index.ts            # shared TypeScript types
+  storage.ts            # safe localStorage read/write wrapper
+  meter.ts              # time-signature / beat math helpers
+  tapTempo.ts           # tap-tempo BPM estimation
   index.css             # Tailwind v4 entry + v2 design tokens (CSS custom props)
   App.tsx
   main.tsx
@@ -149,7 +178,6 @@ Do NOT build any of these without being explicitly asked:
 - User accounts, multi-user, cloud sync
 - In-browser audio recording or MediaRecorder usage
 - Audio playback of backing tracks
-- A notation EDITOR (rendering only; exercises edited as JSON)
 - Mobile app wrapping
 - Polyrhythm overlays
 - Sample-based click sounds (synthesized only in v1)
