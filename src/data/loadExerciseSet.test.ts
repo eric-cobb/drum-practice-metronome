@@ -22,15 +22,21 @@ function makeValidRaw(): Record<string, unknown> {
         number: 1,
         name: 'Ex 1',
         sectionId: 'section-a',
+        // 2/4 with 8th notes = 4 events per bar (meter-consistent).
         pattern: [
           [{ sticking: 'R' }, { sticking: 'L' }, 'rest', { sticking: 'L' }],
           [{ sticking: 'L' }, { sticking: 'R' }, 'rest', { sticking: 'R' }],
         ],
-        timeSignature: { numerator: 4, denominator: 4 },
-        subdivision: '16th',
+        timeSignature: { numerator: 2, denominator: 4 },
+        subdivision: '8th',
       },
     ],
   };
+}
+
+/** A bar of `n` alternating R/L snare hits (for meter-consistent test patterns). */
+function bar(n: number): Array<{ sticking: string }> {
+  return Array.from({ length: n }, (_, i) => ({ sticking: i % 2 === 0 ? 'R' : 'L' }));
 }
 
 describe('validateExerciseSet — happy path', () => {
@@ -39,22 +45,25 @@ describe('validateExerciseSet — happy path', () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.set.exercises).toHaveLength(1);
-    expect(result.set.exercises[0].subdivision).toBe('sixteenth');
+    expect(result.set.exercises[0].subdivision).toBe('eighth');
   });
 
   it('maps every supported subdivision token', () => {
-    const tokens: Array<[string, string]> = [
-      ['quarter', 'quarter'],
-      ['8th', 'eighth'],
-      ['16th', 'sixteenth'],
-      ['8th triplet', 'eighthTriplet'],
-      ['16th triplet', 'sixteenthTriplet'],
+    // [token, internal, events-per-bar in 2/4 (pulsesPerBar=2)].
+    const tokens: Array<[string, string, number]> = [
+      ['quarter', 'quarter', 2],
+      ['8th', 'eighth', 4],
+      ['16th', 'sixteenth', 8],
+      ['8th triplet', 'eighthTriplet', 6],
+      ['16th triplet', 'sixteenthTriplet', 12],
     ];
-    for (const [token, expected] of tokens) {
+    for (const [token, expected, perBar] of tokens) {
       const raw = makeValidRaw();
-      (raw.exercises as Record<string, unknown>[])[0].subdivision = token;
+      const ex = (raw.exercises as Record<string, unknown>[])[0];
+      ex.subdivision = token;
+      ex.pattern = [bar(perBar)];
       const result = validateExerciseSet(raw);
-      expect(result.ok).toBe(true);
+      expect(result.ok, token).toBe(true);
       if (result.ok) expect(result.set.exercises[0].subdivision).toBe(expected);
     }
   });
@@ -166,6 +175,21 @@ describe('validateExerciseSet — rejects malformed input with a clear reason', 
       { id: 'a', title: 'Also A', order: 2 },
     ];
     expectError(raw, /sections\[1\]\.id "a" is duplicated/);
+  });
+
+  it('rejects a bar length that does not match the meter + subdivision', () => {
+    const raw = makeValidRaw();
+    // 2/4 8th expects 4 events/bar; give it 3.
+    (raw.exercises as Record<string, unknown>[])[0].pattern = [
+      [{ sticking: 'R' }, { sticking: 'L' }, { sticking: 'R' }],
+    ];
+    expectError(raw, /each bar must have 4 events/);
+  });
+
+  it('rejects an out-of-range recommended tempo', () => {
+    const raw = makeValidRaw();
+    (raw.exercises as Record<string, unknown>[])[0].recommendedBpm = 100000;
+    expectError(raw, /tempo between 1 and 1000/);
   });
 
   it('rejects bars of mismatched lengths', () => {
@@ -319,8 +343,8 @@ function makeValidV2Raw(): Record<string, unknown> {
             { voices: ['kick'] },
           ],
         ],
-        timeSignature: { numerator: 4, denominator: 4 },
-        subdivision: '16th',
+        timeSignature: { numerator: 2, denominator: 4 },
+        subdivision: '8th',
       },
     ],
   };

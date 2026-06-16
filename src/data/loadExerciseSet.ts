@@ -10,6 +10,7 @@
 // selector and the export/delete affordances in Settings.
 
 import { db } from '../db/schema';
+import { getBeatGrouping, subdivisionsPerPulse } from '../meter';
 import {
   FOOT_VOICES,
   type Denominator,
@@ -96,6 +97,21 @@ function requireInt(value: unknown, path: string, min: number): number {
   }
   return n;
 }
+
+/** A tempo value bounded to a sane range so absurd imports (0, 1e9) can't be
+ *  stored. The metronome additionally clamps to 30–300 on apply. */
+function requireBpm(value: unknown, path: string): number {
+  const n = requireNumber(value, path);
+  if (n < 1 || n > 1000) {
+    throw new ValidationError(`${path} must be a tempo between 1 and 1000`);
+  }
+  return n;
+}
+
+// Generous upper bounds: not real limits anyone hits, just backstops so a
+// malformed/hostile import can't build a multi-megabyte set that freezes the tab.
+const MAX_BARS_PER_EXERCISE = 64;
+const MAX_EXERCISES_PER_SET = 2000;
 
 function parseTimeSignature(value: unknown, path: string): TimeSignature {
   if (!isObject(value)) {
@@ -221,6 +237,11 @@ function parsePattern(
   if (!Array.isArray(value) || value.length === 0) {
     throw new ValidationError(`${path} must be a non-empty array of bars`);
   }
+  if (value.length > MAX_BARS_PER_EXERCISE) {
+    throw new ValidationError(
+      `${path} has ${value.length} bars (max ${MAX_BARS_PER_EXERCISE})`,
+    );
+  }
   const bars = value.map((bar, i) => parseBar(bar, `${path}[${i}]`, parseEvent));
   const firstLength = bars[0].length;
   const mismatch = bars.findIndex((bar) => bar.length !== firstLength);
@@ -282,8 +303,25 @@ function parseExercise(
     ),
     subdivision: parseSubdivision(value.subdivision, `${path}.subdivision`),
   };
+  // Each bar must hold exactly as many events as the meter + subdivision imply,
+  // otherwise the metronome clicks a different count than the notation draws (or
+  // VexFlow chokes). parsePattern already enforced equal-length bars.
+  const { pulsesPerBar, isCompound } = getBeatGrouping(exercise.timeSignature);
+  const expected =
+    pulsesPerBar *
+    subdivisionsPerPulse(
+      exercise.subdivision,
+      isCompound,
+      exercise.timeSignature.denominator,
+    );
+  const actual = exercise.pattern[0].length;
+  if (actual !== expected) {
+    throw new ValidationError(
+      `${path}.pattern: each bar must have ${expected} events for this time signature + subdivision, but got ${actual}`,
+    );
+  }
   if (value.recommendedBpm !== undefined) {
-    exercise.recommendedBpm = requireNumber(
+    exercise.recommendedBpm = requireBpm(
       value.recommendedBpm,
       `${path}.recommendedBpm`,
     );
@@ -318,6 +356,11 @@ export function validateExerciseSet(raw: unknown): LoadResult {
             })();
     if (!Array.isArray(raw.sections) || raw.sections.length === 0) {
       throw new ValidationError('sections must be a non-empty array');
+    }
+    if (Array.isArray(raw.exercises) && raw.exercises.length > MAX_EXERCISES_PER_SET) {
+      throw new ValidationError(
+        `exercises has ${raw.exercises.length} entries (max ${MAX_EXERCISES_PER_SET})`,
+      );
     }
     if (!Array.isArray(raw.exercises) || raw.exercises.length === 0) {
       throw new ValidationError('exercises must be a non-empty array');
