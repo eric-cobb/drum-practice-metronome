@@ -130,7 +130,7 @@ function SortableExerciseRow({
         type="button"
         onClick={() => setActive(exercise.id)}
         aria-current={active}
-        className="flex min-w-0 flex-1 items-center gap-2 py-2 text-left focus:outline-none"
+        className="flex min-w-0 flex-1 items-center gap-2 rounded-[6px] py-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <span className="w-5 shrink-0 text-xs tabular-nums text-fg-tertiary">
           {exercise.number}

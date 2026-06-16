@@ -11,7 +11,8 @@ const ORNAMENT_ABBR: Record<Ornament, string> = {
   buzz: 'bz',
 };
 
-const CELL = 'h-9 w-9 shrink-0 text-sm tabular-nums';
+// 44px tap targets on touch screens (SPEC §10); a touch more compact on desktop.
+const CELL = 'h-11 w-11 sm:h-9 sm:w-9 shrink-0 text-sm tabular-nums';
 // Fixed width (matches the position-number row's spacer) so every row's cells
 // start at the same x — otherwise the varying label widths ("Stroke" vs "Orn.")
 // shift each row's columns out of alignment.
@@ -78,7 +79,7 @@ export function PatternGrid({ exercise }: { exercise: Exercise }) {
             <div
               key={`${c.bar}-${c.pos}`}
               className={cn(
-                'flex h-5 w-9 shrink-0 items-center justify-center text-[10px] text-fg-muted',
+                'flex h-5 w-11 shrink-0 items-center justify-center text-[10px] text-fg-muted sm:w-9',
                 sep(c, i === 0),
               )}
             >

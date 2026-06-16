@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTourStore, TOUR_STEPS } from '../../state/tour';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { Button } from '../ui';
 
 const PAD = 8; // padding around the highlighted element
@@ -23,7 +24,13 @@ export function TourSpotlight() {
   const prev = useTourStore((s) => s.prev);
   const end = useTourStore((s) => s.end);
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const calloutRef = useRef<HTMLDivElement>(null);
   const [rect, setRect] = useState<Rect | null>(null);
+
+  // Re-run when the callout appears (a render after rect is measured) and on
+  // each step, so focus moves into the callout's controls.
+  useFocusTrap(calloutRef, end, rect && active ? active.step : null);
 
   const steps = active ? TOUR_STEPS[active.tour] : [];
   const step = active ? steps[active.step] : null;
@@ -132,12 +139,15 @@ export function TourSpotlight() {
           width: rect.width + PAD * 2,
           height: rect.height + PAD * 2,
           boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.55)',
-          transition: 'all 180ms ease-out',
+          // Inline transition isn't caught by the global reduced-motion rule
+          // (which targets `animation`), so gate it here.
+          transition: reducedMotion ? 'none' : 'all 180ms ease-out',
         }}
         aria-hidden
       />
       {/* Callout */}
       <div
+        ref={calloutRef}
         role="dialog"
         aria-modal="true"
         aria-label={step.title}

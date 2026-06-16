@@ -13,12 +13,19 @@ function StatusIndicator({ session, newBest }: { session: Session; newBest: bool
     return <Diamond size={14} className="shrink-0 fill-gold text-gold" aria-label="New best" />;
   }
   if (session.completed) {
-    return <span className="bg-accent-gradient h-3 w-3 shrink-0 rounded-full" aria-label="Completed" />;
+    return (
+      <span
+        role="img"
+        aria-label="Completed"
+        className="bg-accent-gradient h-3 w-3 shrink-0 rounded-full"
+      />
+    );
   }
   return (
     <span
-      className="h-3 w-3 shrink-0 rounded-full border border-fg/40"
+      role="img"
       aria-label="Stopped"
+      className="h-3 w-3 shrink-0 rounded-full border border-fg/40"
     />
   );
 }

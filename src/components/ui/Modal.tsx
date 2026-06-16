@@ -1,5 +1,6 @@
-import { useEffect, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { cn } from './cn';
 
 interface ModalProps {
@@ -10,19 +11,15 @@ interface ModalProps {
 }
 
 /** Centered modal dialog (DESIGN-v2 §7): fading backdrop + scale-in panel on the
- *  elevated surface. Closes on backdrop click or Escape. Rendered in a portal so
- *  it overlays everything regardless of the triggering view's stacking context. */
+ *  elevated surface. Closes on backdrop click or Escape, traps focus, and
+ *  restores it to the trigger on close. Rendered in a portal so it overlays
+ *  everything regardless of the triggering view's stacking context. */
 // The default width is the `className` fallback (not baked into the base) so a
 // caller passing e.g. `max-w-4xl` fully replaces it — otherwise two max-w-*
 // utilities collide and the source order, not the caller, decides the winner.
 export function Modal({ onClose, label, children, className = 'max-w-md' }: ModalProps) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(panelRef, onClose);
 
   return createPortal(
     <div
@@ -30,6 +27,7 @@ export function Modal({ onClose, label, children, className = 'max-w-md' }: Moda
       onMouseDown={onClose}
     >
       <div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label={label}

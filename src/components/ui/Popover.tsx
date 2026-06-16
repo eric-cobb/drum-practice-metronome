@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { cn } from './cn';
 
 type Placement = 'top' | 'bottom';
@@ -51,6 +52,11 @@ export function Popover({
 
   const close = () => setOpen(false);
 
+  // Move focus into the panel on open, trap Tab, close on Escape, and restore
+  // focus to the trigger on close. Keyed on `open` so it engages when the
+  // portalled panel mounts.
+  useFocusTrap(panelRef, close, open);
+
   // Position the portalled panel against the trigger. Re-runs on open and while
   // open on scroll/resize so it tracks the anchor.
   useLayoutEffect(() => {
@@ -92,19 +98,10 @@ export function Popover({
         setOpen(false);
       }
     };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpen(false);
-        anchorRef.current
-          ?.querySelector<HTMLElement>('[data-popover-trigger]')
-          ?.focus();
-      }
-    };
+    // Escape + focus restore are handled by useFocusTrap above.
     document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
     return () => {
       document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
     };
   }, [open]);
 

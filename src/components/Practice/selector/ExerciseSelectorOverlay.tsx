@@ -1,12 +1,7 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type RefObject,
-} from 'react';
+import { useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useMediaQuery } from '../../../hooks/useMediaQuery';
+import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import { SelectorBody } from './SelectorBody';
 
 const POPOVER_WIDTH = 436;
@@ -38,54 +33,6 @@ function computePosition(anchor: HTMLElement): Position {
   return { top, left, width, maxHeight, arrowLeft };
 }
 
-/** Move focus into the panel on open and keep Tab cycling within it; Escape
- *  closes (DESIGN-v2 §6). */
-function useModalFocus(
-  panelRef: RefObject<HTMLElement | null>,
-  onClose: () => void,
-) {
-  useEffect(() => {
-    const panel = panelRef.current;
-    if (!panel) return;
-    // Restore focus to whatever opened the overlay (the pill) on close.
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const focusables = () =>
-      Array.from(
-        panel.querySelectorAll<HTMLElement>(
-          'a[href],button:not([disabled]),input:not([disabled]),select,textarea,[tabindex]:not([tabindex="-1"])',
-        ),
-      ).filter((el) => el.offsetParent !== null);
-
-    focusables()[0]?.focus();
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.stopPropagation();
-        onClose();
-        return;
-      }
-      if (e.key !== 'Tab') return;
-      const items = focusables();
-      if (items.length === 0) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement as HTMLElement | null;
-      if (e.shiftKey && active === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    panel.addEventListener('keydown', onKeyDown);
-    return () => {
-      panel.removeEventListener('keydown', onKeyDown);
-      previouslyFocused?.focus?.();
-    };
-  }, [panelRef, onClose]);
-}
-
 /** The exercise selector overlay (DESIGN-v2 §6): a dimming backdrop plus, on
  *  desktop, an anchored popover with a pointer arrow; below 768px, a bottom
  *  sheet. Rendered in a portal so it escapes the Practice view's scroll/stacking
@@ -110,7 +57,7 @@ export function ExerciseSelectorOverlay({ anchorRef, onClose }: OverlayProps) {
     return () => window.removeEventListener('resize', update);
   }, [isDesktop, anchorRef]);
 
-  useModalFocus(panelRef, onClose);
+  useFocusTrap(panelRef, onClose);
 
   const backdrop = (
     <div

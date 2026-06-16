@@ -1,4 +1,4 @@
-import { useExerciseStore } from '../../state/exercises';
+import { useExerciseStore, selectCurrentExercise } from '../../state/exercises';
 import { NotationCard } from './NotationCard';
 import { InfoStrip } from './InfoStrip';
 import { BpmControl } from './BpmControl';
@@ -11,6 +11,17 @@ import { ExerciseNotesCard } from './ExerciseNotesCard';
  *  play composition (BPM · play · reps), and the exercise notes card. */
 export function ExerciseMode() {
   const setComplete = useExerciseStore((s) => s.setComplete);
+  const exercise = useExerciseStore(selectCurrentExercise);
+
+  // The registry loads asynchronously; show a placeholder rather than a flash of
+  // half-populated controls for an absent exercise.
+  if (!exercise) {
+    return (
+      <div className="mx-auto flex w-full max-w-[1600px] items-center justify-center px-6 py-20">
+        <p className="text-sm text-fg-tertiary">Loading exercise…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-6 py-8">
@@ -19,7 +30,7 @@ export function ExerciseMode() {
           className="bg-accent-gradient-soft rounded-[12px] border border-[color:var(--color-accent)] px-4 py-2 text-center text-sm font-medium text-[color:var(--color-accent-text)]"
           role="status"
         >
-          Set complete — every exercise done. 🎉
+          Set complete — every exercise done.
         </div>
       )}
 

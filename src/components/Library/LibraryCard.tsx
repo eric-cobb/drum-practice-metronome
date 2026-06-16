@@ -86,7 +86,7 @@ export function LibraryCard({
           <span className="truncate text-sm text-fg-secondary">{exercise.name}</span>
         </span>
         {state === 'mastered' && <Diamond size={14} className="shrink-0 fill-gold text-gold" aria-hidden />}
-        {(state === 'completed' || state === 'current') && (
+        {state === 'completed' && (
           <Check size={15} strokeWidth={2.5} className="shrink-0 text-accent" aria-hidden />
         )}
       </div>

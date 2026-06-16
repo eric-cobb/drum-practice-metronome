@@ -1,4 +1,4 @@
-import { useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Upload, FileCode, Plus } from 'lucide-react';
 import { useExerciseStore } from '../../state/exercises';
 import { useEditorStore } from '../../state/editor';
@@ -36,6 +36,13 @@ export function LibraryActions() {
   const [msg, setMsg] = useState<Msg>(null);
   const [conflict, setConflict] = useState<ConflictState | null>(null);
   const [showSchema, setShowSchema] = useState(false);
+
+  // Auto-dismiss the import/result message so it doesn't linger indefinitely.
+  useEffect(() => {
+    if (!msg) return;
+    const t = window.setTimeout(() => setMsg(null), 6000);
+    return () => window.clearTimeout(t);
+  }, [msg]);
 
   const onPick = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

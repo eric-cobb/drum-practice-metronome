@@ -124,7 +124,7 @@ export function Notation() {
         />
       </div>
       {error && (
-        <p className="mt-2 text-center text-sm text-red-500 dark:text-red-400">
+        <p className="mt-2 text-center text-sm text-danger-text">
           Couldn&apos;t render notation: {error}
         </p>
       )}

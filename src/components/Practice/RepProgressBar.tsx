@@ -11,6 +11,7 @@ export function RepProgressBar() {
     <div
       className="h-1 w-40 overflow-hidden rounded-full bg-fg/10"
       role="progressbar"
+      aria-label="Rep progress"
       aria-valuenow={currentRep}
       aria-valuemin={0}
       aria-valuemax={targetReps}
