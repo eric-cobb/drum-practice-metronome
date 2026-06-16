@@ -23,10 +23,13 @@ A drum practice tool combining a precision metronome with structured exercise mo
 - Per-exercise completion tracking
 - Per-set position and tempo persistence
 
-### Bring your own exercises
-The app ships with a small set of foundational rudimental patterns. If you own a method book (Stick Control, Syncopation, Master Studies, etc.), you can transcribe your copy into a JSON file using the documented schema and import it into the app. Imported exercise sets stay in your browser — they are never uploaded to any server.
+### Build or bring your own exercises
+The app ships with a small set of foundational rudimental patterns. You can create your own sets two ways:
 
-A schema reference is built into the app (Settings → Exercise sets → Schema reference) so you can transcribe without reading the source code.
+- **In-app editor** — build sets visually: add sections and exercises, set the meter/subdivision/tempo, and tap out the sticking on a click-to-edit grid with a live notation preview. Duplicate a bundled set to start from an editable copy. (Library → *New set*, or *Manage sets* → duplicate/edit.)
+- **JSON import** — if you own a method book (Stick Control, Syncopation, Master Studies, etc.), transcribe your copy into a JSON file using the documented schema and import it. Imported sets stay in your browser — they are never uploaded to any server.
+
+A schema reference is built into the app (Library → *Schema reference*) so you can transcribe without reading the source code.
 
 ## Tech Stack
 
@@ -36,17 +39,20 @@ A schema reference is built into the app (Settings → Exercise sets → Schema 
 - Dexie (IndexedDB)
 - VexFlow (notation rendering)
 - Web Audio API (timing)
+- @dnd-kit (drag-to-reorder in the editor)
 
-No backend. No accounts. No analytics. All data is stored locally in your browser via IndexedDB and localStorage.
+No backend. No accounts. All data is stored locally in your browser via IndexedDB and localStorage. (The deployed version uses anonymous Vercel Web Analytics for page-view counts — see [Privacy](#privacy).)
 
 ## Running Locally
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/practice-metronome.git
-cd practice-metronome
+git clone https://github.com/eric-cobb/drum-practice-metronome.git
+cd drum-practice-metronome
 npm install
 npm run dev
 ```
+
+Requires Node 18+ and a modern browser (Chrome, Firefox, Safari, or Edge from the last few years — Web Audio and IndexedDB are used). No installation needed to use the app once it's running.
 
 The dev server runs on `localhost:5174` by default.
 
