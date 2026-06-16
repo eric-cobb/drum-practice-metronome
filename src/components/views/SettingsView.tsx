@@ -33,6 +33,26 @@ const THEMES: { value: Theme; label: string }[] = [
   { value: 'auto', label: 'Auto' },
 ];
 
+/** Global keyboard shortcuts, mirroring useKeyboardShortcuts (SPEC §9). */
+const SHORTCUTS: { keys: string[]; action: string }[] = [
+  { keys: ['Space'], action: 'Play / stop (skip count-in)' },
+  { keys: ['↑', '↓'], action: 'Tempo ±1 BPM (Shift: ±5)' },
+  { keys: ['T'], action: 'Tap tempo' },
+  { keys: ['R'], action: 'Reset rep counter' },
+  { keys: ['N'], action: 'Next exercise (Exercise mode)' },
+  { keys: ['P'], action: 'Previous exercise (Exercise mode)' },
+  { keys: ['Esc'], action: 'Stop & discard session' },
+];
+
+/** A single key-cap. */
+function Kbd({ children }: { children: ReactNode }) {
+  return (
+    <kbd className="surface-deep inline-flex min-w-[22px] items-center justify-center rounded-[5px] px-1.5 py-0.5 text-[10px] font-medium leading-none text-fg-secondary">
+      {children}
+    </kbd>
+  );
+}
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-3">
@@ -259,6 +279,23 @@ export function SettingsView() {
                 Library
               </Button>
             </div>
+          </div>
+        </Row>
+        <Row>
+          <div className="flex flex-col gap-2">
+            <span className="text-sm text-fg">Keyboard shortcuts</span>
+            <dl className="flex flex-col gap-1.5">
+              {SHORTCUTS.map(({ keys, action }) => (
+                <div key={action} className="flex items-center gap-3">
+                  <dt className="flex w-16 shrink-0 items-center gap-1">
+                    {keys.map((k) => (
+                      <Kbd key={k}>{k}</Kbd>
+                    ))}
+                  </dt>
+                  <dd className="text-xs text-fg-secondary">{action}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </Row>
         <Row label="Send feedback">
