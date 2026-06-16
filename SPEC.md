@@ -34,7 +34,7 @@ The app has two modes (Free and Exercise) sharing a common metronome engine, ses
 ### Pre-roll
 - Optional 1-bar countdown before starting
 - During pre-roll: count plays at the configured tempo but rep counter doesn't advance
-- Toggle in settings; applies to both modes
+- Toggle in settings. It is the lead-in for Free mode, and the fallback lead-in for a fresh Start in Exercise mode when the count-in (§7) is disabled. When the Exercise-mode count-in is enabled, it supersedes the pre-roll there (the two never stack).
 
 ### Start / Stop
 - Single button toggles play state
@@ -392,16 +392,16 @@ The selector reads from this table to render completion indicators on tiles. The
 - Current note position highlighted during playback using the band + glow + scale treatment (see DESIGN-v2.md)
 - Notation auto-scales to viewport width within the 1600px max
 
-### Count-in between exercises
-A configurable count-in plays after one exercise finishes and before the next begins, giving the user time to read the new notation and prepare.
+### Count-in (Exercise mode)
+A configurable count-in plays before an exercise begins — both when the user presses Start on a stopped exercise and when transitioning between exercises — giving the user time to read the notation and prepare.
 
 - **Enabled**: toggle, default ON
 - **Bars**: integer, 1–4, default 1
-- **Click pattern**: quarter notes at the current BPM, with the downbeat accented (a "1-2-3-4" count-in feel), regardless of the next exercise's subdivision setting
-- **Time signature during count-in**: matches the upcoming exercise's time signature
-- **Visual**: a large overlay shows the count ("1... 2... 3... 4...") synchronized with the clicks; the new exercise's notation is visible underneath
+- **Click pattern**: quarter notes at the current BPM, with the downbeat accented (a "1-2-3-4" count-in feel), regardless of the exercise's subdivision setting
+- **Time signature during count-in**: matches the exercise's time signature
+- **Visual**: a large overlay shows the count ("1... 2... 3... 4...") synchronized with the clicks; the exercise's notation is visible underneath
 - **Skippable**: pressing Start during the count-in skips remaining count and begins the exercise immediately on the next downbeat
-- Count-in only fires when transitioning between exercises (either via auto-advance or via manual "Next exercise" while the metronome is playing). When the metronome is stopped and the user presses Start fresh on an exercise, the pre-roll setting from §1 applies instead — count-in does not duplicate pre-roll.
+- **When it fires** (Exercise mode): on a fresh Start of a stopped exercise, and on transitions between exercises (auto-advance, or manual "Next exercise" while the metronome is playing). Because the count-in is Exercise mode's lead-in, it takes the place of the pre-roll (§1) there — the two never stack. If count-in is disabled, a fresh Start falls back to the pre-roll setting. In Free mode, the pre-roll is the only lead-in.
 
 ### Playback behavior
 - On Start, metronome runs with the exercise's time signature and subdivision
@@ -412,7 +412,7 @@ A configurable count-in plays after one exercise finishes and before the next be
   - After ~1 second pause, the next exercise loads and its notation renders
   - BPM is preserved from previous exercise (so a ramp through tempo across exercises works); target reps resets to the next exercise's default
   - If "Auto-start next exercise" is ON: count-in plays (if enabled), then the new exercise begins automatically
-  - If "Auto-start next exercise" is OFF: metronome stops; user presses Start to begin (with pre-roll if enabled). Count-in does not fire in this case.
+  - If "Auto-start next exercise" is OFF: metronome stops; user presses Start to begin, which fires the count-in (if enabled), exactly like any fresh Start in Exercise mode.
 - If the user is on the last exercise in the set, completion shows a "Set complete" message instead of advancing
 
 ### Position persistence

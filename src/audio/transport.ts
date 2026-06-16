@@ -74,11 +74,19 @@ export function initTransport(): void {
   });
 }
 
-/** Start fresh from stopped (the Start button). Applies pre-roll if enabled,
- *  in both modes (SPEC §1). */
+/** Start fresh from stopped (the Start button). In Exercise mode the configured
+ *  count-in leads in a fresh Start too (not just between-exercise transitions),
+ *  so the count-in shown in the info strip actually plays when the user presses
+ *  Start; it falls back to the pre-roll when count-in is disabled. Free mode uses
+ *  the pre-roll (SPEC §1, §7). */
 export function start(): void {
   cancelPendingAdvance();
-  const leadInBars = useMetronomeStore.getState().preRollEnabled ? 1 : 0;
+  const preRollBars = useMetronomeStore.getState().preRollEnabled ? 1 : 0;
+  let leadInBars = preRollBars;
+  if (useModeStore.getState().mode === 'exercise') {
+    const { countInEnabled, countInBars } = useExerciseStore.getState();
+    leadInBars = countInEnabled ? countInBars : preRollBars;
+  }
   void startMetronome({ leadInBars });
 }
 
