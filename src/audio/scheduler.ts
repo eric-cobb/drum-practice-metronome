@@ -78,6 +78,13 @@ function emit(event: SchedulerEvent): void {
 let audioContext: AudioContext | null = null;
 let timerId: number | null = null;
 
+// Bumped on every timeline disruption (start/stop/skip/reset). Play-time
+// callbacks scheduled via `atPlayTime` capture the generation and no-op if it
+// changed before they fire — so callbacks queued before a Stop (the ~100ms
+// already in the audio graph) can't mutate state for a session that's over.
+let playGeneration = 0;
+let visibilityHandlerRegistered = false;
+
 let nextNoteTime = 0; // AudioContext time of the next tick to schedule
 let position: Position = INITIAL_POSITION; // advanced one subdivision at a time
 
@@ -164,8 +171,28 @@ function getAudioContext(): AudioContext {
  *  what the user actually hears, without the 25ms loop touching React. */
 function atPlayTime(time: number, fn: () => void): void {
   const ctx = getAudioContext();
+  const gen = playGeneration;
   const delayMs = Math.max(0, (time - ctx.currentTime) * 1000);
-  window.setTimeout(fn, delayMs);
+  window.setTimeout(() => {
+    if (gen === playGeneration) fn();
+  }, delayMs);
+}
+
+/** Re-anchor the schedule on return from a backgrounded tab. Hidden tabs throttle
+ *  the lookahead loop to ~1s while the audio clock keeps running, so on return
+ *  `nextNoteTime` is far behind and `loop()` would synchronously fire a burst of
+ *  catch-up ticks (a machine-gun of clicks + position thrash). Skip the gap. */
+function ensureVisibilityHandler(): void {
+  if (visibilityHandlerRegistered) return;
+  visibilityHandlerRegistered = true;
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || timerId === null || !audioContext) {
+      return;
+    }
+    if (nextNoteTime < audioContext.currentTime) {
+      nextNoteTime = audioContext.currentTime + START_DELAY_SEC;
+    }
+  });
 }
 
 /** Publish the current main-phase position (and, on a downbeat, the rep) to the
@@ -346,6 +373,8 @@ export async function startMetronome(opts?: {
   if (ctx.state === 'suspended') {
     await ctx.resume();
   }
+  ensureVisibilityHandler();
+  playGeneration += 1;
 
   position = INITIAL_POSITION;
   resetDropout();
@@ -394,12 +423,16 @@ export function skipLeadIn(): void {
   if (timerId === null || leadInTotal === 0 || leadInDone >= leadInTotal) {
     return;
   }
+  playGeneration += 1; // cancel any pending lead-in callbacks
   leadInTotal = 0;
   leadInDone = 0;
   leadInActive = true; // the next main tick clears the count display
   position = INITIAL_POSITION;
   resetDropout();
   resetRamp();
+  // Re-anchor so the exercise's first downbeat lands a clean START_DELAY_SEC
+  // from now rather than at the skipped lead-in pulse's old time (a rushed note).
+  nextNoteTime = getAudioContext().currentTime + START_DELAY_SEC;
 }
 
 /** True while a lead-in (pre-roll / count-in) is sounding. */
@@ -411,6 +444,7 @@ export function isLeadingIn(): boolean {
  *  and the dropout/ramp anchors so reps count again from 1. No-op when stopped. */
 export function resetReps(): void {
   if (timerId === null) return;
+  playGeneration += 1; // cancel pending position/rep callbacks from before the reset
   position = INITIAL_POSITION;
   resetDropout();
   resetRamp();
@@ -427,6 +461,10 @@ export function stopMetronome(opts?: { discard?: boolean }): void {
     window.clearInterval(timerId);
     timerId = null;
   }
+  // Invalidate any play-time callbacks already queued in the ≤100ms window so a
+  // Stop in the final moments can't still fire `complete`/auto-advance or write
+  // a stale position (finishAt's callback included).
+  playGeneration += 1;
   leadInTotal = 0;
   leadInDone = 0;
   leadInActive = false;
