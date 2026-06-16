@@ -23,11 +23,14 @@ export function Sidebar() {
       {/* Accent strip — full width, 6px, gradient at 0.6 opacity. */}
       <div className="bg-accent-gradient h-1.5 w-full opacity-60" aria-hidden />
 
-      {/* Logo mark (placeholder). */}
+      {/* Logo mark — the InThePocket play-circle (brand mark). */}
       <div className="flex h-16 items-center justify-center">
-        <div className="bg-accent-gradient flex h-8 w-8 items-center justify-center rounded-[9px] text-[11px] font-semibold text-white">
-          pm
-        </div>
+        <img
+          src="/favicon.png"
+          alt="InThePocket"
+          className="h-9 w-auto"
+          draggable={false}
+        />
       </div>
 
       <ul className="flex flex-col">
