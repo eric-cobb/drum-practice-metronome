@@ -5,7 +5,7 @@
 > only for historical reference and no longer reflects the shipping UI. For any
 > visual/layout question, read `DESIGN-v2.md`.
 
-This document defined the visual design language and layout structure for the practice metronome app.
+This document defined the visual design language and layout structure for InThePocket (the app, then named "Practice Metronome").
 
 ## Design Principles
 

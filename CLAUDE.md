@@ -1,4 +1,4 @@
-# Practice Metronome App
+# InThePocket
 
 A drum practice tool combining a precision metronome with a structured exercise mode for working through method books (Stick Control being the primary target). Built for personal use during structured drum practice.
 

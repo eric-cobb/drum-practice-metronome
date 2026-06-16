@@ -1,4 +1,4 @@
-# Design v2 — Practice Metronome
+# Design v2 — InThePocket
 
 This document supersedes the original `DESIGN.md` entirely. It defines the visual language, information architecture, and component specs for the redesigned app. Where v2 conflicts with the original DESIGN.md, v2 wins.
 

@@ -1,4 +1,6 @@
-# Practice Metronome
+# InThePocket
+
+*Practice. Groove. Improve.*
 
 A drum practice tool combining a precision metronome with structured exercise mode for method-book practice. Built for the specific needs of drummers working through rudimental method books (Stick Control, Syncopation, Master Studies, etc.) but useful for any musician who needs a flexible metronome with session tracking.
 

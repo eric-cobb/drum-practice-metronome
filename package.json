@@ -1,5 +1,5 @@
 {
-  "name": "metronome-drum-practice",
+  "name": "inthepocket",
   "private": true,
   "version": "0.1.0",
   "description": "A precision metronome with a structured exercise mode for drum practice — drum notation, reps with auto-advance, click dropout, and tempo ramps. Local-only, no backend.",

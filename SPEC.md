@@ -1,4 +1,4 @@
-# Specification: Practice Metronome App
+# Specification: InThePocket
 
 The app has two modes (Free and Exercise) sharing a common metronome engine, session log, and settings. Sections 1–4 apply to both modes. Sections 5–6 are Free mode only. Section 7 is Exercise mode only.
 

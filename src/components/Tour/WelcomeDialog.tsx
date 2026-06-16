@@ -9,7 +9,7 @@ export function WelcomeDialog({ onClose }: { onClose: () => void }) {
   return (
     <Modal onClose={onClose} label="Welcome">
       <div className="flex flex-col gap-3">
-        <h3 className="text-[15px] font-medium text-fg">Welcome to the practice metronome</h3>
+        <h3 className="text-[15px] font-medium text-fg">Welcome to InThePocket</h3>
         <p className="text-sm text-fg-secondary">
           A quick tour can show you around. Start with the free metronome, or jump into
           structured exercise practice — or skip and explore on your own.
