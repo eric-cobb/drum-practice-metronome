@@ -13,6 +13,7 @@ import type {
   Section,
   Subdivision,
   TimeSignature,
+  Voice,
 } from '../types';
 import {
   blankExercise,
@@ -24,6 +25,7 @@ import {
   resizePattern,
   toggleAccent,
   toggleGhost,
+  toggleVoice,
 } from '../components/Editor/editorModel';
 
 /** Bar-count bounds for the editor (one rep). */
@@ -74,6 +76,7 @@ interface EditorState {
 
   // Per-cell pattern edits at (bar, position) of the active exercise.
   cellStroke: (bar: number, pos: number) => void;
+  cellVoice: (bar: number, pos: number, voice: Voice) => void;
   cellAccent: (bar: number, pos: number) => void;
   cellGhost: (bar: number, pos: number) => void;
   cellOrnament: (bar: number, pos: number) => void;
@@ -273,6 +276,12 @@ export const useEditorStore = create<EditorState>((set) => ({
 
   cellStroke: (bar, pos) =>
     set((s) => withActiveExercise(s, (ex) => editCell(ex, bar, pos, cycleStroke))),
+  cellVoice: (bar, pos, voice) =>
+    set((s) =>
+      withActiveExercise(s, (ex) =>
+        editCell(ex, bar, pos, (ev) => toggleVoice(ev, voice)),
+      ),
+    ),
   cellAccent: (bar, pos) =>
     set((s) => withActiveExercise(s, (ex) => editCell(ex, bar, pos, toggleAccent))),
   cellGhost: (bar, pos) =>

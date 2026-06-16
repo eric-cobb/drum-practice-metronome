@@ -12,7 +12,45 @@ import type {
   PatternEvent,
   Subdivision,
   TimeSignature,
+  Voice,
 } from '../../types';
+
+/** Canonical voice order, top of the drum staff to bottom — used to keep a
+ *  hit's `voices` array and the editor's voice rows in a stable, notation-like
+ *  order. */
+export const VOICE_ORDER: readonly Voice[] = [
+  'crash',
+  'ride',
+  'ride-bell',
+  'hihat-open',
+  'hihat-closed',
+  'tom-high',
+  'tom-mid',
+  'tom-low',
+  'snare',
+  'kick',
+  'hihat-foot',
+];
+
+/** Short labels for the editor's voice rows (the row-label column is narrow). */
+export const VOICE_LABEL: Record<Voice, string> = {
+  crash: 'Crash',
+  ride: 'Ride',
+  'ride-bell': 'Bell',
+  'hihat-open': 'HH open',
+  'hihat-closed': 'Hi-hat',
+  'tom-high': 'Tom 1',
+  'tom-mid': 'Tom 2',
+  'tom-low': 'Floor',
+  snare: 'Snare',
+  kick: 'Kick',
+  'hihat-foot': 'HH foot',
+};
+
+/** Sort voices into VOICE_ORDER so saved JSON and the grid stay canonical. */
+export function orderVoices(voices: readonly Voice[]): Voice[] {
+  return VOICE_ORDER.filter((v) => voices.includes(v));
+}
 
 /** Number of grid positions (note slots) in one bar for a meter + subdivision.
  *  pulsesPerBar × subdivisions-per-pulse (see meter.ts). */
@@ -33,10 +71,15 @@ export const ORNAMENT_CYCLE: readonly (Ornament | undefined)[] = [
   'buzz',
 ];
 
-/** Build a clean snare Hit, omitting falsy/undefined optional fields so saved
- *  JSON stays minimal (and never carries `accent: false` etc.). */
-function snareHit(p: Partial<Hit>): Hit {
-  const h: Hit = { voices: ['snare'] };
+/** Build a clean Hit, omitting falsy/undefined optional fields so saved JSON
+ *  stays minimal (and never carries `accent: false` etc.). Preserves the source
+ *  event's voices (so editing an accent/ghost/ornament on a multi-voice hit like
+ *  hi-hat+snare keeps every voice); defaults to a single snare voice only when
+ *  none are supplied (a fresh hit created from a rest). */
+function buildHit(p: Partial<Hit>): Hit {
+  const h: Hit = {
+    voices: p.voices && p.voices.length > 0 ? p.voices : ['snare'],
+  };
   if (p.sticking) h.sticking = p.sticking;
   if (p.accent) h.accent = true;
   if (p.ghost) h.ghost = true;
@@ -65,12 +108,43 @@ export function resizePattern(
 
 // --- Per-cell edit operations (return a new event) --------------------------
 
-/** Cycle a position's stroke: rest → R → L → rest. R→L preserves dynamics and
- *  ornament; returning to rest drops them. */
+/** The Stroke row is the snare lane: it adds/cycles the snare voice's sticking
+ *  while preserving any other voices in the hit. The snare-only cycle is the
+ *  familiar rest → R → L → rest (the final step removes the snare, which on a
+ *  snare-only hit empties it back to a rest). On a hit that has other voices, the
+ *  R→L→(remove snare) steps keep those voices intact; adding the snare to a hit
+ *  that lacks it starts at R. */
 export function cycleStroke(ev: PatternEvent): PatternEvent {
-  if (ev === 'rest') return snareHit({ sticking: 'R' });
-  if (ev.sticking === 'R') return snareHit({ ...ev, sticking: 'L' });
-  return 'rest';
+  if (ev === 'rest') return buildHit({ voices: ['snare'], sticking: 'R' });
+
+  if (!ev.voices.includes('snare')) {
+    return buildHit({
+      ...ev,
+      voices: orderVoices([...ev.voices, 'snare']),
+      sticking: 'R',
+    });
+  }
+  if (ev.sticking === 'R') return buildHit({ ...ev, sticking: 'L' });
+  if (ev.sticking === 'L') {
+    const rest = ev.voices.filter((v) => v !== 'snare');
+    if (rest.length === 0) return 'rest';
+    return buildHit({ ...ev, voices: orderVoices(rest), sticking: undefined });
+  }
+  // Snare present but no sticking yet → start the hand cycle at R.
+  return buildHit({ ...ev, sticking: 'R' });
+}
+
+/** Toggle a voice on/off at a position, preserving the other voices and the
+ *  hit's modifiers. Adding to a rest creates a hit; removing the last voice
+ *  empties the position back to a rest. Used by the per-voice grid rows. */
+export function toggleVoice(ev: PatternEvent, voice: Voice): PatternEvent {
+  if (ev === 'rest') return buildHit({ voices: [voice] });
+  if (ev.voices.includes(voice)) {
+    const rest = ev.voices.filter((v) => v !== voice);
+    if (rest.length === 0) return 'rest';
+    return buildHit({ ...ev, voices: orderVoices(rest) });
+  }
+  return buildHit({ ...ev, voices: orderVoices([...ev.voices, voice]) });
 }
 
 /** Toggle accent on a hit (no-op on a rest). Accent and ghost are mutually
@@ -78,14 +152,14 @@ export function cycleStroke(ev: PatternEvent): PatternEvent {
 export function toggleAccent(ev: PatternEvent): PatternEvent {
   if (ev === 'rest') return ev;
   const accent = !ev.accent;
-  return snareHit({ ...ev, accent, ghost: accent ? false : ev.ghost });
+  return buildHit({ ...ev, accent, ghost: accent ? false : ev.ghost });
 }
 
 /** Toggle ghost on a hit (no-op on a rest); clears accent when enabling. */
 export function toggleGhost(ev: PatternEvent): PatternEvent {
   if (ev === 'rest') return ev;
   const ghost = !ev.ghost;
-  return snareHit({ ...ev, ghost, accent: ghost ? false : ev.accent });
+  return buildHit({ ...ev, ghost, accent: ghost ? false : ev.accent });
 }
 
 /** Cycle a hit's ornament through ORNAMENT_CYCLE (no-op on a rest). */
@@ -93,7 +167,7 @@ export function cycleOrnament(ev: PatternEvent): PatternEvent {
   if (ev === 'rest') return ev;
   const i = ORNAMENT_CYCLE.indexOf(ev.ornament);
   const next = ORNAMENT_CYCLE[(i + 1) % ORNAMENT_CYCLE.length];
-  return snareHit({ ...ev, ornament: next });
+  return buildHit({ ...ev, ornament: next });
 }
 
 // --- Blank-document factories -----------------------------------------------

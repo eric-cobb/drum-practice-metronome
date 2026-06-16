@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useEditorStore } from '../../state/editor';
 import { getBeatGrouping, subdivisionsPerPulse } from '../../meter';
-import type { Exercise, Ornament } from '../../types';
+import { VOICE_ORDER, VOICE_LABEL, orderVoices } from './editorModel';
+import type { Exercise, Ornament, Voice } from '../../types';
 import { cn } from '../ui';
 
 const ORNAMENT_ABBR: Record<Ornament, string> = {
@@ -26,12 +27,18 @@ interface Column {
   isBeatStart: boolean;
 }
 
-/** The visual sticking/dynamics grid for one exercise (Phase 11, snare-only).
- *  Rows = Stroke / Accent / Ghost / Ornament; columns = note positions grouped
- *  by beat and bar. Every cell is a button that cycles or toggles via the editor
- *  store; the live notation preview reflects edits immediately. */
+type Sep = (c: Column, first: boolean) => string;
+type EventAt = (c: Column) => Exercise['pattern'][number][number];
+
+/** The visual sticking/voice grid for one exercise (Phase 11). Rows: one Snare
+ *  lane (cycles the snare's sticking, rest → R → L → rest), one toggle lane per
+ *  other voice in the exercise (hi-hat, kick, toms, cymbals…), an "Add voice"
+ *  control, then the per-position Accent / Ghost / Ornament modifier rows.
+ *  Columns are note positions grouped by beat and bar; the live notation preview
+ *  reflects edits immediately. */
 export function PatternGrid({ exercise }: { exercise: Exercise }) {
   const cellStroke = useEditorStore((s) => s.cellStroke);
+  const cellVoice = useEditorStore((s) => s.cellVoice);
   const cellAccent = useEditorStore((s) => s.cellAccent);
   const cellGhost = useEditorStore((s) => s.cellGhost);
   const cellOrnament = useEditorStore((s) => s.cellOrnament);
@@ -57,10 +64,45 @@ export function PatternGrid({ exercise }: { exercise: Exercise }) {
     return cols;
   }, [exercise.pattern, exercise.timeSignature, exercise.subdivision]);
 
-  const eventAt = (c: Column) => exercise.pattern[c.bar][c.pos];
+  // Non-snare voices used anywhere in the pattern (the snare has its own lane).
+  const presentVoices = useMemo<Voice[]>(() => {
+    const set = new Set<Voice>();
+    exercise.pattern.forEach((bar) =>
+      bar.forEach((ev) => {
+        if (ev !== 'rest') {
+          for (const v of ev.voices) if (v !== 'snare') set.add(v);
+        }
+      }),
+    );
+    return orderVoices([...set]);
+  }, [exercise.pattern]);
+
+  // Voice rows the user added via "Add voice" but hasn't filled in yet. Reset
+  // when switching exercises (rows then reflect what that exercise actually uses).
+  const [added, setAdded] = useState<Voice[]>([]);
+  useEffect(() => setAdded([]), [exercise.id]);
+
+  const nonSnareLanes = useMemo<Voice[]>(
+    () => orderVoices([...new Set<Voice>([...presentVoices, ...added])]),
+    [presentVoices, added],
+  );
+  const addable = VOICE_ORDER.filter(
+    (v) => v !== 'snare' && !nonSnareLanes.includes(v),
+  );
+
+  // Lanes in canonical staff order: the Snare lane sits at the snare's slot,
+  // each shown non-snare voice gets a toggle lane.
+  const lanes = VOICE_ORDER.flatMap<
+    { kind: 'snare' } | { kind: 'voice'; voice: Voice }
+  >((v) => {
+    if (v === 'snare') return [{ kind: 'snare' }];
+    return nonSnareLanes.includes(v) ? [{ kind: 'voice', voice: v }] : [];
+  });
+
+  const eventAt: EventAt = (c) => exercise.pattern[c.bar][c.pos];
 
   // A vertical separator at bar starts (strong) and beat starts (subtle).
-  const sep = (c: Column, first: boolean) =>
+  const sep: Sep = (c, first) =>
     first
       ? ''
       : c.isBarStart
@@ -88,34 +130,54 @@ export function PatternGrid({ exercise }: { exercise: Exercise }) {
           ))}
         </div>
 
-        {/* Stroke row */}
-        <div className="flex items-center">
-          <div className={ROW_LABEL}>Stroke</div>
-          {columns.map((c, i) => {
-            const ev = eventAt(c);
-            const isHit = ev !== 'rest';
-            const label = isHit ? (ev.sticking ?? '•') : '·';
-            return (
-              <div key={`${c.bar}-${c.pos}`} className={cn(sep(c, i === 0))}>
-                <button
-                  type="button"
-                  onClick={() => cellStroke(c.bar, c.pos)}
-                  aria-label={`Position ${c.pos + 1}${c.bar > 0 ? ` bar ${c.bar + 1}` : ''}: ${isHit ? `snare ${ev.sticking}` : 'rest'} — click to cycle`}
-                  className={cn(
-                    CELL,
-                    'rounded-[7px] font-semibold transition',
-                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-                    isHit
-                      ? 'surface-deep text-fg hover:brightness-110'
-                      : 'text-fg-muted hover:bg-fg/5',
-                  )}
-                >
-                  {label}
-                </button>
-              </div>
-            );
-          })}
-        </div>
+        {/* Voice lanes (Snare = sticking cycle; others = on/off toggles) */}
+        {lanes.map((lane) =>
+          lane.kind === 'snare' ? (
+            <SnareLane
+              key="snare"
+              columns={columns}
+              sep={sep}
+              eventAt={eventAt}
+              onCell={cellStroke}
+            />
+          ) : (
+            <VoiceLane
+              key={lane.voice}
+              voice={lane.voice}
+              columns={columns}
+              sep={sep}
+              eventAt={eventAt}
+              onCell={cellVoice}
+            />
+          ),
+        )}
+
+        {/* Add a voice row */}
+        {addable.length > 0 && (
+          <div className="flex items-center">
+            <div className={ROW_LABEL} />
+            <select
+              aria-label="Add voice"
+              value=""
+              onChange={(e) => {
+                const v = e.target.value as Voice;
+                if (v) setAdded((a) => [...a, v]);
+              }}
+              className="surface-deep h-8 rounded-[7px] px-2 text-xs text-fg-secondary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <option value="" disabled>
+                + Add voice…
+              </option>
+              {addable.map((v) => (
+                <option key={v} value={v}>
+                  {VOICE_LABEL[v]}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="my-1 h-px bg-fg/10" />
 
         {/* Accent row */}
         <CellRow
@@ -124,10 +186,9 @@ export function PatternGrid({ exercise }: { exercise: Exercise }) {
           sep={sep}
           render={(c) => {
             const ev = eventAt(c);
-            const on = ev !== 'rest' && !!ev.accent;
             return {
               disabled: ev === 'rest',
-              on,
+              on: ev !== 'rest' && !!ev.accent,
               glyph: '>',
               onClick: () => cellAccent(c.bar, c.pos),
               aria: `Accent at position ${c.pos + 1}`,
@@ -142,10 +203,9 @@ export function PatternGrid({ exercise }: { exercise: Exercise }) {
           sep={sep}
           render={(c) => {
             const ev = eventAt(c);
-            const on = ev !== 'rest' && !!ev.ghost;
             return {
               disabled: ev === 'rest',
-              on,
+              on: ev !== 'rest' && !!ev.ghost,
               glyph: '( )',
               small: true,
               onClick: () => cellGhost(c.bar, c.pos),
@@ -177,6 +237,97 @@ export function PatternGrid({ exercise }: { exercise: Exercise }) {
   );
 }
 
+/** The snare lane: cycles the snare's sticking (rest → R → L → rest) while
+ *  preserving any other voices in the hit. */
+function SnareLane({
+  columns,
+  sep,
+  eventAt,
+  onCell,
+}: {
+  columns: Column[];
+  sep: Sep;
+  eventAt: EventAt;
+  onCell: (bar: number, pos: number) => void;
+}) {
+  return (
+    <div className="flex items-center">
+      <div className={ROW_LABEL}>Snare</div>
+      {columns.map((c, i) => {
+        const ev = eventAt(c);
+        const hasSnare = ev !== 'rest' && ev.voices.includes('snare');
+        const label = hasSnare ? (ev.sticking ?? '•') : '·';
+        return (
+          <div key={`${c.bar}-${c.pos}`} className={cn(sep(c, i === 0))}>
+            <button
+              type="button"
+              onClick={() => onCell(c.bar, c.pos)}
+              aria-label={`Snare at position ${c.pos + 1}${c.bar > 0 ? ` bar ${c.bar + 1}` : ''}: ${
+                hasSnare ? (ev.sticking ?? 'no sticking') : 'off'
+              } — click to cycle`}
+              className={cn(
+                CELL,
+                'rounded-[7px] font-semibold transition',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+                hasSnare
+                  ? 'surface-deep text-fg hover:brightness-110'
+                  : 'text-fg-muted hover:bg-fg/5',
+              )}
+            >
+              {label}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** A non-snare voice lane: each cell toggles that voice on/off at the position. */
+function VoiceLane({
+  voice,
+  columns,
+  sep,
+  eventAt,
+  onCell,
+}: {
+  voice: Voice;
+  columns: Column[];
+  sep: Sep;
+  eventAt: EventAt;
+  onCell: (bar: number, pos: number, voice: Voice) => void;
+}) {
+  return (
+    <div className="flex items-center">
+      <div className={ROW_LABEL}>{VOICE_LABEL[voice]}</div>
+      {columns.map((c, i) => {
+        const ev = eventAt(c);
+        const on = ev !== 'rest' && ev.voices.includes(voice);
+        return (
+          <div key={`${c.bar}-${c.pos}`} className={cn(sep(c, i === 0))}>
+            <button
+              type="button"
+              onClick={() => onCell(c.bar, c.pos, voice)}
+              aria-pressed={on}
+              aria-label={`${VOICE_LABEL[voice]} at position ${c.pos + 1}${c.bar > 0 ? ` bar ${c.bar + 1}` : ''}: ${on ? 'on' : 'off'}`}
+              className={cn(
+                CELL,
+                'rounded-[7px] text-base transition',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+                on
+                  ? 'bg-accent/20 text-accent'
+                  : 'text-fg-muted hover:bg-fg/5',
+              )}
+            >
+              {on ? '●' : '·'}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 interface CellSpec {
   disabled: boolean;
   on: boolean;
@@ -195,7 +346,7 @@ function CellRow({
 }: {
   label: string;
   columns: Column[];
-  sep: (c: Column, first: boolean) => string;
+  sep: Sep;
   render: (c: Column) => CellSpec;
 }) {
   return (

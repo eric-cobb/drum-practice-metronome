@@ -6,10 +6,12 @@ import {
   cycleStroke,
   eventsPerBar,
   nextId,
+  orderVoices,
   resizeBar,
   resizePattern,
   toggleAccent,
   toggleGhost,
+  toggleVoice,
   validateDraft,
 } from './editorModel';
 import type { ExerciseSet, Hit, PatternEvent, TimeSignature } from '../../types';
@@ -101,6 +103,66 @@ describe('cell operations', () => {
     expect(toggleAccent('rest')).toBe('rest');
     expect(toggleGhost('rest')).toBe('rest');
     expect(cycleOrnament('rest')).toBe('rest');
+  });
+
+  it('preserves all voices when editing a multi-voice hit', () => {
+    // Basic Rock beat 2: hi-hat + snare, accented. Toggling the accent off must
+    // keep both voices (regression: it used to collapse to snare only).
+    const hit: Hit = { voices: ['hihat-closed', 'snare'], accent: true };
+    expect(toggleAccent(hit)).toEqual({ voices: ['hihat-closed', 'snare'] });
+    expect(toggleGhost(hit)).toEqual({
+      voices: ['hihat-closed', 'snare'],
+      ghost: true,
+    });
+    expect(cycleOrnament(hit)).toEqual({
+      voices: ['hihat-closed', 'snare'],
+      accent: true,
+      ornament: 'flam',
+    });
+  });
+
+  it('cycleStroke preserves other voices on a multi-voice hit', () => {
+    const hit: Hit = { voices: ['hihat-closed', 'snare'], sticking: 'R', accent: true };
+    // R → L keeps the hi-hat (and accent).
+    const l = cycleStroke(hit);
+    expect(l).toEqual({ voices: ['hihat-closed', 'snare'], sticking: 'L', accent: true });
+    // L → remove the snare, but keep the hi-hat (does NOT become a rest).
+    expect(cycleStroke(l)).toEqual({ voices: ['hihat-closed'], accent: true });
+    // A hit without a snare gains one (at R), keeping the existing voice.
+    expect(cycleStroke({ voices: ['hihat-closed'] })).toEqual({
+      voices: ['hihat-closed', 'snare'],
+      sticking: 'R',
+    });
+  });
+});
+
+describe('toggleVoice', () => {
+  it('adds a voice to a rest (creates a hit)', () => {
+    expect(toggleVoice('rest', 'hihat-closed')).toEqual({ voices: ['hihat-closed'] });
+  });
+
+  it('adds a voice to an existing hit, preserving voices and modifiers', () => {
+    const hit: Hit = { voices: ['snare'], sticking: 'R', accent: true };
+    expect(toggleVoice(hit, 'hihat-closed')).toEqual({
+      voices: ['hihat-closed', 'snare'],
+      sticking: 'R',
+      accent: true,
+    });
+  });
+
+  it('removes a voice, keeping the rest; empties to a rest when last', () => {
+    const hit: Hit = { voices: ['hihat-closed', 'snare'], accent: true };
+    expect(toggleVoice(hit, 'hihat-closed')).toEqual({ voices: ['snare'], accent: true });
+    expect(toggleVoice({ voices: ['snare'] }, 'snare')).toBe('rest');
+  });
+
+  it('keeps voices in canonical staff order', () => {
+    // Added out of order, returned ordered (hi-hat above snare above kick).
+    expect(orderVoices(['kick', 'snare', 'hihat-closed'])).toEqual([
+      'hihat-closed',
+      'snare',
+      'kick',
+    ]);
   });
 });
 
