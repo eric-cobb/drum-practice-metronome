@@ -2,6 +2,14 @@
   "name": "metronome-drum-practice",
   "private": true,
   "version": "0.1.0",
+  "description": "A precision metronome with a structured exercise mode for drum practice — drum notation, reps with auto-advance, click dropout, and tempo ramps. Local-only, no backend.",
+  "author": "Eric Cobb",
+  "license": "MIT",
+  "homepage": "https://github.com/eric-cobb/drum-practice-metronome#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eric-cobb/drum-practice-metronome.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
