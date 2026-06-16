@@ -88,9 +88,10 @@ let visibilityHandlerRegistered = false;
 let nextNoteTime = 0; // AudioContext time of the next tick to schedule
 let position: Position = INITIAL_POSITION; // advanced one subdivision at a time
 
-// Lead-in state. `leadInTotal` counts felt pulses (e.g. 4 for a 1-bar count in
-// 4/4); 0 means there is no lead-in / we're already in the main phase.
-// `leadInActive` stays true until the first main tick clears the count display.
+// Lead-in state. `leadInTotal` counts subdivisions (e.g. 16 for a 1-bar count in
+// 4/4 sixteenths) so the count-in clicks the exercise's own grid; 0 means there
+// is no lead-in / we're already in the main phase. `leadInActive` stays true
+// until the first main tick clears the count display.
 let leadInTotal = 0;
 let leadInDone = 0;
 let leadInActive = false;
@@ -257,26 +258,35 @@ function scheduleMainTick(time: number): void {
   });
 }
 
-/** Schedule one lead-in count click at `time`. Counts are quarter-note pulses in
- *  the current meter, accented on each bar's downbeat ("1-2-3-4"), regardless of
- *  the exercise's subdivision (SPEC §7). Reps don't advance; the beat indicator
- *  still pulses and the count display updates. */
+/** Schedule one lead-in tick at `time`. The lead-in clicks the exercise's own
+ *  subdivision grid — a click on every subdivision, the felt pulse accented and
+ *  each bar's downbeat extra-accented — so it flows seamlessly into the exercise
+ *  rather than a sparse quarter-note count that jars against a subdivided
+ *  exercise (SPEC §7). `leadInDone` counts subdivisions. Reps don't advance; on
+ *  each felt pulse the beat indicator pulses and the count display updates. */
 function scheduleLeadInTick(time: number): void {
   const ctx = getAudioContext();
-  const { pulsesPerBar } = getBeatGrouping(
-    useMetronomeStore.getState().timeSignature,
+  const { subdivision, timeSignature } = useMetronomeStore.getState();
+  const { pulsesPerBar, isCompound } = getBeatGrouping(timeSignature);
+  const subsPerPulse = subdivisionsPerPulse(
+    subdivision,
+    isCompound,
+    timeSignature.denominator,
   );
-  const indexInBar = leadInDone % pulsesPerBar;
-  const accented = indexInBar === 0;
-  playClick(ctx, time, accented ? 'accent' : 'beat');
 
-  const count = indexInBar + 1;
+  const isPulse = leadInDone % subsPerPulse === 0;
+  const pulseInBar = Math.floor(leadInDone / subsPerPulse) % pulsesPerBar;
+  playClick(ctx, time, isPulse ? (pulseInBar === 0 ? 'accent' : 'beat') : 'sub');
+
+  // The count display + beat indicator update only on the felt pulse.
+  if (!isPulse) return;
+  const count = pulseInBar + 1;
   atPlayTime(time, () => {
     if (!useMetronomeStore.getState().isPlaying) return;
     useMetronomeStore
       .getState()
       .setCountIn({ current: count, total: pulsesPerBar });
-    useMetronomeStore.getState().setPosition(indexInBar, 0);
+    useMetronomeStore.getState().setPosition(pulseInBar, 0);
   });
 }
 
@@ -317,11 +327,19 @@ function finishAt(time: number): void {
  *  phase, `position`). Returns false when the session has finished and the loop
  *  should stop. */
 function processTick(): boolean {
-  // Lead-in phase: count pulses at the BPM until the count is exhausted.
+  // Lead-in phase: click the exercise's subdivision grid until exhausted, so the
+  // count-in shares the exercise's tempo AND click rate (SPEC §7).
   if (leadInDone < leadInTotal) {
     scheduleLeadInTick(nextNoteTime);
     leadInDone += 1;
-    nextNoteTime += 60 / useMetronomeStore.getState().bpm;
+    const { bpm, subdivision, timeSignature } = useMetronomeStore.getState();
+    const { isCompound } = getBeatGrouping(timeSignature);
+    const subsPerPulse = subdivisionsPerPulse(
+      subdivision,
+      isCompound,
+      timeSignature.denominator,
+    );
+    nextNoteTime += 60 / bpm / subsPerPulse;
     return true;
   }
 
@@ -386,10 +404,16 @@ export async function startMetronome(opts?: {
 
   const leadInBars = opts?.leadInBars ?? 0;
   if (leadInBars > 0) {
-    const { pulsesPerBar } = getBeatGrouping(
-      useMetronomeStore.getState().timeSignature,
+    const { subdivision, timeSignature } = useMetronomeStore.getState();
+    const { pulsesPerBar, isCompound } = getBeatGrouping(timeSignature);
+    const subsPerPulse = subdivisionsPerPulse(
+      subdivision,
+      isCompound,
+      timeSignature.denominator,
     );
-    leadInTotal = pulsesPerBar * leadInBars;
+    // Count every subdivision (not just felt pulses) so the lead-in clicks the
+    // same grid the exercise will, for a seamless hand-off.
+    leadInTotal = pulsesPerBar * subsPerPulse * leadInBars;
     leadInDone = 0;
     leadInActive = true;
   } else {

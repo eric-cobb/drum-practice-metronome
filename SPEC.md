@@ -397,7 +397,7 @@ A configurable count-in plays before an exercise begins — both when the user p
 
 - **Enabled**: toggle, default ON
 - **Bars**: integer, 1–4, default 1
-- **Click pattern**: quarter notes at the current BPM, with the downbeat accented (a "1-2-3-4" count-in feel), regardless of the exercise's subdivision setting
+- **Click pattern**: the exercise's own subdivision grid at the current BPM — a click on every subdivision, the felt pulse accented and the bar's downbeat extra-accented — so the count-in clicks the same rate the exercise will and hands off seamlessly (no jarring jump from a sparse count into a subdivided exercise). The count overlay still advances per felt pulse ("1-2-3-4").
 - **Time signature during count-in**: matches the exercise's time signature
 - **Visual**: a large overlay shows the count ("1... 2... 3... 4...") synchronized with the clicks; the exercise's notation is visible underneath
 - **Skippable**: pressing Start during the count-in skips remaining count and begins the exercise immediately on the next downbeat
