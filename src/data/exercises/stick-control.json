@@ -1,0 +1,929 @@
+{
+  "id": "stick-control",
+  "title": "Stick Control Practice Set",
+  "source": "Patterns from Stick Control for the Snare Drummer by George Lawrence Stone. Add the remaining exercises from your copy of the book.",
+  "defaultBpm": 60,
+  "defaultTargetReps": 20,
+  "schemaVersion": 1,
+  "sections": [
+    {
+      "id": "single-beat-combinations",
+      "title": "Single Beat Combinations",
+      "order": 1
+    }
+  ],
+  "exercises": [
+    {
+      "id": "sc-01",
+      "number": 1,
+      "name": "Singles R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Single strokes alternating, starting on the right hand."
+    },
+    {
+      "id": "sc-02",
+      "number": 2,
+      "name": "Singles L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Single strokes alternating, starting on the left hand."
+    },
+    {
+      "id": "sc-03",
+      "number": 3,
+      "name": "Doubles R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Double strokes starting on the right. Focus on even rebound between the two strokes of each pair."
+    },
+    {
+      "id": "sc-04",
+      "number": 4,
+      "name": "Doubles L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Double strokes starting on the left. The weak hand often produces uneven doubles; concentrate on matching the rebound of the right."
+    },
+    {
+      "id": "sc-05",
+      "number": 5,
+      "name": "Paradiddle R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Single paradiddle starting on the right. Two singles followed by a double, with the lead hand alternating each grouping."
+    },
+    {
+      "id": "sc-06",
+      "number": 6,
+      "name": "Reverse Paradiddle R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Reverse (or inward) paradiddle starting on the right. The doubles sit at positions 2-3 of each half-bar (the middle two notes), rather than at the end as in a standard paradiddle."
+    },
+    {
+      "id": "sc-07",
+      "number": 7,
+      "name": "Inverted Paradiddle R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Inverted paradiddle starting on the right. The double leads each half-bar (RR... LL...), shifting the rhythmic emphasis to the start of the grouping."
+    },
+    {
+      "id": "sc-08",
+      "number": 8,
+      "name": "Lead Change Singles R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Alternating singles where the lead hand switches at the half-bar. Creates a single double L at the midpoint that requires control to keep even with the surrounding singles."
+    },
+    {
+      "id": "sc-09",
+      "number": 9,
+      "name": "Triples R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Three right strokes followed by a single left, repeating. Builds right-hand endurance and control over consecutive same-hand strokes."
+    },
+    {
+      "id": "sc-10",
+      "number": 10,
+      "name": "Triples L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Three left strokes followed by a single right, repeating. Especially valuable for developing the weak hand's stamina and evenness."
+    },
+    {
+      "id": "sc-11",
+      "number": 11,
+      "name": "Reverse Triples L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A single right followed by three lefts, repeating. The order is reversed from exercise 10, where the triple comes first."
+    },
+    {
+      "id": "sc-12",
+      "number": 12,
+      "name": "Reverse Triples R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A single left followed by three rights, repeating. The mirror of exercise 11."
+    },
+    {
+      "id": "sc-13",
+      "number": 13,
+      "name": "Quadruples R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Four right strokes followed by four left strokes. The longest same-hand run yet \u2014 each hand must sustain four even strokes before the switch."
+    },
+    {
+      "id": "sc-14",
+      "number": 14,
+      "name": "Singles to Doubles R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Four singles transitioning into a pair of doubles within each bar. The challenge is matching the timing and dynamics across the change in stroke type."
+    },
+    {
+      "id": "sc-15",
+      "number": 15,
+      "name": "Singles to Doubles L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Four singles followed by two doubles, left-leading. Mirror of exercise 14."
+    },
+    {
+      "id": "sc-16",
+      "number": 16,
+      "name": "Alternating Singles with Tail Double",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Bar 1 is alternating singles ending in a double R (RLRLRLRR); bar 2 mirrors with a double L tail (LRLRLRLL). The lead hand alternates from one bar to the next."
+    },
+    {
+      "id": "sc-17",
+      "number": 17,
+      "name": "Singles with Inner Double (Late)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Each bar is mostly singles but with a single embedded double near the end (positions 6-7). Bars mirror each other: bar 1 has the double on the left, bar 2 on the right."
+    },
+    {
+      "id": "sc-18",
+      "number": 18,
+      "name": "Singles with Inner Double (Mid)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Similar to exercise 17 but the embedded double sits in the middle of the bar (positions 5-6) rather than late. The shift in placement changes the rhythmic feel significantly."
+    },
+    {
+      "id": "sc-19",
+      "number": 19,
+      "name": "Singles to Triple R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Four singles followed by a right-hand triple and a single left. Combines single-stroke alternation with the same-hand endurance demand of triples."
+    },
+    {
+      "id": "sc-20",
+      "number": 20,
+      "name": "Singles to Triple L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Four singles followed by a left-hand triple and a single right. Mirror of exercise 19, exposing weak-hand endurance under the triple."
+    },
+    {
+      "id": "sc-21",
+      "number": 21,
+      "name": "Singles with Triple Tail L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Five singles ending with a left-hand triple. The natural single L flows directly into two more L strokes, making the triple feel like a continuation rather than a switch."
+    },
+    {
+      "id": "sc-22",
+      "number": 22,
+      "name": "Singles with Triple Tail R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Five singles ending with a right-hand triple. Mirror of exercise 21."
+    },
+    {
+      "id": "sc-23",
+      "number": 23,
+      "name": "Singles to Quadruple (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Bar 1 transitions from singles into a right-hand quadruple; bar 2 mirrors with a left-hand quadruple. The full exercise hits both hands' endurance limits in alternation."
+    },
+    {
+      "id": "sc-24",
+      "number": 24,
+      "name": "Doubles to Paradiddle (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Each bar opens with two doubles and resolves into a paradiddle-style figure. Bar 1 is right-leading, bar 2 is left-leading. Combines several earlier elements into a more compound pattern."
+    },
+    {
+      "id": "sc-25",
+      "number": 25,
+      "name": "Doubles + Reverse Paradiddle Half (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Each bar combines a pair of doubles (RRLL or LLRR) with a reverse-paradiddle-style half-bar at the end. Lead hand alternates between bars."
+    },
+    {
+      "id": "sc-26",
+      "number": 26,
+      "name": "Three Doubles + Singles Tail (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Three alternating doubles (RR-LL-RR or LL-RR-LL) followed by a pair of single strokes. Bars mirror each other with lead hand swapped."
+    },
+    {
+      "id": "sc-27",
+      "number": 27,
+      "name": "Bracketed Quadruple L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A double-R bracket on either side of a quadruple-L center (RR-LLLL-RR). Demands sustained left-hand control between strong right-hand anchors."
+    },
+    {
+      "id": "sc-28",
+      "number": 28,
+      "name": "Doubles + Triple R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A pair of doubles followed by a right-hand triple and a single left. Combines double-stroke control with same-hand endurance demands."
+    },
+    {
+      "id": "sc-29",
+      "number": 29,
+      "name": "Doubles + Triple L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Mirror of exercise 28. Doubles followed by a left-hand triple, exposing weak-hand stamina under the triple."
+    },
+    {
+      "id": "sc-30",
+      "number": 30,
+      "name": "Doubles + Reverse Triple L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A pair of doubles followed by a single R and a left-hand triple. The triple comes after a single rather than building directly from the doubles."
+    },
+    {
+      "id": "sc-31",
+      "number": 31,
+      "name": "Doubles + Reverse Triple R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Mirror of exercise 30. Doubles followed by a single L and right-hand triple."
+    },
+    {
+      "id": "sc-32",
+      "number": 32,
+      "name": "Doubles to Quadruple (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Bar 1: doubles followed by a right-hand quadruple. Bar 2 mirrors with a left-hand quadruple. Hits both hands' endurance limits in alternation."
+    },
+    {
+      "id": "sc-33",
+      "number": 33,
+      "name": "Paradiddle + Reverse Paradiddle Halves R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A paradiddle half-bar (RLRR) followed by a reverse-paradiddle half-bar (LRRL). Both halves contain a double, but the second half's double sits in the middle rather than at the end."
+    },
+    {
+      "id": "sc-34",
+      "number": 34,
+      "name": "Paradiddle + Reverse Paradiddle Halves L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Mirror of exercise 33. A left-leading paradiddle half (LRLL) followed by a reverse-paradiddle half (RLLR)."
+    },
+    {
+      "id": "sc-35",
+      "number": 35,
+      "name": "Paradiddle + Inverted Paradiddle Halves R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A paradiddle half-bar (RLRR) followed by an inverted-paradiddle half-bar (LLRL). The doubles sit in different positions: end of half 1, start of half 2."
+    },
+    {
+      "id": "sc-36",
+      "number": 36,
+      "name": "Paradiddle + Inverted Paradiddle Halves L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Mirror of exercise 35. A left-leading paradiddle half (LRLL) followed by an inverted-paradiddle half (RRLR)."
+    },
+    {
+      "id": "sc-37",
+      "number": 37,
+      "name": "Same-Hand Paradiddle R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Two paradiddle half-bars (RLRR) where the right hand leads both, instead of alternating leads as in a standard paradiddle. Heavily weights the right hand — six of every eight strokes."
+    },
+    {
+      "id": "sc-38",
+      "number": 38,
+      "name": "Same-Hand Paradiddle L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Mirror of exercise 37. Two left-leading paradiddle halves in a row, heavily weighting the left hand."
+    },
+    {
+      "id": "sc-39",
+      "number": 39,
+      "name": "Paradiddle Half + Triple (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Bar 1: paradiddle half (RLRR) followed by a triple-L pattern (LLLR — three L's then a single R). Bar 2 mirrors with paradiddle-half-L and a triple-R pattern."
+    },
+    {
+      "id": "sc-40",
+      "number": 40,
+      "name": "Paradiddle Half + Reverse Triple (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Bar 1: paradiddle half (RLRR) followed by a reverse-triple-R pattern (LRRR — single L then triple R). Bar 2 mirrors with paradiddle-half-L and a reverse-triple-L pattern."
+    },
+    {
+      "id": "sc-41",
+      "number": 41,
+      "name": "Paradiddle Half + Quadruple L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A paradiddle half-bar (RLRR) followed by a left-hand quadruple (LLLL). Tests left-hand stamina at the tail end of each rep."
+    },
+    {
+      "id": "sc-42",
+      "number": 42,
+      "name": "Paradiddle Half + Quadruple R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Mirror of exercise 41. Right-hand quadruple following the paradiddle half-bar setup."
+    },
+    {
+      "id": "sc-43",
+      "number": 43,
+      "name": "Double-L Pattern R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "A right-leading pattern where each bar contains two L-doubles in different positions (RLLR-LLRL). Demands consistent weak-hand control through the recurring doubles."
+    },
+    {
+      "id": "sc-44",
+      "number": 44,
+      "name": "Double-R Pattern L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Mirror of exercise 43. Each bar contains two R-doubles with left-leading singles between them."
+    },
+    {
+      "id": "sc-45",
+      "number": 45,
+      "name": "Bracketed Doubles R",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Three alternating doubles (LL-RR-LL) bracketed by single R strokes on either end. Demands rapid alternation through the middle three doubles while keeping the bracket singles even."
+    },
+    {
+      "id": "sc-46",
+      "number": 46,
+      "name": "Bracketed Doubles L",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Mirror of exercise 45. Three alternating doubles (RR-LL-RR) bracketed by single L strokes on either end."
+    },
+    {
+      "id": "sc-47",
+      "number": 47,
+      "name": "Reverse Paradiddle Half + Triple (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Bar 1: reverse-paradiddle half-bar (RLLR) followed by a triple-L pattern (LLLR — three L's then a single R). Bar 2 mirrors with the reverse-paradiddle half L and a triple-R pattern."
+    },
+    {
+      "id": "sc-48",
+      "number": 48,
+      "name": "Reverse Paradiddle Half + Reverse Triple (Alt)",
+      "sectionId": "single-beat-combinations",
+      "pattern": [
+        [
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "R" },
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "R" }
+        ],
+        [
+          { "sticking": "L" }, { "sticking": "R" }, { "sticking": "R" }, { "sticking": "L" },
+          { "sticking": "R" }, { "sticking": "L" }, { "sticking": "L" }, { "sticking": "L" }
+        ]
+      ],
+      "timeSignature": {"numerator": 2, "denominator": 2, "displayAs": "cut"},
+      "subdivision": "8th",
+      "notes": "Asymmetric. Bar 1: reverse-paradiddle half-bar (RLLR) followed by a reverse-triple-R pattern (LRRR — single L then triple R). Bar 2 mirrors with the reverse-paradiddle half L and reverse-triple-L pattern."
+    }
+  ]
+}
